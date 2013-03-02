@@ -4,23 +4,26 @@
 /// Copyright (c) 2013 by Bjoern Andres, http://www.andres.sc
 ///
 /// \section section_abstract Short Description
-/// This C++ header file implements directed and undirected graphs as adjacency
-/// lists. Unlike in other implementations such as the boost graph library, 
-/// vertices and edges are always indexed by contiguous integers. This indexing
-/// simplifies the implementation of algorithms for static graphs. In dynamic 
-/// settings where vertices and edges are removed from a graph, indices of 
-/// vertices and edges can change. These changes can be followed, if necessary, 
-/// by means of a simple visitor.
+/// This set of header files implements directed and undirected graphs as 
+/// adjacency lists. Vertices and edges are always indexed by contiguous integers.
+/// This indexing simplifies the implementation of algorithms for static graphs.
+/// In dynamic settings where vertices and edges are removed from a graph,
+/// indices of vertices and edges can change.
+/// These changes can be followed, if necessary, by means of a visitor.
+/// Subgraphs are defined by subgraph masks.
 ///
 /// \section section_features Features
 /// - Directed and undirected graphs, implemented as adjacency lists
-/// - Multiple edges and digons
 /// - Access to vertices and edges by contiguous integer indices
-/// - Access to neighboring vertices by STL-compliant random access iterators
-/// - Access to edges incident to or originating from vertices by STL-compliant 
+/// - Access to neighboring vertices and indicent edges by STL-compliant 
 ///   random access iterators
-/// - Insertion and removal of vertices and edges
-/// - Visitor to follow changes of vertex and edge indices if necessary
+/// - Insertion and removal of vertices and edges 
+/// - Visitors that follow changes of vertex and edge indices 
+/// - Algorithms 
+///   - Minimum multicuts by interger programming, using Cplex or Gurobi 
+///   - Connected components by breadth-first search and disjoint sets 
+///   - Shortest paths in unweighted graphs
+///   .
 /// 
 /// \section section_license License
 ///
@@ -80,7 +83,7 @@
 /// The public API.
 namespace andres {
 
-/// Graphs and Algorithms that Operate on Graphs.
+/// Graphs and Graph Algorithms.
 namespace graph {
 
 /// The adjacency of a vertex consists of a vertex and a connecting edge.
