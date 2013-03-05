@@ -19,10 +19,10 @@ Features
 
 - Directed and undirected graphs, implemented as adjacency lists
 - Access to vertices and edges by contiguous integer indices
-- Access to neighboring vertices and indicent edges by STL-compliant random access iterators
+- Access to neighboring vertices and incident edges by STL-compliant random access iterators
 - Insertion and removal of vertices and edges
 - Visitors that follow changes of vertex and edge indices
 - Algorithms
   - Minimum multicuts by interger programming, using Cplex or Gurobi
   - Connected components by breadth-first search and disjoint sets
-  - Shortest paths in unweighted graphs
+  - Shortest paths (SSSP, SPSP) in weighted and unweighted graphs
