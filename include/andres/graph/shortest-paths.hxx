@@ -38,6 +38,7 @@
 #ifndef ANDRES_GRAPH_SORTEST_PATHS_HXX
 #define ANDRES_GRAPH_SORTEST_PATHS_HXX
 
+#include <limits> // std::numeric_limits
 #include <deque>
 #include <queue>
 #include <vector>
@@ -48,7 +49,7 @@ namespace andres {
 namespace graph {
 
 // \cond SUPPRESS_DOXYGEN
-namespace detail {
+namespace graph_detail {
 
 template<class T>
 inline void
@@ -82,10 +83,28 @@ spspHelper(
     }
 }
 
-} // namespace detail
+template<class T>
+struct DijkstraQueueEntry {
+    typedef T Value;
+
+    DijkstraQueueEntry(const size_t vertex = 0, const Value distance = Value())
+        :   vertex_(vertex), distance_(distance)
+        {}
+    bool operator<(const DijkstraQueueEntry<Value>& other) const
+        { return distance_ > other.distance_; }
+    bool operator==(const DijkstraQueueEntry<Value>& other) const
+        { return vertex_ == other.vertex_ && distance_ == other.distance_; }
+    bool operator!=(const DijkstraQueueEntry<Value>& other) const
+        { return vertex_ != other.vertex_ || distance_ != other.distance_; }
+
+    size_t vertex_;
+    Value distance_;
+};
+
+} // namespace graph_detail
 // \endcond
 
-/// Search for a shortest path connecting a single pair of vertices in an unweighted graph.
+/// Search for a shortest path connecting a single pair of vertices in an unweighted graph using breadth-first-search.
 ///
 /// This function works for both undirected and directed graphs. It carries out
 /// breadth-first searches from the source vertex vs and the target vertex vt, 
@@ -111,7 +130,7 @@ spsp(
     return spsp(graph, DefaultSubgraphMask<>(), vs, vt, path, parents);
 }
 
-/// Search for a shortest path connecting a single pair of vertices in an unweighted SUBgraph.
+/// Search for a shortest path connecting a single pair of vertices in an unweighted subgraph using breadth-first-search.
 ///
 /// This function works for both undirected and directed graphs. It carries out
 /// breadth-first searches from the source vertex vs and the target vertex vt, 
@@ -171,13 +190,13 @@ spsp(
                     continue;
                 }
                 if(parents[it->vertex()] < 0 && q == 0) {
-                    detail::spspHelper(parents, v, it->vertex(), path);
+                    graph_detail::spspHelper(parents, v, it->vertex(), path);
                     assert(path[0] == vs);
                     assert(path.back() == vt);
                     return true;
                 }
                 else if(parents[it->vertex()] > 0 && q == 1) {
-                    detail::spspHelper(parents, it->vertex(), v, path);
+                    graph_detail::spspHelper(parents, it->vertex(), v, path);
                     assert(path[0] == vs);
                     assert(path.back() == vt);
                     return true;
@@ -195,6 +214,130 @@ spsp(
         }
         if(queues[0].empty() && queues[1].empty()) {
             return false;
+        }
+    }
+}
+
+/// Search for shortest paths from a given vertex to every other vertex in a graph with unit edge weights using Dijkstra's algorithm.
+///
+/// \param graph A graph class such as andres::Graph or andres::Digraph.
+/// \param vs Source vertex.
+/// \param distances Random access iterator pointing to distances
+/// \param parents Random access iterator pointing to parent vertices
+///
+template<class GRAPH, class DISTANCES, class PARENTS>
+inline void
+sssp(
+    const GRAPH& graph, 
+    const size_t vs,
+    DISTANCES& distances,
+    PARENTS& parents = std::vector<size_t>(graph.numberOfVertices())
+) {
+    typedef typename std::iterator_traits<DISTANCES>::value_type Value;
+    sssp(graph, DefaultSubgraphMask<>(), vs,
+        UnitEdgeWeightIterator<Value>(), distances, parents
+    );
+}
+
+/// Search for shortest paths from a given vertex to every other vertex in a subgraph with unit edge weights using Dijkstra's algorithm.
+///
+/// \param graph A graph class such as andres::Graph or andres::Digraph.
+/// \param mask A subgraph mask such as DefaultSubgraphMask.
+/// \param vs Source vertex.
+/// \param distances Random access iterator pointing to distances
+/// \param parents Random access iterator pointing to parent vertices
+///
+template<class GRAPH, class SUBGRAPH_MASK, class DISTANCES, class PARENTS>
+inline void 
+sssp(
+    const GRAPH& graph, 
+    const SUBGRAPH_MASK& mask,
+    const size_t vs,
+    DISTANCES& distances,
+    PARENTS& parents = std::vector<size_t>(graph.numberOfVertices())
+) {
+    typedef typename std::iterator_traits<DISTANCES>::value_type Value;
+    sssp(graph, mask, vs, UnitEdgeWeightIterator<Value>(), 
+        distances, parents
+    );
+}
+
+/// Search for shortest paths from a given vertex to every other vertex in a graph with non-negative edge weights using Dijkstra's algorithm.
+///
+/// \param graph A graph class such as andres::Graph or andres::Digraph.
+/// \param vs Source vertex.
+/// \param edgeWeights A random access iterator pointing to positive edge weights.
+/// \param distances Random access iterator pointing to distances
+/// \param parents Random access iterator pointing to parent vertices
+///
+template<class GRAPH, class EDGE_WEIGHTS, class DISTANCES, class PARENTS>
+inline void
+sssp(
+    const GRAPH& graph, 
+    const size_t vs,
+    const EDGE_WEIGHTS& edgeWeights,
+    DISTANCES& distances,
+    PARENTS& parents = std::vector<size_t>(graph.numberOfVertices())
+) {
+    sssp(graph, DefaultSubgraphMask<>(), vs, edgeWeights, distances, parents);
+}
+
+/// Search for shortest paths from a given vertex to every other vertex in a subgraph with non-negative edge weights using Dijkstra's algorithm.
+///
+/// \param graph A graph class such as andres::Graph or andres::Digraph.
+/// \param mask A subgraph mask such as DefaultSubgraphMask.
+/// \param vs Source vertex.
+/// \param edgeWeights A random access iterator pointing to positive edge weights.
+/// \param distances Random access iterator pointing to distances
+/// \param parents Random access iterator pointing to parent vertices
+///
+template<class GRAPH, class SUBGRAPH_MASK, class EDGE_WEIGHTS, class DISTANCES, class PARENTS>
+void 
+sssp(
+    const GRAPH& graph, 
+    const SUBGRAPH_MASK& mask,
+    const size_t vs,
+    const EDGE_WEIGHTS& edgeWeights,
+    DISTANCES& distances,
+    PARENTS& parents = std::vector<size_t>(graph.numberOfVertices())
+) {
+    typedef std::iterator_traits<DISTANCES>::value_type Value;
+    typedef graph_detail::DijkstraQueueEntry<Value> Entry;
+
+    assert(mask.vertex(vs));  
+    const Value infinity = std::numeric_limits<Value>::has_infinity 
+        ? std::numeric_limits<Value>::infinity() 
+        : std::numeric_limits<Value>::max();
+    std::priority_queue<Entry> queue;
+    distances[vs] = 0;
+    queue.push(vs);
+    for(size_t v = 0; v < graph.numberOfVertices(); ++v) {
+        if(mask.vertex(v) && v != vs) {
+            distances[v] = infinity;
+            queue.push(Entry(v, infinity));
+        }
+    }
+    while(!queue.empty()) {
+        const size_t v = queue.top().vertex_;
+        queue.pop();
+        if(distances[v] == infinity) {
+            return;
+        }
+        for(GRAPH::AdjacencyIterator it = graph.adjacenciesFromVertexBegin(v);
+        it != graph.adjacenciesFromVertexEnd(v); ++it) {
+            if(mask.vertex(it->vertex()) && mask.edge(it->edge())) {
+                const Value alternativeDistance = distances[v] + edgeWeights[it->edge()];
+                if(alternativeDistance < distances[it->vertex()]) {
+                    distances[it->vertex()] = alternativeDistance;
+                    parents[it->vertex()] = v;
+                    queue.push(Entry(it->vertex(), alternativeDistance));
+                    // pushing v another time, not worring about existing entries
+                    // v in the queue at deprecated positions.
+                    // alternatively, one could use a heap from which elements 
+                    // can be removed. this is beneficial for dense graphs in 
+                    // which many weights are equal.
+                }
+            }
         }
     }
 }

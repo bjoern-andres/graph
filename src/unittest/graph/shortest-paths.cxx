@@ -138,5 +138,213 @@ int main() {
         test(path[3] == 3);
     }
 
+    // sssp, Dijkstra, undirected graph
+    {
+        andres::graph::Graph<> g(5);
+        g.insertEdge(0, 1); // 0
+        g.insertEdge(1, 2); // 1
+        g.insertEdge(2, 3); // 2
+        g.insertEdge(1, 4); // 3
+        g.insertEdge(4, 3); // 4
+
+        // unweighted graph
+        {
+            std::vector<unsigned int> distances(g.numberOfVertices());
+            std::vector<size_t> parents(g.numberOfVertices());
+            andres::graph::sssp(g, 0, distances.begin(), parents.begin());
+
+            test(distances[0] == 0);
+            test(distances[1] == 1);
+            test(distances[2] == 2);
+            test(distances[3] == 3);
+            test(distances[4] == 2);
+
+            test(parents[0] == 0);
+            test(parents[1] == 0);
+            test(parents[2] == 1);
+            test(parents[3] == 2);
+            test(parents[4] == 1);
+        }
+
+        // unweighted subgraph
+        {
+            struct SubgraphMask {
+                bool vertex(const size_t j) const { return true; }
+                bool edge(const size_t j) const { return j != 3; }
+            };
+
+            std::vector<unsigned int> distances(g.numberOfVertices());
+            std::vector<size_t> parents(g.numberOfVertices());
+            andres::graph::sssp(g, SubgraphMask(), 0, distances.begin(), parents.begin());
+
+            test(distances[0] == 0);
+            test(distances[1] == 1);
+            test(distances[2] == 2);
+            test(distances[3] == 3);
+            test(distances[4] == 4);
+
+            test(parents[0] == 0);
+            test(parents[1] == 0);
+            test(parents[2] == 1);
+            test(parents[3] == 2);
+            test(parents[4] == 3);
+        }
+
+        std::vector<unsigned int> edgeWeights(5);
+        edgeWeights[0] = 1;
+        edgeWeights[1] = 1;
+        edgeWeights[2] = 3;
+        edgeWeights[3] = 2;
+        edgeWeights[4] = 1;
+
+        // weighted graph
+        {
+            std::vector<unsigned int> distances(g.numberOfVertices());
+            std::vector<size_t> parents(g.numberOfVertices());
+            andres::graph::sssp(g, 0, edgeWeights, distances.begin(), parents.begin());
+
+            test(distances[0] == 0);
+            test(distances[1] == 1);
+            test(distances[2] == 2);
+            test(distances[3] == 4);
+            test(distances[4] == 3);
+
+            test(parents[0] == 0);
+            test(parents[1] == 0);
+            test(parents[2] == 1);
+            test(parents[3] == 4);
+            test(parents[4] == 1);
+        }
+
+        // weighted subgraph
+        {
+            struct SubgraphMask {
+                bool vertex(const size_t j) const { return true; }
+                bool edge(const size_t j) const { return j != 3; }
+            };
+
+            std::vector<unsigned int> distances(g.numberOfVertices());
+            std::vector<size_t> parents(g.numberOfVertices());
+            andres::graph::sssp(g, SubgraphMask(), 0, edgeWeights, distances.begin(), parents.begin());
+
+            test(distances[0] == 0);
+            test(distances[1] == 1);
+            test(distances[2] == 2);
+            test(distances[3] == 5);
+            test(distances[4] == 6);
+
+            test(parents[0] == 0);
+            test(parents[1] == 0);
+            test(parents[2] == 1);
+            test(parents[3] == 2);
+            test(parents[4] == 3);
+        }
+    }
+
+    // sssp, Dijkstra, directed graph
+    {
+        andres::graph::Digraph<> g(5);
+        g.insertEdge(0, 1); // 0
+        g.insertEdge(1, 2); // 1
+        g.insertEdge(2, 3); // 2
+        g.insertEdge(1, 4); // 3
+        g.insertEdge(4, 3); // 4
+        g.insertEdge(4, 0); // 5
+
+        // unweighted graph
+        {
+            std::vector<unsigned int> distances(g.numberOfVertices());
+            std::vector<size_t> parents(g.numberOfVertices());
+            andres::graph::sssp(g, 0, distances.begin(), parents.begin());
+
+            test(distances[0] == 0);
+            test(distances[1] == 1);
+            test(distances[2] == 2);
+            test(distances[3] == 3);
+            test(distances[4] == 2);
+
+            test(parents[0] == 0);
+            test(parents[1] == 0);
+            test(parents[2] == 1);
+            test(parents[3] == 2);
+            test(parents[4] == 1);
+        }
+
+        // unweighted subgraph
+        {
+            struct SubgraphMask {
+                bool vertex(const size_t j) const { return true; }
+                bool edge(const size_t j) const { return j != 3; }
+            };
+
+            std::vector<unsigned int> distances(g.numberOfVertices());
+            std::vector<size_t> parents(g.numberOfVertices());
+            andres::graph::sssp(g, SubgraphMask(), 0, distances.begin(), parents.begin());
+
+            test(distances[0] == 0);
+            test(distances[1] == 1);
+            test(distances[2] == 2);
+            test(distances[3] == 3);
+            test(distances[4] == std::numeric_limits<unsigned int>::max());
+
+            test(parents[0] == 0);
+            test(parents[1] == 0);
+            test(parents[2] == 1);
+            test(parents[3] == 2);
+            test(parents[4] == 0);
+        }
+
+        std::vector<unsigned int> edgeWeights(6);
+        edgeWeights[0] = 1;
+        edgeWeights[1] = 1;
+        edgeWeights[2] = 3;
+        edgeWeights[3] = 2;
+        edgeWeights[4] = 1;
+        edgeWeights[5] = 1;
+
+        // weighted graph
+        {
+            std::vector<unsigned int> distances(g.numberOfVertices());
+            std::vector<size_t> parents(g.numberOfVertices());
+            andres::graph::sssp(g, 0, edgeWeights, distances.begin(), parents.begin());
+
+            test(distances[0] == 0);
+            test(distances[1] == 1);
+            test(distances[2] == 2);
+            test(distances[3] == 4);
+            test(distances[4] == 3);
+
+            test(parents[0] == 0);
+            test(parents[1] == 0);
+            test(parents[2] == 1);
+            test(parents[3] == 4);
+            test(parents[4] == 1);
+        }
+
+        // weighted subgraph
+        {
+            struct SubgraphMask {
+                bool vertex(const size_t j) const { return true; }
+                bool edge(const size_t j) const { return j != 3; }
+            };
+
+            std::vector<unsigned int> distances(g.numberOfVertices());
+            std::vector<size_t> parents(g.numberOfVertices());
+            andres::graph::sssp(g, SubgraphMask(), 0, edgeWeights, distances.begin(), parents.begin());
+
+            test(distances[0] == 0);
+            test(distances[1] == 1);
+            test(distances[2] == 2);
+            test(distances[3] == 5);
+            test(distances[4] == std::numeric_limits<unsigned int>::max());
+
+            test(parents[0] == 0);
+            test(parents[1] == 0);
+            test(parents[2] == 1);
+            test(parents[3] == 2);
+            test(parents[4] == 0);
+        }
+    }
+
     return 0;
 }

@@ -4,26 +4,25 @@
 /// Copyright (c) 2013 by Bjoern Andres, http://www.andres.sc
 ///
 /// \section section_abstract Short Description
-/// This set of header files implements directed and undirected graphs as 
-/// adjacency lists. Vertices and edges are always indexed by contiguous integers.
-/// This indexing simplifies the implementation of algorithms for static graphs.
-/// In dynamic settings where vertices and edges are removed from a graph,
-/// indices of vertices and edges can change.
-/// These changes can be followed, if necessary, by means of a visitor.
-/// Subgraphs are defined by subgraph masks.
+/// This C++ header file implements directed and undirected graphs as adjacency
+/// lists. Unlike in other implementations such as the boost graph library, 
+/// vertices and edges are always indexed by contiguous integers. This indexing
+/// simplifies the implementation of algorithms for static graphs. In dynamic 
+/// settings where vertices and edges are removed from a graph, indices of 
+/// vertices and edges can change. These changes can be followed, if necessary, 
+/// by means of a simple visitor.
 ///
 /// \section section_features Features
 /// - Directed and undirected graphs, implemented as adjacency lists
 /// - Access to vertices and edges by contiguous integer indices
-/// - Access to neighboring vertices and indicent edges by STL-compliant 
-///   random access iterators
+/// - Access to neighboring vertices and incident edges by STL-compliant random access iterators
 /// - Insertion and removal of vertices and edges 
 /// - Visitors that follow changes of vertex and edge indices 
-/// - Algorithms 
+/// - Algorithms
 ///   - Minimum multicuts by interger programming, using Cplex or Gurobi 
 ///   - Connected components by breadth-first search and disjoint sets 
-///   - Shortest paths in unweighted graphs
-///   .
+///   - Shortest paths (SSSP, SPSP) in weighted and unweighted graphs.
+///   . 
 /// 
 /// \section section_license License
 ///
@@ -73,6 +72,7 @@
 #define ANDRES_GRAPH_HXX
 
 #include <cassert>
+#include <iterator> // std::random_access_iterator
 #include <vector>
 #include <set> 
 #include <iostream>
@@ -83,7 +83,7 @@
 /// The public API.
 namespace andres {
 
-/// Graphs and Graph Algorithms.
+/// Graphs and Algorithms that Operate on Graphs.
 namespace graph {
 
 /// The adjacency of a vertex consists of a vertex and a connecting edge.
@@ -118,8 +118,21 @@ struct DefaultSubgraphMask {
     bool edge(const Value e) const { return true; }
 };
 
+/// Return 1 for every edge.
+template<class T>
+struct UnitEdgeWeightIterator {
+    typedef ptrdiff_t difference_type;
+    typedef T value_type;
+    typedef value_type* pointer;
+    typedef value_type& reference;
+    typedef std::random_access_iterator_tag iterator_category;
+
+    value_type operator[](const size_t) const
+        { return 1; }
+};
+
 // \cond SUPPRESS_DOXYGEN
-namespace detail {
+namespace graph_detail {
 
 template<bool DIRECTED, class T = size_t>
 class Edge {
@@ -174,7 +187,7 @@ public:
 typedef IteratorHelper<true> VertexIterator;
 typedef IteratorHelper<false> EdgeIterator;
 
-} // namespace detail
+} // namespace graph_detail
 // \endcond
 
 /// Visitors can be used to follow the indices of vertices and edges.
@@ -219,9 +232,9 @@ template<typename VISITOR = IdleGraphVisitor>
 class Graph {
 public: 
     typedef VISITOR Visitor;
-    typedef detail::VertexIterator VertexIterator;
-    typedef detail::EdgeIterator EdgeIterator;
-    typedef detail::Adjacencies::const_iterator AdjacencyIterator;
+    typedef graph_detail::VertexIterator VertexIterator;
+    typedef graph_detail::EdgeIterator EdgeIterator;
+    typedef graph_detail::Adjacencies::const_iterator AdjacencyIterator;
 
     // construction
     Graph(const Visitor& = Visitor());
@@ -266,8 +279,8 @@ public:
 
 private:
     typedef Adjacency<> Adjacency;
-    typedef detail::Adjacencies Vertex;
-    typedef detail::Edge<false> Edge;
+    typedef graph_detail::Adjacencies Vertex;
+    typedef graph_detail::Edge<false> Edge;
 
     void insertAdjacenciesForEdge(const size_t);
     void eraseAdjacenciesForEdge(const size_t);
@@ -282,9 +295,9 @@ template<typename VISITOR = IdleGraphVisitor>
 class Digraph {
 public: 
     typedef VISITOR Visitor;
-    typedef detail::VertexIterator VertexIterator;
-    typedef detail::EdgeIterator EdgeIterator;
-    typedef detail::Adjacencies::const_iterator AdjacencyIterator;
+    typedef graph_detail::VertexIterator VertexIterator;
+    typedef graph_detail::EdgeIterator EdgeIterator;
+    typedef graph_detail::Adjacencies::const_iterator AdjacencyIterator;
 
     // construction
     Digraph(const Visitor& = Visitor());
@@ -329,7 +342,7 @@ public:
 
 private:
     typedef Adjacency<> Adjacency;
-    typedef detail::Adjacencies Adjacencies;
+    typedef graph_detail::Adjacencies Adjacencies;
     struct Vertex {
         Vertex() 
             : from_(), to_() 
@@ -337,7 +350,7 @@ private:
         Adjacencies from_;
         Adjacencies to_;
     };
-    typedef detail::Edge<true> Edge;
+    typedef graph_detail::Edge<true> Edge;
 
     void insertAdjacenciesForEdge(const size_t);
     void eraseAdjacenciesForEdge(const size_t);
@@ -348,7 +361,7 @@ private:
 };
 
 // \cond SUPPRESS_DOXYGEN
-namespace detail {
+namespace graph_detail {
 
 // implementation of Edge
 
@@ -529,7 +542,7 @@ IteratorHelper<T>::operator-(
     return Base::operator-(other);
 }
 
-} // namespace detail
+} // namespace graph_detail
 // \endcond
 
 // implementation of Adjacency
@@ -1066,7 +1079,7 @@ Graph<VISITOR>::edgesFromVertexEnd(
     return vertices_[vertex].end(); 
 }
 
-/// Get an iterator to the beginning of the sequence of edges that are indicent to a given vertex.
+/// Get an iterator to the beginning of the sequence of edges that are incident to a given vertex.
 ///
 /// \param vertex Integer index of the vertex.
 /// \return EdgeIterator.
@@ -1081,7 +1094,7 @@ Graph<VISITOR>::edgesToVertexBegin(
     return vertices_[vertex].begin(); 
 }
 
-/// Get an iterator to the end of the sequence of edges that are indicent to a given vertex.
+/// Get an iterator to the end of the sequence of edges that are incident to a given vertex.
 ///
 /// \param vertex Integer index of the vertex.
 /// \return EdgeIterator.
@@ -1126,7 +1139,7 @@ Graph<VISITOR>::adjacenciesFromVertexEnd(
     return vertices_[vertex].end();
 }
 
-/// Get an iterator to the beginning of the sequence of adjacencies indicent to a given vertex.
+/// Get an iterator to the beginning of the sequence of adjacencies incident to a given vertex.
 ///
 /// \param vertex Integer index of the vertex.
 /// \return AdjacencyIterator.
@@ -1141,7 +1154,7 @@ Graph<VISITOR>::adjacenciesToVertexBegin(
     return vertices_[vertex].begin();
 }
 
-/// Get an iterator to the end of the sequence of adjacencies indicent to a given vertex.
+/// Get an iterator to the end of the sequence of adjacencies incident to a given vertex.
 ///
 /// \param vertex Integer index of the vertex.
 /// \return AdjacencyIterator.
@@ -1684,7 +1697,7 @@ Digraph<VISITOR>::edgesFromVertexEnd(
     return vertices_[vertex].to_.end(); 
 }
 
-/// Get an iterator to the beginning of the sequence of edges that are indicent to a given vertex.
+/// Get an iterator to the beginning of the sequence of edges that are incident to a given vertex.
 ///
 /// \param vertex Integer index of the vertex.
 /// \return EdgeIterator.
@@ -1699,7 +1712,7 @@ Digraph<VISITOR>::edgesToVertexBegin(
     return vertices_[vertex].from_.begin(); 
 }
 
-/// Get an iterator to the end of the sequence of edges that are indicent to a given vertex.
+/// Get an iterator to the end of the sequence of edges that are incident to a given vertex.
 ///
 /// \param vertex Integer index of the vertex.
 /// \return EdgeIterator.
@@ -1744,7 +1757,7 @@ Digraph<VISITOR>::adjacenciesFromVertexEnd(
     return vertices_[vertex].to_.end();
 }
 
-/// Get an iterator to the beginning of the sequence of adjacencies indicent to a given vertex.
+/// Get an iterator to the beginning of the sequence of adjacencies incident to a given vertex.
 ///
 /// \param vertex Integer index of the vertex.
 /// \return AdjacencyIterator.
@@ -1759,7 +1772,7 @@ Digraph<VISITOR>::adjacenciesToVertexBegin(
     return vertices_[vertex].from_.begin();
 }
 
-/// Get an iterator to the end of the sequence of adjacencies indicent to a given vertex.
+/// Get an iterator to the end of the sequence of adjacencies incident to a given vertex.
 ///
 /// \param vertex Integer index of the vertex.
 /// \return AdjacencyIterator.
