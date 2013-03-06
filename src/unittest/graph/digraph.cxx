@@ -312,6 +312,7 @@ void testIterators() {
 
 void testEdgeRemoval() {
     andres::graph::Digraph<> g(3);
+    g.multipleEdgesEnabled() = true;
     g.insertEdge(1, 2); // 0
     g.insertEdge(1, 0); // 1
     g.insertEdge(1, 1); // 2
@@ -345,6 +346,7 @@ void testEdgeRemoval() {
 void testVertexRemoval() 
 {
     andres::graph::Digraph<> g(3);
+    g.multipleEdgesEnabled() = true;
     g.insertEdge(1, 2); // 0
     g.insertEdge(1, 0); // 1
     g.insertEdge(1, 1); // 2
@@ -450,6 +452,31 @@ void testfindEdge() {
     test(p.first == false);
 }
 
+void testMultipleEdges() {
+    andres::graph::Digraph<> g(4);
+    g.insertEdge(0, 1); 
+    test(g.numberOfEdges() == 1);
+    test(g.insertEdge(0, 1) == 0);
+    test(g.numberOfEdges() == 1);
+    
+    g.multipleEdgesEnabled() = true;
+    test(g.insertEdge(0, 1) == 1); 
+    test(g.numberOfEdges() == 2);
+    test(g.vertexOfEdge(0, 0) == 0);
+    test(g.vertexOfEdge(0, 1) == 1);
+    test(g.vertexOfEdge(1, 0) == 0);
+    test(g.vertexOfEdge(1, 1) == 1);
+    
+    g.multipleEdgesEnabled() = false;
+    g.insertEdge(1, 0);
+    test(g.vertexOfEdge(0, 0) == 0);
+    test(g.vertexOfEdge(0, 1) == 1);
+    test(g.vertexOfEdge(1, 0) == 0);
+    test(g.vertexOfEdge(1, 1) == 1);
+    test(g.vertexOfEdge(2, 0) == 1);
+    test(g.vertexOfEdge(2, 1) == 0);
+}
+
 int main() {
     testConstruction();
     testVertexInsertion();
@@ -458,6 +485,7 @@ int main() {
     testEdgeRemoval();
     testVertexRemoval();
     testfindEdge();
+    testMultipleEdges();
 
     return 0;
 }

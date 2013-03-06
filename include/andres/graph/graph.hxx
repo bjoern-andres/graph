@@ -17,6 +17,7 @@
 /// - Access to vertices and edges by contiguous integer indices
 /// - Access to neighboring vertices and incident edges by STL-compliant random access iterators
 /// - Insertion and removal of vertices and edges 
+/// - Mutiple edges, which are disabled by default, can be enabled
 /// - Visitors that follow changes of vertex and edge indices 
 /// - Algorithms
 ///   - Minimum multicuts by interger programming, using Cplex or Gurobi 
@@ -269,6 +270,7 @@ public:
     const Adjacency<>& adjacencyFromVertex(const size_t, const size_t) const;  
     const Adjacency<>& adjacencyToVertex(const size_t, const size_t) const;  
     std::pair<bool, size_t> findEdge(const size_t, const size_t) const;
+    bool multipleEdgesEnabled() const;
 
     // manipulation
     size_t insertVertex();
@@ -276,6 +278,7 @@ public:
     size_t insertEdge(const size_t, const size_t);
     void eraseVertex(const size_t);
     void eraseEdge(const size_t);
+    bool& multipleEdgesEnabled();
 
 private:
     typedef Adjacency<> Adjacency;
@@ -287,6 +290,7 @@ private:
 
     std::vector<Vertex> vertices_;
     std::vector<Edge> edges_;
+    bool multipleEdgesEnabled_;
     Visitor visitor_;
 };
 
@@ -332,6 +336,7 @@ public:
     const Adjacency<>& adjacencyFromVertex(const size_t, const size_t) const;  
     const Adjacency<>& adjacencyToVertex(const size_t, const size_t) const;  
     std::pair<bool, size_t> findEdge(const size_t, const size_t) const;
+    bool multipleEdgesEnabled() const;
 
     // manipulation
     size_t insertVertex();
@@ -339,6 +344,7 @@ public:
     size_t insertEdge(const size_t, const size_t);
     void eraseVertex(const size_t);
     void eraseEdge(const size_t);
+    bool& multipleEdgesEnabled();
 
 private:
     typedef Adjacency<> Adjacency;
@@ -357,6 +363,7 @@ private:
 
     std::vector<Vertex> vertices_;
     std::vector<Edge> edges_;
+    bool multipleEdgesEnabled_;
     Visitor visitor_;
 };
 
@@ -699,6 +706,7 @@ Graph<VISITOR>::Graph(
 )
 :   vertices_(),
     edges_(),
+    multipleEdgesEnabled_(false),
     visitor_(visitor)
 {}
 
@@ -715,6 +723,7 @@ Graph<VISITOR>::Graph(
 )
 :   vertices_(numberOfVertices),
     edges_(),
+    multipleEdgesEnabled_(false),
     visitor_(visitor)
 {
     visitor_.insertVertices(0, numberOfVertices);
@@ -891,11 +900,23 @@ Graph<VISITOR>::insertEdge(
     assert(vertexIndex0 < numberOfVertices()); 
     assert(vertexIndex1 < numberOfVertices()); 
     
-    edges_.push_back(Edge(vertexIndex0, vertexIndex1));
-    size_t edgeIndex = edges_.size() - 1;
-    insertAdjacenciesForEdge(edgeIndex);
-    visitor_.insertEdge(edgeIndex);  
-    return edgeIndex;
+    if(multipleEdgesEnabled()) {
+insertEdgeMark:
+        edges_.push_back(Edge(vertexIndex0, vertexIndex1));
+        size_t edgeIndex = edges_.size() - 1;
+        insertAdjacenciesForEdge(edgeIndex);
+        visitor_.insertEdge(edgeIndex);  
+        return edgeIndex;
+    }
+    else {
+        std::pair<bool, size_t> p = findEdge(vertexIndex0, vertexIndex1);
+        if(p.first) { // edge already exists
+            return p.second;
+        }
+        else {
+            goto insertEdgeMark;
+        }
+    }
 }
 
 /// Erase a vertex and all edges connecting this vertex.
@@ -1259,6 +1280,28 @@ Graph<VISITOR>::findEdge(
     }
 }
 
+/// Indicate if multiple edges are enabled.
+///
+/// \return true if multiple edges are enabled, false otherwise.
+///
+template<typename VISITOR>
+inline bool
+Graph<VISITOR>::multipleEdgesEnabled() const {
+    return multipleEdgesEnabled_;
+}
+
+/// Indicate if multiple edges are enabled.
+///
+/// Enable multiple edges like this: graph.multipleEdgesEnabled() = true;
+///
+/// \return reference the a Boolean flag.
+///
+template<typename VISITOR>
+inline bool&
+Graph<VISITOR>::multipleEdgesEnabled() {
+    return multipleEdgesEnabled_;
+}
+
 template<typename VISITOR>
 inline void 
 Graph<VISITOR>::insertAdjacenciesForEdge(
@@ -1314,6 +1357,7 @@ Digraph<VISITOR>::Digraph(
 )
 :   vertices_(),
     edges_(),
+    multipleEdgesEnabled_(false),
     visitor_(visitor)
 {}
 
@@ -1330,6 +1374,7 @@ Digraph<VISITOR>::Digraph(
 )
 :   vertices_(numberOfVertices),
     edges_(),
+    multipleEdgesEnabled_(false),
     visitor_(visitor)
 {
     visitor_.insertVertices(0, numberOfVertices);
@@ -1506,11 +1551,23 @@ Digraph<VISITOR>::insertEdge(
     assert(vertexIndex0 < numberOfVertices()); 
     assert(vertexIndex1 < numberOfVertices()); 
     
-    edges_.push_back(Edge(vertexIndex0, vertexIndex1));
-    size_t edgeIndex = edges_.size() - 1;
-    insertAdjacenciesForEdge(edgeIndex);
-    visitor_.insertEdge(edgeIndex);  
-    return edgeIndex;
+    if(multipleEdgesEnabled()) {
+insertEdgeMark:
+        edges_.push_back(Edge(vertexIndex0, vertexIndex1));
+        size_t edgeIndex = edges_.size() - 1;
+        insertAdjacenciesForEdge(edgeIndex);
+        visitor_.insertEdge(edgeIndex);  
+        return edgeIndex;
+    }
+    else {
+        std::pair<bool, size_t> p = findEdge(vertexIndex0, vertexIndex1);
+        if(p.first) { // edge already exists
+            return p.second;
+        }
+        else {
+            goto insertEdgeMark;
+        }
+    }
 }
 
 /// Erase a vertex and all edges connecting this vertex.
@@ -1869,6 +1926,28 @@ Digraph<VISITOR>::findEdge(
     else {
         return std::make_pair(false, 0);
     }
+}
+
+/// Indicate if multiple edges are enabled.
+///
+/// \return true if multiple edges are enabled, false otherwise.
+///
+template<typename VISITOR>
+inline bool
+Digraph<VISITOR>::multipleEdgesEnabled() const {
+    return multipleEdgesEnabled_;
+}
+
+/// Indicate if multiple edges are enabled.
+///
+/// Enable multiple edges like this: graph.multipleEdgesEnabled() = true;
+///
+/// \return reference the a Boolean flag.
+///
+template<typename VISITOR>
+inline bool&
+Digraph<VISITOR>::multipleEdgesEnabled() {
+    return multipleEdgesEnabled_;
 }
 
 template<typename VISITOR>

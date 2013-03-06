@@ -45,6 +45,7 @@ inline void test(const bool& pred) {
 void testConstruction() {
     {
         andres::graph::Graph<> g;
+        test(!g.multipleEdgesEnabled());
         test(g.numberOfVertices() == 0);
         test(g.numberOfEdges() == 0);
         g.reserveVertices(5);
@@ -55,6 +56,7 @@ void testConstruction() {
     {
         size_t n = 10;
         andres::graph::Graph<> g(n);
+        test(!g.multipleEdgesEnabled());
         test(g.numberOfVertices() == 10);
         test(g.numberOfEdges() == 0);
         for(size_t j=0; j<n; ++j) {
@@ -99,6 +101,7 @@ void testVertexInsertion() {
 
 void testEdgeInsertion() {
     andres::graph::Graph<> g(3);
+    g.multipleEdgesEnabled() = true;
     g.insertEdge(1, 2); // 0
     g.insertEdge(1, 0); // 1
     g.insertEdge(1, 1); // 2
@@ -418,6 +421,7 @@ void testIterators() {
 
 void testEdgeRemoval() {
     andres::graph::Graph<> g(3);
+    g.multipleEdgesEnabled() = true;
     g.insertEdge(1, 2); // 0
     g.insertEdge(1, 0); // 1
     g.insertEdge(1, 1); // 2
@@ -451,6 +455,7 @@ void testEdgeRemoval() {
 void testVertexRemoval() 
 {
     andres::graph::Graph<> g(3);
+    g.multipleEdgesEnabled() = true;
     g.insertEdge(1, 2); // 0
     g.insertEdge(1, 0); // 1
     g.insertEdge(1, 1); // 2
@@ -560,6 +565,22 @@ void testfindEdge() {
     test(p.first == false);
 }
 
+void testMultipleEdges() {
+    andres::graph::Graph<> g(4);
+    g.insertEdge(0, 1); 
+    test(g.numberOfEdges() == 1);
+    test(g.insertEdge(0, 1) == 0);
+    test(g.numberOfEdges() == 1);
+
+    g.multipleEdgesEnabled() = true;
+    g.insertEdge(0, 1); 
+    test(g.numberOfEdges() == 2);
+    test(g.vertexOfEdge(0, 0) == 0);
+    test(g.vertexOfEdge(0, 1) == 1);
+    test(g.vertexOfEdge(1, 0) == 0);
+    test(g.vertexOfEdge(1, 1) == 1);
+}
+
 int main() {
     testConstruction();
     testVertexInsertion();
@@ -568,6 +589,7 @@ int main() {
     testEdgeRemoval();
     testVertexRemoval();
     testfindEdge();
+    testMultipleEdges();
 
     return 0;
 }
