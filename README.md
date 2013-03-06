@@ -21,7 +21,7 @@ Features
 - Access to vertices and edges by contiguous integer indices
 - Access to neighboring vertices and incident edges by STL-compliant random access iterators
 - Insertion and removal of vertices and edges
-- Mutiple edges, which are disabled by default, can be enabled
+- Multiple edges, which are disabled by default, can be enabled
 - Visitors that follow changes of vertex and edge indices
 - Algorithms
   - Minimum multicuts by interger programming, using Cplex or Gurobi
