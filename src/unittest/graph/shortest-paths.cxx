@@ -108,7 +108,7 @@ int main() {
         edgeWeights[8] = 0.2f;
         edgeWeights[9] = 1.0f;
 
-        std::vector<size_t> path;
+        std::deque<size_t> path;
         float distance = 0;      
 
         // start vertex 0
@@ -428,7 +428,7 @@ int main() {
         edgeWeights[8] = 0.2f;
         edgeWeights[9] = 1.0f;
 
-        std::vector<size_t> path;
+        std::deque<size_t> path;
         float distance = 0;      
 
         // start vertex 0

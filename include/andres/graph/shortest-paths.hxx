@@ -113,7 +113,7 @@ public:
     DijkstraSPSPVisitor(
         const size_t vs, 
         const size_t vt, 
-        std::vector<size_t>& path
+        std::deque<size_t>& path
     )
     :   vs_(vs), vt_(vt), path_(path)
     {
@@ -134,9 +134,8 @@ public:
                 return false; // stop the algorithm
             }
             for(;;) {
-                path_.push_back(vertex);
+                path_.push_front(vertex);
                 if(vertex == vs_) {
-                    std::reverse(path_.begin(), path_.end());
                     return false; // stop the algorithm
                 }
                 else {
@@ -151,7 +150,7 @@ public:
 
     size_t vs_;
     size_t vt_;
-    std::vector<size_t>& path_;
+    std::deque<size_t>& path_;
 };
 
 } // namespace graph_detail
@@ -277,7 +276,7 @@ spsp(
 /// \param vs Source vertex.
 /// \param vt Target vertex.
 /// \param edgeWeights A random access iterator pointing to positive edge weights.
-/// \param path Path.
+/// \param path A double-ended queue to which the path is written.
 /// \param distance the distance to from the source to the target vertex (if there exists a path).
 ///     if no path is found, path.size() == 0.
 ///     the data type of this parameter is used to sum up edge weights.
@@ -293,7 +292,7 @@ spsp(
     const size_t vs,
     const size_t vt,
     EDGE_WEIGHT_ITERATOR edgeWeights,
-    std::vector<size_t>& path,
+    std::deque<size_t>& path,
     T& distance
 ) {
     std::vector<T> distances(g.numberOfVertices()); 
@@ -310,7 +309,7 @@ spsp(
 /// \param vs Source vertex.
 /// \param vt Target vertex.
 /// \param edgeWeights A random access iterator pointing to positive edge weights.
-/// \param path Path.
+/// \param path A double-ended queue to which the path is written.
 /// \param distance the distance to from the source to the target vertex (if there exists a path).
 ///     if no path is found, path.size() == 0.
 ///     the data type of this parameter is used to sum up edge weights.
@@ -328,7 +327,7 @@ spsp(
     const size_t vs,
     const size_t vt,
     EDGE_WEIGHT_ITERATOR edgeWeights,
-    std::vector<size_t>& path,
+    std::deque<size_t>& path,
     T& distance
 ) {
     std::vector<T> distances(g.numberOfVertices()); 
@@ -345,7 +344,7 @@ spsp(
 /// \param vs Source vertex.
 /// \param vt Target vertex.
 /// \param edgeWeights A random access iterator pointing to positive edge weights.
-/// \param path Path.
+/// \param path A double-ended queue to which the path is written.
 /// \param distance the distance to from the source to the target vertex (if there exists a path).
 ///     if no path is found, path.size() == 0.
 ///     the data type of this parameter is used to sum up edge weights.
@@ -367,7 +366,7 @@ spsp(
     const size_t vs,
     const size_t vt,
     EDGE_WEIGHT_ITERATOR edgeWeights,
-    std::vector<size_t>& path,
+    std::deque<size_t>& path,
     T& distance,
     DISTANCE_ITERATOR distances,
     PARENT_ITERATOR parents 
