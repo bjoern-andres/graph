@@ -44,7 +44,7 @@ inline void test(const bool& pred) {
 }
 
 int main() {
-    // spsp, undirected graph
+    // spsp, undirected, unweighted graph (breadth-first search)
     {
         andres::graph::Graph<> g(9);
         g.insertEdge(0, 1);
@@ -82,7 +82,271 @@ int main() {
         test(path[0] == 8);
     }
 
-    // spsp, directed graph
+    // spsp, undirected, weighted graph (Dijkstra)
+    {
+        andres::graph::Graph<> g(9);
+        g.insertEdge(0, 1); // 0
+        g.insertEdge(1, 2); // 1
+        g.insertEdge(2, 3); // 2
+        g.insertEdge(0, 4); // 3
+        g.insertEdge(3, 4); // 4
+        g.insertEdge(0, 5); // 5
+        g.insertEdge(5, 3); // 6
+        g.insertEdge(0, 6); // 7
+        g.insertEdge(6, 7); // 8
+        g.insertEdge(7, 3); // 9
+
+        std::vector<float> edgeWeights(10);
+        edgeWeights[0] = 0.1f;
+        edgeWeights[1] = 0.2f;
+        edgeWeights[2] = 0.3f;
+        edgeWeights[3] = 0.1f;
+        edgeWeights[4] = 0.6f;
+        edgeWeights[5] = 0.3f;
+        edgeWeights[6] = 0.4f;
+        edgeWeights[7] = 0.1f;
+        edgeWeights[8] = 0.2f;
+        edgeWeights[9] = 1.0f;
+
+        std::vector<size_t> path;
+        float distance = 0;      
+
+        // start vertex 0
+        andres::graph::spsp(g, 0, 0, edgeWeights.begin(), path, distance);
+        test(distance == 0);
+        test(path.size() == 1);
+        test(path[0] == 0);
+
+        andres::graph::spsp(g, 0, 1, edgeWeights.begin(), path, distance);
+        test(distance == 0.1f);
+        test(path.size() == 2);
+        test(path[0] == 0);
+        test(path[1] == 1);
+        
+        andres::graph::spsp(g, 0, 2, edgeWeights.begin(), path, distance);
+        test(distance == 0.1f + 0.2f);
+        test(path.size() == 3);
+        test(path[0] == 0);
+        test(path[1] == 1);
+        test(path[2] == 2);
+        
+        andres::graph::spsp(g, 0, 3, edgeWeights.begin(), path, distance);
+        test(distance == 0.1f + 0.2f + 0.3f);
+        test(path.size() == 4);
+        test(path[0] == 0);
+        test(path[1] == 1);
+        test(path[2] == 2);
+        test(path[3] == 3);
+        
+        andres::graph::spsp(g, 0, 4, edgeWeights.begin(), path, distance);
+        test(distance == 0.1f);
+        test(path.size() == 2);
+        test(path[0] == 0);
+        test(path[1] == 4);
+        
+        andres::graph::spsp(g, 0, 5, edgeWeights.begin(), path, distance);
+        test(distance == 0.3f);
+        test(path.size() == 2);
+        test(path[0] == 0);
+        test(path[1] == 5);
+        
+        andres::graph::spsp(g, 0, 6, edgeWeights.begin(), path, distance);
+        test(distance == 0.1f);
+        test(path.size() == 2);
+        test(path[0] == 0);
+        test(path[1] == 6);
+        
+        andres::graph::spsp(g, 0, 7, edgeWeights.begin(), path, distance);
+        test(distance == 0.1f + 0.2f);
+        test(path.size() == 3);
+        test(path[0] == 0);
+        test(path[1] == 6);
+        test(path[2] == 7);
+        
+        andres::graph::spsp(g, 0, 8, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+
+        // start vertex 2
+        andres::graph::spsp(g, 2, 0, edgeWeights.begin(), path, distance);
+        test(distance == 0.2f + 0.1f);
+        test(path.size() == 3);
+        test(path[0] == 2);
+        test(path[1] == 1);
+        test(path[2] == 0);
+
+        andres::graph::spsp(g, 2, 1, edgeWeights.begin(), path, distance);
+        test(distance == 0.2f);
+        test(path.size() == 2);
+        test(path[0] == 2);
+        test(path[1] == 1);
+        
+        andres::graph::spsp(g, 2, 2, edgeWeights.begin(), path, distance);
+        test(distance == 0);
+        test(path.size() == 1);
+        test(path[0] == 2);
+        
+        andres::graph::spsp(g, 2, 3, edgeWeights.begin(), path, distance);
+        test(distance == 0.3f);
+        test(path.size() == 2);
+        test(path[0] == 2);
+        test(path[1] == 3);
+        
+        andres::graph::spsp(g, 2, 4, edgeWeights.begin(), path, distance);
+        test(distance == 0.2f + 0.1f + 0.1f);
+        test(path.size() == 4);
+        test(path[0] == 2);
+        test(path[1] == 1);
+        test(path[2] == 0);
+        test(path[3] == 4);
+        
+        andres::graph::spsp(g, 2, 5, edgeWeights.begin(), path, distance);
+        test(distance == 0.2f + 0.1f + 0.3f);
+        test(path.size() == 4);
+        test(path[0] == 2);
+        test(path[1] == 1);
+        test(path[2] == 0);
+        test(path[3] == 5);
+        
+        andres::graph::spsp(g, 2, 6, edgeWeights.begin(), path, distance);
+        test(distance == 0.2f + 0.1f + 0.1f);
+        test(path.size() == 4);
+        test(path[0] == 2);
+        test(path[1] == 1);
+        test(path[2] == 0);
+        test(path[3] == 6);
+        
+        andres::graph::spsp(g, 2, 7, edgeWeights.begin(), path, distance);
+        test(distance == 0.2f + 0.1f + 0.1f + 0.2f);
+        test(path.size() == 5);
+        test(path[0] == 2);
+        test(path[1] == 1);
+        test(path[2] == 0);
+        test(path[3] == 6);
+        test(path[4] == 7);
+        
+        andres::graph::spsp(g, 2, 8, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+
+        // with subgraph mask
+        struct SubgraphMask {
+            bool vertex(const size_t v) const { return v != 1; }
+            bool edge(const size_t e) const { return e != 3; }
+        };
+        SubgraphMask mask;
+
+        // start vertex 0
+        andres::graph::spsp(g, mask, 0, 0, edgeWeights.begin(), path, distance);
+        test(distance == 0);
+        test(path.size() == 1);
+        test(path[0] == 0);
+
+        andres::graph::spsp(g, mask, 0, 1, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+        
+        andres::graph::spsp(g, mask, 0, 2, edgeWeights.begin(), path, distance);
+        test(distance == 0.3f + 0.4f + 0.3f);
+        test(path.size() == 4);
+        test(path[0] == 0);
+        test(path[1] == 5);
+        test(path[2] == 3);
+        test(path[3] == 2);
+        
+        andres::graph::spsp(g, mask, 0, 3, edgeWeights.begin(), path, distance);
+        test(distance == 0.3f + 0.4f);
+        test(path.size() == 3);
+        test(path[0] == 0);
+        test(path[1] == 5);
+        test(path[2] == 3);
+        
+        andres::graph::spsp(g, mask, 0, 4, edgeWeights.begin(), path, distance);
+        test(distance == 0.3f + 0.4f + 0.6f);
+        test(path.size() == 4);
+        test(path[0] == 0);
+        test(path[1] == 5);
+        test(path[2] == 3);
+        test(path[3] == 4);
+        
+        andres::graph::spsp(g, mask, 0, 5, edgeWeights.begin(), path, distance);
+        test(distance == 0.3f);
+        test(path.size() == 2);
+        test(path[0] == 0);
+        test(path[1] == 5);
+        
+        andres::graph::spsp(g, mask, 0, 6, edgeWeights.begin(), path, distance);
+        test(distance == 0.1f);
+        test(path.size() == 2);
+        test(path[0] == 0);
+        test(path[1] == 6);
+        
+        andres::graph::spsp(g, mask, 0, 7, edgeWeights.begin(), path, distance);
+        test(distance == 0.1f + 0.2f);
+        test(path.size() == 3);
+        test(path[0] == 0);
+        test(path[1] == 6);
+        test(path[2] == 7);
+        
+        andres::graph::spsp(g, mask, 0, 8, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+
+        // start vertex 2
+        andres::graph::spsp(g, mask, 2, 0, edgeWeights.begin(), path, distance);
+        test(distance == 0.3f + 0.4f + 0.3f);
+        test(path.size() == 4);
+        test(path[0] == 2);
+        test(path[1] == 3);
+        test(path[2] == 5);
+        test(path[3] == 0);
+
+        andres::graph::spsp(g, mask, 2, 1, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+        
+        andres::graph::spsp(g, mask, 2, 2, edgeWeights.begin(), path, distance);
+        test(distance == 0);
+        test(path.size() == 1);
+        test(path[0] == 2);
+        
+        andres::graph::spsp(g, mask, 2, 3, edgeWeights.begin(), path, distance);
+        test(distance == 0.3f);
+        test(path.size() == 2);
+        test(path[0] == 2);
+        test(path[1] == 3);
+        
+        andres::graph::spsp(g, mask, 2, 4, edgeWeights.begin(), path, distance);
+        test(distance == 0.3f + 0.6f);
+        test(path.size() == 3);
+        test(path[0] == 2);
+        test(path[1] == 3);
+        test(path[2] == 4);
+        
+        andres::graph::spsp(g, mask, 2, 5, edgeWeights.begin(), path, distance);
+        test(distance == 0.3f + 0.4f);
+        test(path.size() == 3);
+        test(path[0] == 2);
+        test(path[1] == 3);
+        test(path[2] == 5);
+        
+        andres::graph::spsp(g, mask, 2, 6, edgeWeights.begin(), path, distance);
+        test(distance == 0.3f + 0.4f + 0.3f + 0.1f);
+        test(path.size() == 5);
+        test(path[0] == 2);
+        test(path[1] == 3);
+        test(path[2] == 5);
+        test(path[3] == 0);
+        test(path[4] == 6);
+        
+        // 2 to 7 is ambiguous. therefore not part of the unit test
+
+        andres::graph::spsp(g, mask, 2, 8, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+    }
+
+    // spsp, directed, unweighted graph (breadth-first search)
     {
         andres::graph::Digraph<> g(9);
         g.insertEdge(0, 1); // 0
@@ -138,7 +402,238 @@ int main() {
         test(path[3] == 3);
     }
 
-    // sssp, Dijkstra, undirected graph
+    // spsp, directed, weighted graph (Dijkstra)
+    {
+        andres::graph::Digraph<> g(9);
+        g.insertEdge(0, 1); // 0
+        g.insertEdge(1, 2); // 1
+        g.insertEdge(2, 3); // 2
+        g.insertEdge(0, 4); // 3
+        g.insertEdge(3, 4); // 4
+        g.insertEdge(0, 5); // 5
+        g.insertEdge(5, 3); // 6
+        g.insertEdge(0, 6); // 7
+        g.insertEdge(6, 7); // 8
+        g.insertEdge(7, 3); // 9
+
+        std::vector<float> edgeWeights(10);
+        edgeWeights[0] = 0.1f;
+        edgeWeights[1] = 0.2f;
+        edgeWeights[2] = 0.3f;
+        edgeWeights[3] = 0.1f;
+        edgeWeights[4] = 0.6f;
+        edgeWeights[5] = 0.3f;
+        edgeWeights[6] = 0.4f;
+        edgeWeights[7] = 0.1f;
+        edgeWeights[8] = 0.2f;
+        edgeWeights[9] = 1.0f;
+
+        std::vector<size_t> path;
+        float distance = 0;      
+
+        // start vertex 0
+        andres::graph::spsp(g, 0, 0, edgeWeights.begin(), path, distance);
+        test(distance == 0);
+        test(path.size() == 1);
+        test(path[0] == 0);
+
+        andres::graph::spsp(g, 0, 1, edgeWeights.begin(), path, distance);
+        test(distance == 0.1f);
+        test(path.size() == 2);
+        test(path[0] == 0);
+        test(path[1] == 1);
+        
+        andres::graph::spsp(g, 0, 2, edgeWeights.begin(), path, distance);
+        test(distance == 0.1f + 0.2f);
+        test(path.size() == 3);
+        test(path[0] == 0);
+        test(path[1] == 1);
+        test(path[2] == 2);
+        
+        andres::graph::spsp(g, 0, 3, edgeWeights.begin(), path, distance);
+        test(distance == 0.1f + 0.2f + 0.3f);
+        test(path.size() == 4);
+        test(path[0] == 0);
+        test(path[1] == 1);
+        test(path[2] == 2);
+        test(path[3] == 3);
+        
+        andres::graph::spsp(g, 0, 4, edgeWeights.begin(), path, distance);
+        test(distance == 0.1f);
+        test(path.size() == 2);
+        test(path[0] == 0);
+        test(path[1] == 4);
+        
+        andres::graph::spsp(g, 0, 5, edgeWeights.begin(), path, distance);
+        test(distance == 0.3f);
+        test(path.size() == 2);
+        test(path[0] == 0);
+        test(path[1] == 5);
+        
+        andres::graph::spsp(g, 0, 6, edgeWeights.begin(), path, distance);
+        test(distance == 0.1f);
+        test(path.size() == 2);
+        test(path[0] == 0);
+        test(path[1] == 6);
+        
+        andres::graph::spsp(g, 0, 7, edgeWeights.begin(), path, distance);
+        test(distance == 0.1f + 0.2f);
+        test(path.size() == 3);
+        test(path[0] == 0);
+        test(path[1] == 6);
+        test(path[2] == 7);
+        
+        andres::graph::spsp(g, 0, 8, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+
+        // start vertex 2
+        andres::graph::spsp(g, 2, 0, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+
+        andres::graph::spsp(g, 2, 1, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+        
+        andres::graph::spsp(g, 2, 2, edgeWeights.begin(), path, distance);
+        test(distance == 0);
+        test(path.size() == 1);
+        test(path[0] == 2);
+        
+        andres::graph::spsp(g, 2, 3, edgeWeights.begin(), path, distance);
+        test(distance == 0.3f);
+        test(path.size() == 2);
+        test(path[0] == 2);
+        test(path[1] == 3);
+        
+        andres::graph::spsp(g, 2, 4, edgeWeights.begin(), path, distance);
+        test(distance == 0.3f + 0.6f);
+        test(path.size() == 3);
+        test(path[0] == 2);
+        test(path[1] == 3);
+        test(path[2] == 4);
+        
+        andres::graph::spsp(g, 2, 5, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+        
+        andres::graph::spsp(g, 2, 6, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+        
+        andres::graph::spsp(g, 2, 7, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+        
+        andres::graph::spsp(g, 2, 8, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+
+        // with subgraph mask
+        struct SubgraphMask {
+            bool vertex(const size_t v) const { return v != 1; }
+            bool edge(const size_t e) const { return e != 3; }
+        };
+        SubgraphMask mask;
+
+        // start vertex 0
+        andres::graph::spsp(g, mask, 0, 0, edgeWeights.begin(), path, distance);
+        test(distance == 0);
+        test(path.size() == 1);
+        test(path[0] == 0);
+
+        andres::graph::spsp(g, mask, 0, 1, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+        
+        andres::graph::spsp(g, mask, 0, 2, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+        
+        andres::graph::spsp(g, mask, 0, 3, edgeWeights.begin(), path, distance);
+        test(distance == 0.3f + 0.4f);
+        test(path.size() == 3);
+        test(path[0] == 0);
+        test(path[1] == 5);
+        test(path[2] == 3);
+        
+        andres::graph::spsp(g, mask, 0, 4, edgeWeights.begin(), path, distance);
+        test(distance == 0.3f + 0.4f + 0.6f);
+        test(path.size() == 4);
+        test(path[0] == 0);
+        test(path[1] == 5);
+        test(path[2] == 3);
+        test(path[3] == 4);
+        
+        andres::graph::spsp(g, mask, 0, 5, edgeWeights.begin(), path, distance);
+        test(distance == 0.3f);
+        test(path.size() == 2);
+        test(path[0] == 0);
+        test(path[1] == 5);
+        
+        andres::graph::spsp(g, mask, 0, 6, edgeWeights.begin(), path, distance);
+        test(distance == 0.1f);
+        test(path.size() == 2);
+        test(path[0] == 0);
+        test(path[1] == 6);
+        
+        andres::graph::spsp(g, mask, 0, 7, edgeWeights.begin(), path, distance);
+        test(distance == 0.1f + 0.2f);
+        test(path.size() == 3);
+        test(path[0] == 0);
+        test(path[1] == 6);
+        test(path[2] == 7);
+        
+        andres::graph::spsp(g, mask, 0, 8, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+
+        // start vertex 2
+        andres::graph::spsp(g, mask, 2, 0, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+
+        andres::graph::spsp(g, mask, 2, 1, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+        
+        andres::graph::spsp(g, mask, 2, 2, edgeWeights.begin(), path, distance);
+        test(distance == 0);
+        test(path.size() == 1);
+        test(path[0] == 2);
+        
+        andres::graph::spsp(g, mask, 2, 3, edgeWeights.begin(), path, distance);
+        test(distance == 0.3f);
+        test(path.size() == 2);
+        test(path[0] == 2);
+        test(path[1] == 3);
+        
+        andres::graph::spsp(g, mask, 2, 4, edgeWeights.begin(), path, distance);
+        test(distance == 0.3f + 0.6f);
+        test(path.size() == 3);
+        test(path[0] == 2);
+        test(path[1] == 3);
+        test(path[2] == 4);
+        
+        andres::graph::spsp(g, mask, 2, 5, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+        
+        andres::graph::spsp(g, mask, 2, 6, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+        
+        andres::graph::spsp(g, mask, 2, 7, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+        
+        andres::graph::spsp(g, mask, 2, 8, edgeWeights.begin(), path, distance);
+        test(distance == std::numeric_limits<float>::infinity());
+        test(path.size() == 0);
+    }
+
+    // sssp, undirected graph (Dijkstra)
     {
         andres::graph::Graph<> g(5);
         g.insertEdge(0, 1); // 0
@@ -164,6 +659,15 @@ int main() {
             test(parents[2] == 1);
             test(parents[3] == 2);
             test(parents[4] == 1);
+
+            // convenience function without parents
+            andres::graph::sssp(g, 0, distances.begin());
+
+            test(distances[0] == 0);
+            test(distances[1] == 1);
+            test(distances[2] == 2);
+            test(distances[3] == 3);
+            test(distances[4] == 2);
         }
 
         // unweighted subgraph
@@ -188,6 +692,15 @@ int main() {
             test(parents[2] == 1);
             test(parents[3] == 2);
             test(parents[4] == 3);
+
+            // convenience function without parents
+            andres::graph::sssp(g, SubgraphMask(), 0, distances.begin());
+
+            test(distances[0] == 0);
+            test(distances[1] == 1);
+            test(distances[2] == 2);
+            test(distances[3] == 3);
+            test(distances[4] == 4);
         }
 
         std::vector<unsigned int> edgeWeights(5);
@@ -201,7 +714,9 @@ int main() {
         {
             std::vector<unsigned int> distances(g.numberOfVertices());
             std::vector<size_t> parents(g.numberOfVertices());
-            andres::graph::sssp(g, 0, edgeWeights, distances.begin(), parents.begin());
+            andres::graph::sssp(g, 0, edgeWeights.begin(), distances.begin(), 
+                parents.begin()
+            );
 
             test(distances[0] == 0);
             test(distances[1] == 1);
@@ -225,7 +740,9 @@ int main() {
 
             std::vector<unsigned int> distances(g.numberOfVertices());
             std::vector<size_t> parents(g.numberOfVertices());
-            andres::graph::sssp(g, SubgraphMask(), 0, edgeWeights, distances.begin(), parents.begin());
+            andres::graph::sssp(g, SubgraphMask(), 0, edgeWeights.begin(), 
+                distances.begin(), parents.begin()
+            );
 
             test(distances[0] == 0);
             test(distances[1] == 1);
@@ -241,7 +758,7 @@ int main() {
         }
     }
 
-    // sssp, Dijkstra, directed graph
+    // sssp, directed graph (Dijkstra)
     {
         andres::graph::Digraph<> g(5);
         g.insertEdge(0, 1); // 0
@@ -306,7 +823,9 @@ int main() {
         {
             std::vector<unsigned int> distances(g.numberOfVertices());
             std::vector<size_t> parents(g.numberOfVertices());
-            andres::graph::sssp(g, 0, edgeWeights, distances.begin(), parents.begin());
+            andres::graph::sssp(g, 0, edgeWeights.begin(), distances.begin(), 
+                parents.begin()
+            );
 
             test(distances[0] == 0);
             test(distances[1] == 1);
@@ -330,7 +849,9 @@ int main() {
 
             std::vector<unsigned int> distances(g.numberOfVertices());
             std::vector<size_t> parents(g.numberOfVertices());
-            andres::graph::sssp(g, SubgraphMask(), 0, edgeWeights, distances.begin(), parents.begin());
+            andres::graph::sssp(g, SubgraphMask(), 0, edgeWeights.begin(), 
+                distances.begin(), parents.begin()
+            );
 
             test(distances[0] == 0);
             test(distances[1] == 1);
