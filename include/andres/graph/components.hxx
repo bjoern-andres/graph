@@ -34,6 +34,7 @@
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
+
 #pragma once
 #ifndef ANDRES_GRAPH_COMPONENTS_HXX
 #define ANDRES_GRAPH_COMPONENTS_HXX
@@ -118,7 +119,7 @@ labelComponents(
                 while(!queue.empty()) {
                     size_t w = queue.front();
                     queue.pop();
-                    for(GRAPH::AdjacencyIterator it = graph.adjacenciesFromVertexBegin(w);
+                    for(typename GRAPH::AdjacencyIterator it = graph.adjacenciesFromVertexBegin(w);
                     it != graph.adjacenciesFromVertexEnd(w); ++it) {
                         if(mask.edge(it->edge()) 
                         && mask.vertex(it->vertex()) 
