@@ -98,22 +98,22 @@ private:
 template<class Key, class Comparison, class Allocator>
 inline
     RandomAccessSet<Key, Comparison, Allocator>::RandomAccessSet(
-    const Comparison& Comparison, 
-    const Allocator& Allocator
+    const Comparison& comparison, 
+    const Allocator& allocator
 )
-:   vector_(Allocator), 
-    compare_(Comparison)
+:   vector_(allocator), 
+    compare_(comparison)
 {}
 
 template<class Key, class Comparison, class Allocator>
 inline
     RandomAccessSet<Key, Comparison, Allocator>::RandomAccessSet(
     const size_t reserveSize, 
-    const Comparison& Comparison, 
-    const Allocator& Allocator
+    const Comparison& comparison, 
+    const Allocator& allocator
 )
-:   vector_(Allocator), 
-    compare_(Comparison) 
+:   vector_(allocator), 
+    compare_(comparison) 
 {
     vector_.reserve(reserveSize);
 }
@@ -124,11 +124,11 @@ inline
     RandomAccessSet<Key, Comparison, Allocator>::RandomAccessSet(
     Iterator beginInput, 
     Iterator endInput, 
-    const Comparison& Comparison, 
-    const Allocator& Allocator
+    const Comparison& comparison, 
+    const Allocator& allocator
 )
-:   vector_(Allocator), 
-    compare_(Comparison)
+:   vector_(allocator), 
+    compare_(comparison)
 {
     while(beginInput != endInput) {
         insert(*beginInput);

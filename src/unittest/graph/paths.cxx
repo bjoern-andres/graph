@@ -43,6 +43,11 @@ inline void test(const bool& pred) {
     if(!pred) throw std::runtime_error("Test failed."); 
 }
 
+struct SubgraphMask {
+    bool vertex(const size_t v) const { return true; }
+    bool edge(const size_t e) const { return e != 7; }
+};
+
 int main() {
     typedef andres::graph::Graph<> Graph;
 
@@ -55,11 +60,6 @@ int main() {
     graph.insertEdge(1, 6); // 5
     graph.insertEdge(6, 2); // 6
     graph.insertEdge(3, 5); // 7
-
-    struct SubgraphMask {
-        bool vertex(const size_t v) const { return true; }
-        bool edge(const size_t e) const { return e != 7; }
-    };
 
     {
         size_t path[] =  {0, 1, 2, 3, 4, 5};
