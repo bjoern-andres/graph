@@ -122,7 +122,7 @@ struct DefaultSubgraphMask {
 /// Return 1 for every edge.
 template<class T>
 struct UnitEdgeWeightIterator {
-    typedef ptrdiff_t difference_type;
+    typedef std::ptrdiff_t difference_type;
     typedef T value_type;
     typedef value_type* pointer;
     typedef value_type& reference;
@@ -178,7 +178,7 @@ public:
     IteratorHelper<T> operator--(int); // postfix
     IteratorHelper<T> operator+(const difference_type) const;
     IteratorHelper<T> operator-(const difference_type) const;
-    difference_type operator-(const IteratorHelper<T>&) const;
+    // difference_type operator-(const IteratorHelper<T>&) const;
 
     // access
     size_t operator*() const;
@@ -281,7 +281,7 @@ public:
     bool& multipleEdgesEnabled();
 
 private:
-    typedef Adjacency<> Adjacency;
+    typedef Adjacency<> AdjacencyType;
     typedef graph_detail::Adjacencies Vertex;
     typedef graph_detail::Edge<false> Edge;
 
@@ -347,7 +347,7 @@ public:
     bool& multipleEdgesEnabled();
 
 private:
-    typedef Adjacency<> Adjacency;
+    typedef Adjacency<> AdjacencyType;
     typedef graph_detail::Adjacencies Adjacencies;
     struct Vertex {
         Vertex() 
@@ -541,6 +541,7 @@ IteratorHelper<T>::operator-(
     return Base::operator-(d);
 }
 
+/*
 template<bool T>
 inline typename IteratorHelper<T>::difference_type
 IteratorHelper<T>::operator-(
@@ -548,6 +549,7 @@ IteratorHelper<T>::operator-(
 ) const {
     return Base::operator-(other);
 }
+*/
 
 } // namespace graph_detail
 // \endcond
@@ -945,7 +947,7 @@ Graph<VISITOR>::eraseVertex(
         // collect indices of edges affected by the move
         size_t movingVertexIndex = numberOfVertices() - 1;
         std::set<size_t> affectedEdgeIndices;
-        for(VertexIterator it = vertices_[movingVertexIndex].begin();
+        for(Vertex::const_iterator it = vertices_[movingVertexIndex].begin();
         it != vertices_[movingVertexIndex].end(); ++it) {
             affectedEdgeIndices.insert(it->edge());
         }
@@ -1311,11 +1313,11 @@ Graph<VISITOR>::insertAdjacenciesForEdge(
     const size_t vertexIndex0 = edge[0];
     const size_t vertexIndex1 = edge[1];
     vertices_[vertexIndex0].insert(
-        Adjacency(vertexIndex1, edgeIndex)
+        AdjacencyType(vertexIndex1, edgeIndex)
     );
     if(vertexIndex1 != vertexIndex0) {
         vertices_[vertexIndex1].insert(
-            Adjacency(vertexIndex0, edgeIndex)
+            AdjacencyType(vertexIndex0, edgeIndex)
         );
     }
 }
@@ -1331,8 +1333,8 @@ Graph<VISITOR>::eraseAdjacenciesForEdge(
     Vertex& vertex0 = vertices_[vertexIndex0];
     Vertex& vertex1 = vertices_[vertexIndex1];
 
-    Adjacency adj(vertexIndex1, edgeIndex);
-    RandomAccessSet<Adjacency>::iterator it = vertex0.find(adj);
+    AdjacencyType adj(vertexIndex1, edgeIndex);
+    RandomAccessSet<AdjacencyType>::iterator it = vertex0.find(adj);
     assert(it != vertex0.end()); 
     vertex0.erase(it);
     
@@ -1599,11 +1601,11 @@ Digraph<VISITOR>::eraseVertex(
         // collect indices of edges affected by the move
         size_t movingVertexIndex = numberOfVertices() - 1;
         std::set<size_t> affectedEdgeIndices;
-        for(VertexIterator it = vertices_[movingVertexIndex].from_.begin();
+        for(Adjacencies::const_iterator it = vertices_[movingVertexIndex].from_.begin();
         it != vertices_[movingVertexIndex].from_.end(); ++it) {
             affectedEdgeIndices.insert(it->edge());
         }
-        for(VertexIterator it = vertices_[movingVertexIndex].to_.begin();
+        for(Adjacencies::const_iterator it = vertices_[movingVertexIndex].to_.begin();
         it != vertices_[movingVertexIndex].to_.end(); ++it) {
             affectedEdgeIndices.insert(it->edge());
         }
@@ -1959,10 +1961,10 @@ Digraph<VISITOR>::insertAdjacenciesForEdge(
     const size_t vertexIndex0 = edge[0];
     const size_t vertexIndex1 = edge[1];
     vertices_[vertexIndex0].to_.insert(
-        Adjacency(vertexIndex1, edgeIndex)
+        AdjacencyType(vertexIndex1, edgeIndex)
     );
     vertices_[vertexIndex1].from_.insert(
-        Adjacency(vertexIndex0, edgeIndex)
+        AdjacencyType(vertexIndex0, edgeIndex)
     );
 }
 
@@ -1977,8 +1979,8 @@ Digraph<VISITOR>::eraseAdjacenciesForEdge(
     Vertex& vertex0 = vertices_[vertexIndex0];
     Vertex& vertex1 = vertices_[vertexIndex1];
 
-    Adjacency adj(vertexIndex1, edgeIndex);
-    RandomAccessSet<Adjacency>::iterator it = vertex0.to_.find(adj);
+    AdjacencyType adj(vertexIndex1, edgeIndex);
+    RandomAccessSet<AdjacencyType>::iterator it = vertex0.to_.find(adj);
     assert(it != vertex0.to_.end()); 
     vertex0.to_.erase(it);
     
