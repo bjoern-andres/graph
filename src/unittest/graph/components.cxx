@@ -43,10 +43,15 @@ inline void test(const bool& pred) {
     if(!pred) throw std::runtime_error("Test failed."); 
 }
 
+struct SubgraphMask {
+    bool vertex(const size_t v) const { return v != 3; }
+    bool edge(const size_t e) const { return e != 0; }
+};
+
 template<class COMPONENTS>
 void testComponents() {
     typedef COMPONENTS Components;
-    typedef Components::Graph Graph;
+    typedef typename Components::Graph Graph;
 
     Graph graph(10);
     graph.insertEdge(0, 1);
@@ -72,11 +77,6 @@ void testComponents() {
     test(!components.areConnected(2, 5));
     test(!components.areConnected(2, 9));
     test(!components.areConnected(5, 9));
-
-    struct SubgraphMask {
-        bool vertex(const size_t v) const { return v != 3; }
-        bool edge(const size_t e) const { return e != 0; }
-    };
 
     components.build(graph, SubgraphMask());
 
