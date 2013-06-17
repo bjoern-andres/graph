@@ -73,7 +73,7 @@ public:
 
     void erase(iterator position);
     size_type erase(const key_type&);
-    void erase(const_iterator, const_iterator);   
+    void erase(iterator, iterator);   
     void clear();
 
     size_type count(const key_type&) const;
@@ -276,8 +276,8 @@ RandomAccessSet<Key, Comparison, Allocator>::erase(
 template<class Key, class Comparison, class Allocator>
 inline void
 RandomAccessSet<Key, Comparison, Allocator>::erase(
-    const typename RandomAccessSet<Key, Comparison, Allocator>::const_iterator first, 
-    const typename RandomAccessSet<Key, Comparison, Allocator>::const_iterator last
+    const typename RandomAccessSet<Key, Comparison, Allocator>::iterator first, 
+    const typename RandomAccessSet<Key, Comparison, Allocator>::iterator last
 ) {
     vector_.erase(first, last);
 }
