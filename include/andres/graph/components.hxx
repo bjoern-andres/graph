@@ -3,11 +3,6 @@
 // This software was developed by Bjoern Andres.
 // Enquiries shall be directed to bjoern@andres.sc.
 //
-// All advertising materials mentioning features or use of this software must
-// display the following acknowledgement: ``This product includes andres::graph
-// developed by Bjoern Andres. Please direct enquiries concerning andres::graph
-// to bjoern@andres.sc''.
-//
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions are met:
 //
@@ -16,10 +11,6 @@
 // - Redistributions in binary form must reproduce the above copyright notice, 
 //   this list of conditions and the following disclaimer in the documentation
 //   and/or other materials provided with the distribution.
-// - All advertising materials mentioning features or use of this software must 
-//   display the following acknowledgement: ``This product includes 
-//   andres::graph developed by Bjoern Andres. Please direct enquiries 
-//   concerning andres::graph to bjoern@andres.sc''.
 // - The name of the author must not be used to endorse or promote products 
 //   derived from this software without specific prior written permission.
 //
@@ -34,7 +25,6 @@
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-
 #pragma once
 #ifndef ANDRES_GRAPH_COMPONENTS_HXX
 #define ANDRES_GRAPH_COMPONENTS_HXX

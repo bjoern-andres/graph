@@ -1,30 +1,30 @@
-/// Copyright (c) 2013 by Mark Matten
-/// 
-/// This software was developed by Mark Matten.
-/// Enquiries shall be directed to markmatten@gmail.com
+// Copyright (c) 2013 by Mark Matten
+// 
+// This software was developed by Mark Matten.
+// Enquiries shall be directed to markmatten@gmail.com
 ///
-/// Redistribution and use in source and binary forms, with or without 
-/// modification, are permitted provided that the following conditions are met:
-///
-/// - Redistributions of source code must retain the above copyright notice,
-///   this list of conditions and the following disclaimer.
-/// - Redistributions in binary form must reproduce the above copyright notice, 
-///   this list of conditions and the following disclaimer in the documentation
-///   and/or other materials provided with the distribution.
-/// - The name of the author must not be used to endorse or promote products 
-///   derived from this software without specific prior written permission.
-///
-/// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED 
-/// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
-/// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO 
-/// EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-/// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-/// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
-/// OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-/// WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-/// OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
-/// ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-///
+// Redistribution and use in source and binary forms, with or without 
+// modification, are permitted provided that the following conditions are met:
+//
+// - Redistributions of source code must retain the above copyright notice,
+//   this list of conditions and the following disclaimer.
+// - Redistributions in binary form must reproduce the above copyright notice, 
+//   this list of conditions and the following disclaimer in the documentation
+//   and/or other materials provided with the distribution.
+// - The name of the author must not be used to endorse or promote products 
+//   derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED 
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO 
+// EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
+// OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+// WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+// OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+// ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
 #pragma once
 #ifndef ANDRES_GRAPH_MAX_FLOW_HXX
 #define ANDRES_GRAPH_MAX_FLOW_HXX
@@ -38,7 +38,10 @@
 namespace andres {
 namespace graph {
 
-/// Push-relabel algorithm for computing the maximum flow of a Digraph
+/// Push-Relabel Algorithm for computing the maximum s-t-flow of a Digraph.
+///
+/// With FIFO vertex selection rule.
+///
 template<class GRAPH, class FLOW>
 class MaxFlowPushRelabel {
 public:
@@ -222,7 +225,7 @@ MaxFlowPushRelabel<GRAPH, FLOW>::operator()(
 	std::fill(excess_.begin(), excess_.end(), Flow());
 	std::fill(active_.begin(), active_.end(), false);
 	height_[sourceVertexIndex] = numberOfVertices;
-	excess_[sourceVertexIndex] = std::numeric_limits<size_t>::max(); // this is supposed to be infinite
+	excess_[sourceVertexIndex] = std::numeric_limits<Flow>::max(); // this is supposed to be infinite
 	active_[sourceVertexIndex] = true;
 	active_[sinkVertexIndex] = true;
 	labelCount_.resize((2 * numberOfVertices) + 2); // 2n + 1 is the maximum possible height for a vertex

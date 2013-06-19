@@ -17,13 +17,20 @@ Subgraphs are defined by subgraph masks.
 
 Features
 
-- Directed and undirected graphs, implemented as adjacency lists
+- Directed and undirected graphs implemented as adjacency lists with constant-time access
 - Access to vertices and edges by contiguous integer indices
 - Access to neighboring vertices and incident edges by STL-compliant random access iterators
 - Insertion and removal of vertices and edges
 - Multiple edges, which are disabled by default, can be enabled
 - Visitors that follow changes of vertex and edge indices
 - Algorithms
-  - Minimum multicuts by interger programming, using Cplex or Gurobi
   - Connected components by breadth-first search and disjoint sets
   - Shortest paths (SSSP, SPSP) in weighted and unweighted graphs
+  - Maximum s-t-flow (Push-Relabel Algorithm with FIFO vertex selection rule)
+  - Minimum multicuts by interger programming, using Cplex or Gurobi
+
+
+Contributions
+
+- Mark Matten, markmatten@gmail.com
+  - Push-Relabel Algorithm with FIFO vertex selection rule for computing maximum s-t-flow
