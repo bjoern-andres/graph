@@ -46,7 +46,6 @@
 
 #include "andres/graph/graph.hxx" // DefaultSubgraphMask
 
-
 namespace andres {
 namespace graph {
 
@@ -391,12 +390,8 @@ spsp(
 /// \param vs The source vertex.
 /// \param vt The target vertex.
 /// \param path A double-ended queue to which the path is written.
-/// \param parents An optional external buffer.
 /// \return true if a (shortest) path was found, false otherwise.
 ///
-///
-///
-
 template<class GRAPH, class SUBGRAPH_MASK>
 bool
 spsp(
@@ -412,6 +407,21 @@ spsp(
 
 }
 
+/// Search for a shortest path from one to another vertex in an **unweighted subgraph** using breadth-first-search.
+///
+/// This function works for both undirected and directed graphs. It carries out
+/// breadth-first searches from the source vertex vs and the target vertex vt, 
+/// alternating between the two search trees, until these trees meet and thus, 
+/// a shortest path from vs to vt has been found.
+///
+/// \param g A graph class such as andres::Graph or andres::Digraph.
+/// \param mask A subgraph mask such as DefaultSubgraphMask.
+/// \param vs The source vertex.
+/// \param vt The target vertex.
+/// \param path A double-ended queue to which the path is written.
+/// \param parents An optional external buffer.
+/// \return true if a (shortest) path was found, false otherwise.
+///
 template<class GRAPH, class SUBGRAPH_MASK>
 bool 
 spsp(
