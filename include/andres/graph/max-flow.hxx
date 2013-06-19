@@ -38,6 +38,7 @@
 namespace andres {
 namespace graph {
 
+/// Push-relabel algorithm for computing the maximum flow of a Digraph
 template<class GRAPH, class FLOW>
 class MaxFlowPushRelabel {
 public:
@@ -81,6 +82,8 @@ private:
 	size_t relabelCount_;
 };
 
+/// Construct an instance of the push-relabel algorithm.
+///
 template<class GRAPH, class FLOW>
 inline
 MaxFlowPushRelabel<GRAPH, FLOW>::MaxFlowPushRelabel()
@@ -96,6 +99,13 @@ MaxFlowPushRelabel<GRAPH, FLOW>::MaxFlowPushRelabel()
 	relabelCount_()
 {}
 
+/// Construct an instance of the push-relabel algorithm.
+///
+/// \param graph A graph.
+/// \param edgeWeightIterator Iterator to the beginning of a sequence of edge weights.
+/// \param sourceVertexIndex Index of the source vertex.
+/// \param sinkVertexIndex Index of the sink vertex.
+/// 
 template<class GRAPH, class FLOW>
 template<class EDGE_WEIGHT_ITERATOR>
 inline
@@ -119,6 +129,8 @@ MaxFlowPushRelabel<GRAPH, FLOW>::MaxFlowPushRelabel(
 	(*this)(graph, edgeWeightIterator, sourceVertexIndex, sinkVertexIndex);
 }
 
+/// Clear all members.
+///
 template<class GRAPH, class FLOW>
 inline void
 MaxFlowPushRelabel<GRAPH, FLOW>::clear() {
@@ -135,12 +147,21 @@ MaxFlowPushRelabel<GRAPH, FLOW>::clear() {
 	assert(queue_.empty());
 }
 
+/// Return the maximum flow through the graph.
+///
+/// \return The excess flow at the sink vertex, which is equal to the max flow.
+///
 template<class GRAPH, class FLOW>
 inline typename MaxFlowPushRelabel<GRAPH, FLOW>::Flow 
 MaxFlowPushRelabel<GRAPH, FLOW>::maxFlow() const  {
 	return excess_[sinkVertexIndex_];
 }
 
+/// Return the flow in a certain edge.
+///
+/// \param edgeIndex Index of an edge.
+/// \return The flow in the edge given by edgeIndex.
+///
 template<class GRAPH, class FLOW>
 inline typename MaxFlowPushRelabel<GRAPH, FLOW>::Flow 
 MaxFlowPushRelabel<GRAPH, FLOW>::flow(
@@ -150,18 +171,33 @@ MaxFlowPushRelabel<GRAPH, FLOW>::flow(
 	return flow_[edgeIndex];
 }
 
+/// Return the total number of pushes executed.
+///
+/// \return The number of pushes.
+///
 template<class GRAPH, class FLOW>
 inline size_t 
 MaxFlowPushRelabel<GRAPH, FLOW>::numberOfPushes() const {
 	return pushCount_;
 }
 
+/// Return the total number of relabels executed.
+///
+/// \return The number of relabels.
+///
 template<class GRAPH, class FLOW>
 inline size_t 
 MaxFlowPushRelabel<GRAPH, FLOW>::numberOfRelabels() const {
 	return relabelCount_;
 }
 
+/// Initialize members and executes push-relabel algorithm.
+///
+/// \param graph A graph.
+/// \param edgeWeightIterator Iterator to the beginning of a sequence of edge weights.
+/// \param sourceVertexIndex Index of the source vertex.
+/// \param sinkVertexIndex Index of the sink vertex.
+/// 
 template<class GRAPH, class FLOW>
 template<class EDGE_WEIGHT_ITERATOR>
 inline typename MaxFlowPushRelabel<GRAPH, FLOW>::Flow 
@@ -213,6 +249,12 @@ MaxFlowPushRelabel<GRAPH, FLOW>::operator()(
 	return maxFlow();
 }
 
+/// Push flow forward along an outgoing edge from a node to its child node.
+///
+/// \param graph A graph.
+/// \param edgeWeightIterator Iterator to the beginning of a sequence of edge weights.
+/// \param edgeIndex Index of an edge.
+/// 
 template<class GRAPH, class FLOW>
 template<class EDGE_WEIGHT_ITERATOR>
 inline void
@@ -235,6 +277,12 @@ MaxFlowPushRelabel<GRAPH, FLOW>::push(
 	pushCount_++;
 }
 
+/// Push flow backward along an incoming edge from a node to its parent node.
+///
+/// \param graph A graph.
+/// \param edgeWeightIterator Iterator to the beginning of a sequence of edge weights.
+/// \param edgeIndex Index of an edge.
+/// 
 template<class GRAPH, class FLOW>
 template<class EDGE_WEIGHT_ITERATOR>
 inline void
@@ -257,7 +305,12 @@ MaxFlowPushRelabel<GRAPH, FLOW>::pushBack(
 	pushCount_++;
 }
 
-/// increase height of u to 1 greater than the minimum height of its neighbors.
+/// Increase height of u to 1 greater than the minimum height of its neighbors.  Execute a gap relabel if a gap in heights exists.
+///
+/// \param graph A graph.
+/// \param edgeWeightIterator Iterator to the beginning of a sequence of edge weights.
+/// \param u Index of a vertex to relabel.
+/// 
 template<class GRAPH, class FLOW>
 template<class EDGE_WEIGHT_ITERATOR>
 inline void
@@ -297,7 +350,12 @@ MaxFlowPushRelabel<GRAPH, FLOW>::relabel(
 	}
 }
 
-/// while there is excess flow at u, try to push flow to neighbors. If no push is available, relabel u.
+/// While there is excess flow at u, try to push flow to its neighbors. If no push is available, relabel u.
+///
+/// \param graph A graph.
+/// \param edgeWeightIterator Iterator to the beginning of a sequence of edge weights.
+/// \param u Index of a vertex to discharge.
+/// 
 template<class GRAPH, class FLOW>
 template<class EDGE_WEIGHT_ITERATOR>
 inline void
@@ -326,6 +384,11 @@ MaxFlowPushRelabel<GRAPH, FLOW>::discharge(
 	}
 }
 
+/// If there is a gap in heights, relabel all vertices with height above the gap to a height greater than the height of the source vertex.
+///
+/// \param graph A graph.
+/// \param threshold The height at which a gap exists.
+/// 
 template<class GRAPH, class FLOW>
 inline void
 MaxFlowPushRelabel<GRAPH, FLOW>::gapRelabel(
