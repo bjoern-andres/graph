@@ -64,6 +64,9 @@ add_test(test-graph-paths test-graph-paths)
 add_executable(test-graph-components src/unittest/graph/components.cxx ${headers})
 add_test(test-graph-components test-graph-components)
 
+add_executable(test-max-flow src/unittest/graph/max-flow.cxx ${headers})
+add_test(test-max-flow test-max-flow)
+
 if(CPLEX_FOUND)
     add_executable(test-graph-multicut-cplex src/unittest/graph/multicut-cplex.cxx ${headers})
     target_link_libraries(test-graph-multicut-cplex ${CMAKE_THREAD_LIBS_INIT} ${ILOCPLEX_LIBRARY} ${CPLEX_LIBRARY} ${CONCERT_LIBRARY})
