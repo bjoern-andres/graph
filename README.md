@@ -44,6 +44,9 @@ License
 
 Copyright (c) 2013 by Bjoern Andres, http://www.andres.sc/
 
+This software was developed by Bjoern Andres.
+Enquiries shall be directed to bjoern@andres.sc.
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
