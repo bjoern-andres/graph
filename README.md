@@ -1,4 +1,4 @@
-Graph
+Graphs and Graph Algorithms in C++
 ============
 
 Graphs with Integer Indexing and Graph Algorithms in C++
