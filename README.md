@@ -6,7 +6,7 @@ Graphs with Integer Indexing and Graph Algorithms in C++
 Copyright (c) 2013 by Bjoern Andres, http://www.andres.sc/
 
 
-Short description
+Synopsis
 
 This set of header files implements directed and undirected graphs as adjacency lists.
 Vertices and edges are always indexed by contiguous integers.
