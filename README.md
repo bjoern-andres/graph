@@ -1,12 +1,11 @@
 Graphs and Graph Algorithms in C++
 ============
 
-Graphs with Integer Indexing and Graph Algorithms in C++
-
 Copyright (c) 2013 by Bjoern Andres, http://www.andres.sc/
 
 
 Synopsis
+------------
 
 This set of header files implements directed and undirected graphs as adjacency lists.
 Vertices and edges are always indexed by contiguous integers.
@@ -18,6 +17,7 @@ Subgraphs are defined by subgraph masks.
 
 
 Features
+------------
 
 - Directed and undirected graphs implemented as adjacency lists with constant-time access
 - Access to vertices and edges by contiguous integer indices
@@ -33,12 +33,14 @@ Features
 
 
 Contributions
+------------
 
 - Mark Matten, markmatten@gmail.com
   - Push-Relabel Algorithm with FIFO vertex selection rule for computing maximum s-t-flow
 
 
 License
+------------
 
 Copyright (c) 2013 by Bjoern Andres, http://www.andres.sc/
 
