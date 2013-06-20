@@ -3,7 +3,7 @@ Graph
 
 Graphs with Integer Indexing and Graph Algorithms in C++
 
-Copyright (c) 2013 by Bjoern Andres, bjoern@andres.sc
+Copyright (c) 2013 by Bjoern Andres, http://www.andres.sc/
 
 
 Short description
@@ -40,7 +40,9 @@ Contributions
 
 License
 
-Redistribution and use in source and binary forms, with or without 
+Copyright (c) 2013 by Bjoern Andres, http://www.andres.sc/
+
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 - Redistributions of source code must retain the above copyright notice,

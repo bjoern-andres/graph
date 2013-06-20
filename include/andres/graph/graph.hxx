@@ -1,28 +1,33 @@
 /// \mainpage
-/// andres::graph -- Graphs with Simple Indexing of Vertices and Edges in C++ 
+/// Graphs and Graph Algorithms in C++.
+/// \newline
 ///
 /// Copyright (c) 2013 by Bjoern Andres, http://www.andres.sc
 ///
 /// \section section_abstract Short Description
 /// This C++ header file implements directed and undirected graphs as adjacency
-/// lists. Unlike in other implementations such as the boost graph library, 
-/// vertices and edges are always indexed by contiguous integers. This indexing
-/// simplifies the implementation of algorithms for static graphs. In dynamic 
-/// settings where vertices and edges are removed from a graph, indices of 
-/// vertices and edges can change. These changes can be followed, if necessary, 
-/// by means of a simple visitor.
+/// lists with constant-time access. Unlike in other implementations such as 
+/// the boost graph library, vertices and edges are always indexed by 
+/// contiguous integers. This indexing simplifies the implementation of 
+/// algorithms for static graphs. In dynamic settings where vertices and edges 
+/// are removed from a graph, indices of vertices and edges can change. These 
+/// changes can be followed, if necessary, by means of a simple visitor.
 ///
 /// \section section_features Features
 /// - Directed and undirected graphs, implemented as adjacency lists
+///   with constant-time access
 /// - Access to vertices and edges by contiguous integer indices
-/// - Access to neighboring vertices and incident edges by STL-compliant random access iterators
+/// - Access to neighboring vertices and incident edges by STL-compliant 
+///   random access iterators
 /// - Insertion and removal of vertices and edges 
 /// - Multiple edges, which are disabled by default, can be enabled
 /// - Visitors that follow changes of vertex and edge indices 
 /// - Algorithms
-///   - Minimum multicuts by interger programming, using Cplex or Gurobi 
 ///   - Connected components by breadth-first search and disjoint sets 
 ///   - Shortest paths (SSSP, SPSP) in weighted and unweighted graphs.
+///   - Maximum s-t-flow by a push-relabel algorithm with FIFO vertex 
+///     selection rule.
+///   - Minimum multicuts by interger programming, using Cplex or Gurobi 
 ///   . 
 /// 
 /// \section section_license License
@@ -33,7 +38,6 @@
 ///
 /// Redistribution and use in source and binary forms, with or without 
 /// modification, are permitted provided that the following conditions are met:
-///
 /// - Redistributions of source code must retain the above copyright notice,
 ///   this list of conditions and the following disclaimer.
 /// - Redistributions in binary form must reproduce the above copyright notice, 
