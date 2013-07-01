@@ -1,4 +1,4 @@
-// Copyright (c) 2013 by Mark Matten, Duligur Ibeling
+// Copyright (c) 2013 by Mark Matten and Duligur Ibeling.
 // 
 // This software was developed by Mark Matten.
 // Enquiries shall be directed to markmatten@gmail.com
@@ -35,7 +35,7 @@
 #include <limits> // std::numeric_limit
 #include <algorithm> // std::max, std::min
 
-#include "andres/graph/shortest-paths-edges.hxx"
+#include "andres/graph/shortest-paths.hxx" // std::max, std::min
 
 namespace andres {
 namespace graph {
@@ -110,7 +110,7 @@ MaxFlowPushRelabel<GRAPH, FLOW>::MaxFlowPushRelabel()
 /// \param edgeWeightIterator Iterator to the beginning of a sequence of edge weights.
 /// \param sourceVertexIndex Index of the source vertex.
 /// \param sinkVertexIndex Index of the sink vertex.
-/// 
+///
 template<class GRAPH, class FLOW>
 template<class EDGE_WEIGHT_ITERATOR>
 inline
@@ -407,6 +407,8 @@ MaxFlowPushRelabel<GRAPH, FLOW>::gapRelabel(
 	}
 }
 
+/// Edmonds-Karp Algorithm for computing the maximum s-t-flow of a Digraph.
+///
 template<class GRAPH, class FLOW>
 class MaxFlowEdmondsKarp {
 public:
@@ -451,36 +453,47 @@ private:
     
 };
 
+/// Construct an instance of the Edmonds-Karp algorithm.
+///
 template<class GRAPH, class FLOW>
 inline
 MaxFlowEdmondsKarp<GRAPH, FLOW>::MaxFlowEdmondsKarp()
 :	augmentingPath_(),
-rgraph_(),
-flow_(),
-sourceVertexIndex_(),
-sinkVertexIndex_(),
-maxFlow_()
+    rgraph_(),
+    flow_(),
+    sourceVertexIndex_(),
+    sinkVertexIndex_(),
+    maxFlow_()
 {}
 
+/// Construct an instance of the push-relabel algorithm.
+///
+/// \param graph A graph.
+/// \param edgeWeightIterator Iterator to the beginning of a sequence of edge weights.
+/// \param sourceVertexIndex Index of the source vertex.
+/// \param sinkVertexIndex Index of the sink vertex.
+///
 template<class GRAPH, class FLOW>
 template<class EDGE_WEIGHT_ITERATOR>
 inline
 MaxFlowEdmondsKarp<GRAPH, FLOW>::MaxFlowEdmondsKarp(
-                                                    const GraphType& graph,
-                                                    EDGE_WEIGHT_ITERATOR edgeWeightIterator,
-                                                    const size_t sourceVertexIndex,
-                                                    const size_t sinkVertexIndex
-                                                    )
+    const GraphType& graph,
+    EDGE_WEIGHT_ITERATOR edgeWeightIterator,
+    const size_t sourceVertexIndex,
+    const size_t sinkVertexIndex
+)
 :	augmentingPath_(),
-rgraph_(),
-flow_(),
-sourceVertexIndex_(),
-sinkVertexIndex_(),
-maxFlow_()
+    rgraph_(),
+    flow_(),
+    sourceVertexIndex_(),
+    sinkVertexIndex_(),
+    maxFlow_()
 {
     (*this)(graph, edgeWeightIterator, sourceVertexIndex, sinkVertexIndex);
 }
 
+/// Clear all members.
+///
 template<class GRAPH, class FLOW>
 inline void
 MaxFlowEdmondsKarp<GRAPH, FLOW>::clear() {
@@ -491,33 +504,49 @@ MaxFlowEdmondsKarp<GRAPH, FLOW>::clear() {
     maxFlow_ = Flow();
 }
 
+/// Return the maximum flow through the graph.
+///
+/// \return The max flow.
+///
 template<class GRAPH, class FLOW>
 inline typename MaxFlowEdmondsKarp<GRAPH, FLOW>::Flow
 MaxFlowEdmondsKarp<GRAPH, FLOW>::maxFlow() const  {
     return maxFlow_;
 }
 
+/// Return the flow in a certain edge.
+///
+/// \param edgeIndex Index of an edge.
+/// \return The flow in the edge given by edgeIndex.
+///
 template<class GRAPH, class FLOW>
 inline typename MaxFlowEdmondsKarp<GRAPH, FLOW>::Flow
 MaxFlowEdmondsKarp<GRAPH, FLOW>::flow(
-                                      const size_t edgeIndex
-                                      ) const {
+    const size_t edgeIndex
+) const {
     assert(edgeIndex < flow_.size());
     return flow_[edgeIndex];
 }
 
+/// Initialize members and executes Edmonds-Karp algorithm.
+///
+/// \param graph A graph.
+/// \param edgeWeightIterator Iterator to the beginning of a sequence of edge weights.
+/// \param sourceVertexIndex Index of the source vertex.
+/// \param sinkVertexIndex Index of the sink vertex.
+/// 
 template<class GRAPH, class FLOW>
 template<class EDGE_WEIGHT_ITERATOR>
 typename MaxFlowEdmondsKarp<GRAPH, FLOW>::Flow
 MaxFlowEdmondsKarp<GRAPH, FLOW>::operator()(
-                                            const GraphType& graph,
-                                            const EDGE_WEIGHT_ITERATOR edgeWeightIterator,
-                                            const size_t sourceVertexIndex,
-                                            const size_t sinkVertexIndex
-                                            ) {
-    
+    const GraphType& graph,
+    const EDGE_WEIGHT_ITERATOR edgeWeightIterator,
+    const size_t sourceVertexIndex,
+    const size_t sinkVertexIndex
+) {
     const size_t m = graph.numberOfEdges();
     
+    // initialization
     sourceVertexIndex_ = sourceVertexIndex;
     sinkVertexIndex_ = sinkVertexIndex;
     flow_.resize(m);
@@ -533,6 +562,7 @@ MaxFlowEdmondsKarp<GRAPH, FLOW>::operator()(
     ResidualMask<EDGE_WEIGHT_ITERATOR> rm(m, flow_, edgeWeightIterator);
     maxFlow_ = Flow();
     
+    // while there's an augmenting path, augment flow along it. choose the shortest augmenting path by number of edges
     Flow min;
     while (spspEdges(rgraph_, rm, sourceVertexIndex_, sinkVertexIndex_, augmentingPath_)) {
         min = rm.capacity(augmentingPath_[0]);
@@ -545,6 +575,7 @@ MaxFlowEdmondsKarp<GRAPH, FLOW>::operator()(
         }
     }
     
+    // sum flow out of source to get the max flow
     for (size_t i = 0; i < m; ++i) {
         if (graph.vertexOfEdge(i, 0) == sourceVertexIndex_) {
             maxFlow_ += flow_[i];

@@ -58,9 +58,6 @@ add_test(test-graph-digraph test-graph-digraph)
 add_executable(test-graph-shortest-paths src/unittest/graph/shortest-paths.cxx ${headers})
 add_test(test-graph-shortest-paths test-graph-shortest-paths)
 
-add_executable(test-graph-shortest-paths-edges src/unittest/graph/shortest-paths-edges.cxx ${headers})
-add_test(test-graph-shortest-paths-edges test-graph-shortest-paths-edges)
-
 add_executable(test-graph-paths src/unittest/graph/paths.cxx ${headers})
 add_test(test-graph-paths test-graph-paths)
 
