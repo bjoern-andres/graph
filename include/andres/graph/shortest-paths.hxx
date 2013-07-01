@@ -322,6 +322,35 @@ public:
             return true; // continue with the algorithm
         }
     }
+    
+    bool operator()(
+        Distances distances,
+        Parents parents,
+        Parents parentsEdges,
+        size_t vertex
+    ) {
+        if(vertex == vt_) {
+            const Value infinity = std::numeric_limits<Value>::has_infinity
+            ? std::numeric_limits<Value>::infinity()
+            : std::numeric_limits<Value>::max();
+			if(distances[vertex] == infinity) {
+                path_.clear();
+                return false; // stop the algorithm
+            }
+            for(;;) {
+                if(vertex == vs_) {
+                    return false; // stop the algorithm
+                }
+                else {
+					path_.push_front(parentsEdges[vertex]);
+                    vertex = parents[vertex];
+                }
+            }
+        }
+        else {
+            return true; // continue with the algorithm
+        }
+    }
 
     size_t vs_;
     size_t vt_;
@@ -660,6 +689,8 @@ struct DijkstraIdleVisitor {
 
     bool operator()(Distances, Parents, const size_t) const
         { return true; /* continue with the algorithm */ }
+    bool operator()(Distances, Parents, Parents, const size_t) const
+    { return true; /* continue with the algorithm */ }
 };
 
 /// Search for shortest paths from a given vertex to every other vertex in a **subgraph** with **non-negative edge weights** using Dijkstra's algorithm.

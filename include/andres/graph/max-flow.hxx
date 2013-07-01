@@ -1,4 +1,4 @@
-// Copyright (c) 2013 by Mark Matten
+// Copyright (c) 2013 by Mark Matten, Duligur Ibeling
 // 
 // This software was developed by Mark Matten.
 // Enquiries shall be directed to markmatten@gmail.com
@@ -34,6 +34,8 @@
 #include <queue>
 #include <limits> // std::numeric_limit
 #include <algorithm> // std::max, std::min
+
+#include "andres/graph/shortest-paths-edges.hxx"
 
 namespace andres {
 namespace graph {
@@ -405,6 +407,154 @@ MaxFlowPushRelabel<GRAPH, FLOW>::gapRelabel(
 	}
 }
 
+template<class GRAPH, class FLOW>
+class MaxFlowEdmondsKarp {
+public:
+    typedef GRAPH GraphType;
+    typedef FLOW Flow;
+    
+    MaxFlowEdmondsKarp();
+    template <class EDGE_WEIGHT_ITERATOR>
+    MaxFlowEdmondsKarp(const GraphType&, EDGE_WEIGHT_ITERATOR, const size_t, const size_t);
+    void clear();
+    Flow maxFlow() const;
+    Flow flow(const size_t) const;
+    template<class EDGE_WEIGHT_ITERATOR>
+    Flow operator()(const GraphType&, const EDGE_WEIGHT_ITERATOR, const size_t, const size_t);
+    
+private:
+    std::deque<size_t> augmentingPath_;
+    Digraph<> rgraph_;
+    std::vector<Flow> flow_;
+    size_t sourceVertexIndex_;
+    size_t sinkVertexIndex_;
+    Flow maxFlow_;
+    
+    template <class EDGE_WEIGHT_ITERATOR>
+    class ResidualMask {
+    public:
+        ResidualMask(const size_t e, const std::vector<Flow>& flow, const EDGE_WEIGHT_ITERATOR& ew)
+        : edges(e), f(flow), edgeWeightIterator(ew){} ;
+        bool vertex (const size_t) const { return true; };
+        bool edge (const size_t e) const { return capacity(e) > Flow(); };
+        Flow capacity (const size_t e) const { if (e >= edges) {
+            return f[e - edges];
+        } else {
+            return edgeWeightIterator[e] - f[e];
+        } };
+        
+    private:
+        const size_t edges;
+        const std::vector<Flow>& f;
+        const EDGE_WEIGHT_ITERATOR& edgeWeightIterator;
+    };
+    
+};
+
+template<class GRAPH, class FLOW>
+inline
+MaxFlowEdmondsKarp<GRAPH, FLOW>::MaxFlowEdmondsKarp()
+:	augmentingPath_(),
+rgraph_(),
+flow_(),
+sourceVertexIndex_(),
+sinkVertexIndex_(),
+maxFlow_()
+{}
+
+template<class GRAPH, class FLOW>
+template<class EDGE_WEIGHT_ITERATOR>
+inline
+MaxFlowEdmondsKarp<GRAPH, FLOW>::MaxFlowEdmondsKarp(
+                                                    const GraphType& graph,
+                                                    EDGE_WEIGHT_ITERATOR edgeWeightIterator,
+                                                    const size_t sourceVertexIndex,
+                                                    const size_t sinkVertexIndex
+                                                    )
+:	augmentingPath_(),
+rgraph_(),
+flow_(),
+sourceVertexIndex_(),
+sinkVertexIndex_(),
+maxFlow_()
+{
+    (*this)(graph, edgeWeightIterator, sourceVertexIndex, sinkVertexIndex);
+}
+
+template<class GRAPH, class FLOW>
+inline void
+MaxFlowEdmondsKarp<GRAPH, FLOW>::clear() {
+    augmentingPath_.clear();
+    rgraph_ = Digraph<>();
+    flow_.clear();
+    sourceVertexIndex_ = sinkVertexIndex_ = 0;
+    maxFlow_ = Flow();
+}
+
+template<class GRAPH, class FLOW>
+inline typename MaxFlowEdmondsKarp<GRAPH, FLOW>::Flow
+MaxFlowEdmondsKarp<GRAPH, FLOW>::maxFlow() const  {
+    return maxFlow_;
+}
+
+template<class GRAPH, class FLOW>
+inline typename MaxFlowEdmondsKarp<GRAPH, FLOW>::Flow
+MaxFlowEdmondsKarp<GRAPH, FLOW>::flow(
+                                      const size_t edgeIndex
+                                      ) const {
+    assert(edgeIndex < flow_.size());
+    return flow_[edgeIndex];
+}
+
+template<class GRAPH, class FLOW>
+template<class EDGE_WEIGHT_ITERATOR>
+typename MaxFlowEdmondsKarp<GRAPH, FLOW>::Flow
+MaxFlowEdmondsKarp<GRAPH, FLOW>::operator()(
+                                            const GraphType& graph,
+                                            const EDGE_WEIGHT_ITERATOR edgeWeightIterator,
+                                            const size_t sourceVertexIndex,
+                                            const size_t sinkVertexIndex
+                                            ) {
+    
+    const size_t m = graph.numberOfEdges();
+    
+    sourceVertexIndex_ = sourceVertexIndex;
+    sinkVertexIndex_ = sinkVertexIndex;
+    flow_.resize(m);
+    std::fill (flow_.begin(), flow_.end(), Flow());
+    augmentingPath_.clear();
+    rgraph_ = Digraph<>(graph.numberOfVertices());
+    for (size_t i = 0; i < m; ++i) {
+        rgraph_.insertEdge(graph.vertexOfEdge(i, 0), graph.vertexOfEdge(i, 1));
+    }
+    for (size_t i = 0; i < m; ++i) {
+        rgraph_.insertEdge(graph.vertexOfEdge(i, 1), graph.vertexOfEdge(i, 0));
+    }
+    ResidualMask<EDGE_WEIGHT_ITERATOR> rm(m, flow_, edgeWeightIterator);
+    maxFlow_ = Flow();
+    
+    Flow min;
+    while (spspEdges(rgraph_, rm, sourceVertexIndex_, sinkVertexIndex_, augmentingPath_)) {
+        min = rm.capacity(augmentingPath_[0]);
+        for (std::deque<size_t>::iterator i = augmentingPath_.begin(); i < augmentingPath_.end(); ++i) {
+            if (rm.capacity(*i) < min) min = rm.capacity(*i);
+        }
+        for (std::deque<size_t>::iterator i = augmentingPath_.begin(); i < augmentingPath_.end(); ++i) {
+            if (*i < m) flow_[*i] += min;
+            else flow_[*i - m] -= min;
+        }
+    }
+    
+    for (size_t i = 0; i < m; ++i) {
+        if (graph.vertexOfEdge(i, 0) == sourceVertexIndex_) {
+            maxFlow_ += flow_[i];
+        }
+    }
+    
+    return maxFlow_;
+    
+}
+    
 } // namespace graph
 } // namespace andres
 

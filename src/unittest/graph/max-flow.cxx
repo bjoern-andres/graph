@@ -1,4 +1,4 @@
-// Copyright (c) 2013 by Mark Matten.
+// Copyright (c) 2013 by Mark Matten, Duligur Ibeling.
 // 
 // This software was developed by Mark Matten.
 // Enquiries shall be directed to markmatten@gmail.com
@@ -84,8 +84,59 @@ void testPushRelabel() {
 	maxFlowPushRelabel.clear(); // just to see if it works
 }
 
+void testEdmondsKarp() {
+	typedef andres::graph::Digraph<> Digraph;
+	typedef double Flow;
+	typedef andres::graph::MaxFlowEdmondsKarp<Digraph, Flow> MaxFlowEdmondsKarp;
+	
+	// define graph
+	Digraph digraph;
+	digraph.insertVertices(6);
+	digraph.insertEdge(0, 1);
+	digraph.insertEdge(0, 2);
+	digraph.insertEdge(1, 3);
+	digraph.insertEdge(2, 4);
+	digraph.insertEdge(3, 4);
+	digraph.insertEdge(3, 5);
+	digraph.insertEdge(4, 5);
+    
+	// define edge weights
+	std::vector<double> edgeWeights(digraph.numberOfEdges());
+	edgeWeights[0] = 20;
+	edgeWeights[1] = 15;
+	edgeWeights[2] = 10;
+	edgeWeights[3] = 5;
+	edgeWeights[4] = 5;
+	edgeWeights[5] = 8;
+	edgeWeights[6] = 10;
+    
+	// define source and sink vertex
+	size_t sourceVertexIndex = 0;
+	size_t sinkVertexIndex = 5;
+    
+	MaxFlowEdmondsKarp maxFlowEdmondsKarp(
+        digraph,
+        edgeWeights.begin(),
+        sourceVertexIndex,
+        sinkVertexIndex
+    );
+    
+    test(maxFlowEdmondsKarp.flow(0) == 10);
+	test(maxFlowEdmondsKarp.flow(1) == 5);
+	test(maxFlowEdmondsKarp.flow(2) == 10);
+	test(maxFlowEdmondsKarp.flow(3) == 5);
+	test(maxFlowEdmondsKarp.flow(4) == 2);
+	test(maxFlowEdmondsKarp.flow(5) == 8);
+	test(maxFlowEdmondsKarp.flow(6) == 7);
+	test(maxFlowEdmondsKarp.maxFlow() == 15);
+    
+    maxFlowEdmondsKarp.clear(); // just to see if it works
+    
+}
+
 int main() {
 	testPushRelabel();
+    testEdmondsKarp();
 
 	return 0;
 }

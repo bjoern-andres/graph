@@ -172,7 +172,9 @@ public:
     IteratorHelper<T> operator--(int); // postfix
     IteratorHelper<T> operator+(const difference_type) const;
     IteratorHelper<T> operator-(const difference_type) const;
+    #ifdef _MSC_VER
     difference_type operator-(const IteratorHelper<T>&) const;
+    #endif
 
     // access
     size_t operator*() const;
@@ -535,6 +537,7 @@ IteratorHelper<T>::operator-(
     return Base::operator-(d);
 }
 
+#ifdef _MSC_VER
 template<bool T>
 inline typename IteratorHelper<T>::difference_type
 IteratorHelper<T>::operator-(
@@ -542,6 +545,7 @@ IteratorHelper<T>::operator-(
 ) const {
     return Base::operator-(other);
 }
+#endif
 
 } // namespace graph_detail
 // \endcond
