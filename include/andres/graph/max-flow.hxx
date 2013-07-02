@@ -270,7 +270,7 @@ MaxFlowPushRelabel<GRAPH, FLOW>::operator()(
 	excess_[sourceVertexIndex] = std::numeric_limits<Flow>::max(); // this is supposed to be infinite
 	active_[sourceVertexIndex] = true;
 	active_[sinkVertexIndex] = true;
-	labelCount_.resize((2 * numberOfVertices) + 3); // 2n + 1 is the maximum possible height for a vertex
+	labelCount_.resize((2 * numberOfVertices) + 2); // 2n + 1 is the maximum possible height for a vertex
 	std::fill(labelCount_.begin(), labelCount_.end(), size_t());
 	labelCount_[0] = numberOfVertices - 1;
 	labelCount_[numberOfVertices] = 1;
@@ -369,7 +369,7 @@ MaxFlowPushRelabel<GRAPH, FLOW>::relabel(
 	EDGE_WEIGHT_ITERATOR edgeWeightIterator,
 	const size_t u
 ) {
-	size_t minHeight = (2 * graph.numberOfVertices()) + 1;
+	size_t minHeight = 2 * graph.numberOfVertices();
 	const size_t oldHeight = height_[u];
 	for(EdgeIterator it = graph.edgesFromVertexBegin(u); it != graph.edgesFromVertexEnd(u); ++it) {
 		const size_t edgeIndex = *it;

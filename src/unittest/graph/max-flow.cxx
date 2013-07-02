@@ -45,6 +45,11 @@ struct SubgraphMask2 {
     bool edge(const size_t e) const { return e != 3; }
 };
 
+struct SubgraphMask3 {
+    bool vertex(const size_t v) const { return v != 1 && v != 3; }
+    bool edge(const size_t e) const { return e != 0 && e != 2 && e!= 4 && e!= 5; }
+};
+
 void testPushRelabel() {
     typedef andres::graph::Digraph<> Digraph;
     typedef double Flow;
@@ -127,6 +132,23 @@ void testPushRelabel() {
 	test(maxFlowPushRelabel.flow(6) == 5);
 	test(maxFlowPushRelabel.maxFlow() == 10);
     
+    maxFlowPushRelabel(
+        digraph,
+        SubgraphMask3(),
+        edgeWeights.begin(),
+        sourceVertexIndex,
+        sinkVertexIndex
+    );
+    
+    test(maxFlowPushRelabel.flow(0) == 0);
+	test(maxFlowPushRelabel.flow(1) == 5);
+	test(maxFlowPushRelabel.flow(2) == 0);
+	test(maxFlowPushRelabel.flow(3) == 5);
+	test(maxFlowPushRelabel.flow(4) == 0);
+	test(maxFlowPushRelabel.flow(5) == 0);
+	test(maxFlowPushRelabel.flow(6) == 5);
+	test(maxFlowPushRelabel.maxFlow() == 5);
+    
 	maxFlowPushRelabel.clear(); // just to see if it works
 
 }
@@ -177,7 +199,7 @@ void testEdmondsKarp() {
 	test(maxFlowEdmondsKarp.flow(6) == 7);
 	test(maxFlowEdmondsKarp.maxFlow() == 15);
     
-    // with subgraph mask
+    // with subgraph masks
     
     maxFlowEdmondsKarp(
         digraph,
@@ -212,6 +234,23 @@ void testEdmondsKarp() {
 	test(maxFlowEdmondsKarp.flow(5) == 8);
 	test(maxFlowEdmondsKarp.flow(6) == 2);
     test(maxFlowEdmondsKarp.maxFlow() == 10);
+    
+    maxFlowEdmondsKarp(
+        digraph,
+        SubgraphMask3(),
+        edgeWeights.begin(),
+        sourceVertexIndex,
+        sinkVertexIndex
+    );
+    
+    test(maxFlowEdmondsKarp.flow(0) == 0);
+	test(maxFlowEdmondsKarp.flow(1) == 5);
+	test(maxFlowEdmondsKarp.flow(2) == 0);
+	test(maxFlowEdmondsKarp.flow(3) == 5);
+	test(maxFlowEdmondsKarp.flow(4) == 0);
+	test(maxFlowEdmondsKarp.flow(5) == 0);
+	test(maxFlowEdmondsKarp.flow(6) == 5);
+	test(maxFlowEdmondsKarp.maxFlow() == 5);
     
     maxFlowEdmondsKarp.clear();
     
