@@ -203,7 +203,7 @@ MaxFlowPushRelabel<GRAPH, FLOW>::numberOfRelabels() const {
     return relabelCount_;
 }
 
-/// Initialize members and executes push-relabel algorithm.
+/// Initialize members and execute push-relabel algorithm.
 ///
 /// \param graph A graph.
 /// \param mask A subgraph mask.
@@ -605,7 +605,7 @@ MaxFlowEdmondsKarp<GRAPH, FLOW>::flow(
     return flow_[edgeIndex];
 }
 
-/// Initialize members and executes Edmonds-Karp algorithm.
+/// Initialize members and execute Edmonds-Karp algorithm.
 ///
 /// \param graph A graph.
 /// \param subgraphMask A subgraph mask.

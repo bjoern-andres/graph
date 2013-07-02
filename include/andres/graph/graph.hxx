@@ -1,8 +1,11 @@
 /// \mainpage
 /// Graphs and Graph Algorithms in C++.
-/// \newline
 ///
 /// Copyright (c) 2013 by Bjoern Andres, http://www.andres.sc
+///
+/// This software was developed by Bjoern Andres, Duligur Ibeling,
+/// and Mark Matten.
+/// Enquiries shall be directed to bjoern@andres.sc.
 ///
 /// \section section_abstract Short Description
 /// This C++ header file implements directed and undirected graphs as adjacency
