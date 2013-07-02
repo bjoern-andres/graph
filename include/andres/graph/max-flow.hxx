@@ -138,26 +138,34 @@ MaxFlowPushRelabel<GRAPH, FLOW>::MaxFlowPushRelabel(
 	(*this)(graph, DefaultSubgraphMask<>(), edgeWeightIterator, sourceVertexIndex, sinkVertexIndex);
 }
 
+/// Construct an instance of the push-relabel algorithm.
+///
+/// \param graph A graph.
+/// \param mask A subgraph mask.
+/// \param edgeWeightIterator Iterator to the beginning of a sequence of edge weights.
+/// \param sourceVertexIndex Index of the source vertex.
+/// \param sinkVertexIndex Index of the sink vertex.
+/// 
 template<class GRAPH, class FLOW>
 template<class EDGE_WEIGHT_ITERATOR, class SUBGRAPH_MASK>
 inline
 MaxFlowPushRelabel<GRAPH, FLOW>::MaxFlowPushRelabel(
-                                                    const GraphType& graph,
-                                                    const SUBGRAPH_MASK& mask,
-                                                    EDGE_WEIGHT_ITERATOR edgeWeightIterator,
-                                                    const size_t sourceVertexIndex,
-                                                    const size_t sinkVertexIndex
-                                                    )
-:	height_(), 
-labelCount_(),
-excess_(), 
-flow_(),
-active_(),
-queue_(),
-sourceVertexIndex_(),
-sinkVertexIndex_(),
-pushCount_(), 
-relabelCount_()
+    const GraphType& graph,
+    const SUBGRAPH_MASK& mask,
+    EDGE_WEIGHT_ITERATOR edgeWeightIterator,
+    const size_t sourceVertexIndex,
+    const size_t sinkVertexIndex
+)
+:	height_(),
+    labelCount_(),
+    excess_(), 
+    flow_(),
+    active_(),
+    queue_(),
+    sourceVertexIndex_(),
+    sinkVertexIndex_(),
+    pushCount_(), 
+    relabelCount_()
 {
     (*this)(graph, mask, edgeWeightIterator, sourceVertexIndex, sinkVertexIndex);
 }
@@ -227,6 +235,7 @@ MaxFlowPushRelabel<GRAPH, FLOW>::numberOfRelabels() const {
 /// Initialize members and executes push-relabel algorithm.
 ///
 /// \param graph A graph.
+/// \param mask A subgraph mask.
 /// \param edgeWeightIterator Iterator to the beginning of a sequence of edge weights.
 /// \param sourceVertexIndex Index of the source vertex.
 /// \param sinkVertexIndex Index of the sink vertex.
@@ -241,6 +250,8 @@ MaxFlowPushRelabel<GRAPH, FLOW>::operator()(
 	const size_t sourceVertexIndex,
 	const size_t sinkVertexIndex
 ) {
+    assert(mask.vertex(sourceVertexIndex) && mask.vertex(sinkVertexIndex));
+    
 	const size_t numberOfVertices = graph.numberOfVertices();
 	const size_t numberOfEdges = graph.numberOfEdges();
 
@@ -259,7 +270,7 @@ MaxFlowPushRelabel<GRAPH, FLOW>::operator()(
 	excess_[sourceVertexIndex] = std::numeric_limits<Flow>::max(); // this is supposed to be infinite
 	active_[sourceVertexIndex] = true;
 	active_[sinkVertexIndex] = true;
-	labelCount_.resize((2 * numberOfVertices) + 2); // 2n + 1 is the maximum possible height for a vertex
+	labelCount_.resize((2 * numberOfVertices) + 3); // 2n + 1 is the maximum possible height for a vertex
 	std::fill(labelCount_.begin(), labelCount_.end(), size_t());
 	labelCount_[0] = numberOfVertices - 1;
 	labelCount_[numberOfVertices] = 1;
@@ -269,7 +280,8 @@ MaxFlowPushRelabel<GRAPH, FLOW>::operator()(
 	// first, push as much flow as possible from the source to all adjacent vertices
 	for(EdgeIterator it = graph.edgesFromVertexBegin(sourceVertexIndex); it != graph.edgesFromVertexEnd(sourceVertexIndex); ++it) {
 		const size_t edgeIndex = *it;
-        if (mask.edge(edgeIndex)) {
+        const size_t v = graph.vertexOfEdge(edgeIndex, 1);
+        if (mask.edge(edgeIndex) && mask.vertex(v)) {
 		push(graph, edgeWeightIterator, edgeIndex);
         }
 	}
@@ -344,6 +356,7 @@ MaxFlowPushRelabel<GRAPH, FLOW>::pushBack(
 /// Increase height of u to 1 greater than the minimum height of its neighbors.  Execute a gap relabel if a gap in heights exists.
 ///
 /// \param graph A graph.
+/// \param mask A subgraph mask.
 /// \param edgeWeightIterator Iterator to the beginning of a sequence of edge weights.
 /// \param u Index of a vertex to relabel.
 /// 
@@ -356,12 +369,12 @@ MaxFlowPushRelabel<GRAPH, FLOW>::relabel(
 	EDGE_WEIGHT_ITERATOR edgeWeightIterator,
 	const size_t u
 ) {
-	size_t minHeight = (2 * graph.numberOfVertices());
+	size_t minHeight = (2 * graph.numberOfVertices()) + 1;
 	const size_t oldHeight = height_[u];
 	for(EdgeIterator it = graph.edgesFromVertexBegin(u); it != graph.edgesFromVertexEnd(u); ++it) {
 		const size_t edgeIndex = *it;
-        if (mask.edge(edgeIndex)) {
-		const size_t v = graph.vertexOfEdge(edgeIndex, 1); // edge is (u, v)
+        const size_t v = graph.vertexOfEdge(edgeIndex, 1); // edge is (u, v)
+        if (mask.edge(edgeIndex) && mask.vertex(v)) {
 		if(edgeWeightIterator[edgeIndex] - flow_[edgeIndex] > 0) {
 			minHeight = std::min(minHeight, height_[v]);
 		}
@@ -369,8 +382,8 @@ MaxFlowPushRelabel<GRAPH, FLOW>::relabel(
 	}
 	for(EdgeIterator it = graph.edgesToVertexBegin(u); it != graph.edgesToVertexEnd(u); ++it) {
         const size_t edgeIndex = *it;
-        if (mask.edge(edgeIndex)) {
-		const size_t v = graph.vertexOfEdge(edgeIndex, 0); // edge is (v, u)
+        const size_t v = graph.vertexOfEdge(edgeIndex, 0); // edge is (v, u)
+        if (mask.edge(edgeIndex) && mask.vertex(v)) {
 		if(flow_[edgeIndex] > 0) {
             minHeight = std::min(minHeight, height_[v]);
 		}
@@ -394,6 +407,7 @@ MaxFlowPushRelabel<GRAPH, FLOW>::relabel(
 /// While there is excess flow at u, try to push flow to its neighbors. If no push is available, relabel u.
 ///
 /// \param graph A graph.
+/// \param mask A subgraph mask.
 /// \param edgeWeightIterator Iterator to the beginning of a sequence of edge weights.
 /// \param u Index of a vertex to discharge.
 /// 
@@ -409,8 +423,8 @@ MaxFlowPushRelabel<GRAPH, FLOW>::discharge(
 	while(excess_[u] > 0) {
 		for(EdgeIterator it = graph.edgesFromVertexBegin(u); it != graph.edgesFromVertexEnd(u); ++it) {
 			const size_t edgeIndex = *it;
-            if (mask.edge(edgeIndex)) {
-			const size_t v = graph.vertexOfEdge(edgeIndex, 1); // edge is the pair (u, v)
+            const size_t v = graph.vertexOfEdge(edgeIndex, 1); // edge is the pair (u, v)
+            if (mask.edge(edgeIndex) && mask.vertex(v)) {
 			if(edgeWeightIterator[edgeIndex] - flow_[edgeIndex] > 0 && height_[u] > height_[v]) {
 				push(graph, edgeWeightIterator, edgeIndex);
 			}
@@ -418,8 +432,8 @@ MaxFlowPushRelabel<GRAPH, FLOW>::discharge(
 		}
 		for(EdgeIterator it = graph.edgesToVertexBegin(u); it != graph.edgesToVertexEnd(u); ++it) {
 			const size_t edgeIndex = *it;
-            if (mask.edge(edgeIndex)) {
-			const size_t v = graph.vertexOfEdge(edgeIndex, 0); // edge is the pair (v, u)
+            const size_t v = graph.vertexOfEdge(edgeIndex, 0); // edge is the pair (v, u)
+            if (mask.edge(edgeIndex) && mask.vertex(v)) {
 			if(flow_[edgeIndex] > 0 && height_[u] > height_[v]) {
 				pushBack(graph, edgeWeightIterator, edgeIndex);
 			}
@@ -457,9 +471,9 @@ public:
     
     MaxFlowEdmondsKarp();
     template <class EDGE_WEIGHT_ITERATOR>
-    MaxFlowEdmondsKarp(const GraphType&, EDGE_WEIGHT_ITERATOR, const size_t, const size_t);
+        MaxFlowEdmondsKarp(const GraphType&, EDGE_WEIGHT_ITERATOR, const size_t, const size_t);
     template <class EDGE_WEIGHT_ITERATOR, class SUBGRAPH_MASK>
-    MaxFlowEdmondsKarp(const GraphType&, const SUBGRAPH_MASK&, EDGE_WEIGHT_ITERATOR, const size_t, const size_t);
+        MaxFlowEdmondsKarp(const GraphType&, const SUBGRAPH_MASK&, EDGE_WEIGHT_ITERATOR, const size_t, const size_t);
     void clear();
     Flow maxFlow() const;
     Flow flow(const size_t) const;
@@ -480,12 +494,16 @@ private:
         ResidualMask(const size_t e, const std::vector<Flow>& flow, const EDGE_WEIGHT_ITERATOR& ew, const SUBGRAPH_MASK& sm)
         : edges(e), f(flow), edgeWeightIterator(ew), subgraphMask(sm) {} ;
         bool vertex (const size_t v) const { return subgraphMask.vertex(v); };
-        bool edge (const size_t e) const { return capacity(e) > Flow() && subgraphMask.edge(e); };
+        bool edge (const size_t e) const {  return capacity(e) > Flow() && inMask(e) ; };
         Flow capacity (const size_t e) const { if (e >= edges) {
             return f[e - edges];
         } else {
             return edgeWeightIterator[e] - f[e];
         } };
+        bool inMask(const size_t e) const {
+            if (e >= edges) return subgraphMask.edge(e - edges);
+            else return subgraphMask.edge(e);
+        }
         
     private:
         const size_t edges;
