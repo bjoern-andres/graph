@@ -1,6 +1,6 @@
 #pragma once
-#ifndef ANDRES_GRAPH_SORTEST_PATHS_HXX
-#define ANDRES_GRAPH_SORTEST_PATHS_HXX
+#ifndef ANDRES_GRAPH_SHORTEST_PATHS_HXX
+#define ANDRES_GRAPH_SHORTEST_PATHS_HXX
 
 #include <limits> // std::numeric_limits
 #include <deque>
@@ -1624,4 +1624,4 @@ spspEdges(
 } // namespace graph
 } // namespace andres
 
-#endif // #ifndef ANDRES_GRAPH_SORTEST_PATHS_HXX
+#endif // #ifndef ANDRES_GRAPH_SHORTEST_PATHS_HXX

@@ -12,8 +12,6 @@
 
 namespace andres {
 namespace graph {
-    
-size_t n;
 
 /// Push-Relabel Algorithm for computing the maximum s-t-flow of a Digraph.
 ///
@@ -69,7 +67,7 @@ private:
 template<class GRAPH, class FLOW>
 inline
 MaxFlowPushRelabel<GRAPH, FLOW>::MaxFlowPushRelabel()
-:    height_(), 
+:   height_(),
     labelCount_(),
     excess_(), 
     flow_(),
@@ -97,7 +95,7 @@ MaxFlowPushRelabel<GRAPH, FLOW>::MaxFlowPushRelabel(
     const size_t sourceVertexIndex,
     const size_t sinkVertexIndex
 )
-:    height_(), 
+:   height_(), 
     labelCount_(),
     excess_(), 
     flow_(),
@@ -129,7 +127,7 @@ MaxFlowPushRelabel<GRAPH, FLOW>::MaxFlowPushRelabel(
     const size_t sourceVertexIndex,
     const size_t sinkVertexIndex
 )
-:    height_(),
+:   height_(),
     labelCount_(),
     excess_(), 
     flow_(),
@@ -508,7 +506,7 @@ private:
 template<class GRAPH, class FLOW>
 inline
 MaxFlowEdmondsKarp<GRAPH, FLOW>::MaxFlowEdmondsKarp()
-:    augmentingPath_(),
+:   augmentingPath_(),
     rgraph_(),
     flow_(),
     sourceVertexIndex_(),
@@ -532,7 +530,7 @@ MaxFlowEdmondsKarp<GRAPH, FLOW>::MaxFlowEdmondsKarp(
     const size_t sourceVertexIndex,
     const size_t sinkVertexIndex
 )
-:    augmentingPath_(),
+:   augmentingPath_(),
     rgraph_(),
     flow_(),
     sourceVertexIndex_(),
@@ -560,7 +558,7 @@ MaxFlowEdmondsKarp<GRAPH, FLOW>::MaxFlowEdmondsKarp(
     const size_t sourceVertexIndex,
     const size_t sinkVertexIndex
 )
-:    augmentingPath_(),
+:   augmentingPath_(),
     rgraph_(),
     flow_(),
     sourceVertexIndex_(),
