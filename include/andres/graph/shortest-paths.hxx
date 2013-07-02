@@ -41,7 +41,7 @@ namespace andres {
 namespace graph {
 
 template<class T>
-inline void
+void
 spspHelper(
     const std::vector<std::ptrdiff_t>&,
     const T,
@@ -50,7 +50,7 @@ spspHelper(
 );
 
 template<class GRAPH>
-inline bool
+bool
 spsp(
     const GRAPH&,
     const size_t,
@@ -60,7 +60,7 @@ spsp(
 );
     
 template<class GRAPH>
-inline bool
+bool
 spsp(
     const GRAPH&,
     const size_t,
@@ -94,7 +94,7 @@ template<
     class EDGE_WEIGHT_ITERATOR,
     class T
 >
-inline void
+void
 spsp(
     const GRAPH&,
     const size_t,
@@ -110,7 +110,7 @@ template<
     class EDGE_WEIGHT_ITERATOR,
     class T
 >
-inline void
+void
 spsp(
     const GRAPH&,
     const SUBGRAPH_MASK&,
@@ -122,7 +122,7 @@ spsp(
 );
     
 template<class GRAPH, class DISTANCE_ITERATOR>
-inline void
+void
 sssp(
     const GRAPH&,
     const size_t,
@@ -130,7 +130,7 @@ sssp(
 );
     
 template<class GRAPH, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
-inline void
+void
 sssp(
     const GRAPH&,
     const size_t,
@@ -139,7 +139,7 @@ sssp(
 );
 
 template<class GRAPH, class SUBGRAPH_MASK, class DISTANCE_ITERATOR>
-inline void
+void
 sssp(
     const GRAPH&,
     const SUBGRAPH_MASK&,
@@ -148,7 +148,7 @@ sssp(
 );
     
 template<class GRAPH, class SUBGRAPH_MASK, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
-inline void
+void
 sssp(
     const GRAPH&,
     const SUBGRAPH_MASK&,
@@ -158,7 +158,7 @@ sssp(
 );
     
 template<class GRAPH, class EDGE_WEIGHT_ITERATOR, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
-inline void
+void
 sssp(
     const GRAPH&,
     const size_t,
@@ -174,7 +174,7 @@ template<
     class DISTANCE_ITERATOR,
     class PARENT_ITERATOR
 >
-inline void
+void
 sssp(
     const GRAPH&,
     const SUBGRAPH_MASK&,
@@ -211,7 +211,7 @@ template<
     class DISTANCE_ITERATOR,
     class PARENT_ITERATOR
 >
-inline void
+void
 spsp(
     const GRAPH&,
     const SUBGRAPH_MASK&,
@@ -225,7 +225,7 @@ spsp(
 );
 
 template<class GRAPH>
-inline bool
+bool
 spspEdges(
     const GRAPH&,
     const size_t,
@@ -235,7 +235,7 @@ spspEdges(
 );
     
 template<class GRAPH>
-inline bool
+bool
 spspEdges(
     const GRAPH&,
     const size_t,
@@ -244,7 +244,7 @@ spspEdges(
 );
     
 template<class GRAPH, class SUBGRAPH_MASK>
-inline bool
+bool
 spspEdges(
     const GRAPH&,
     const SUBGRAPH_MASK&,
@@ -270,7 +270,7 @@ class GRAPH,
 class EDGE_WEIGHT_ITERATOR,
 class T
 >
-inline void
+void
 spspEdges(
     const GRAPH&,
     const size_t,
@@ -286,7 +286,7 @@ class SUBGRAPH_MASK,
 class EDGE_WEIGHT_ITERATOR,
 class T
 >
-inline void
+void
 spspEdges(
     const GRAPH&,
     const SUBGRAPH_MASK&,
@@ -298,7 +298,7 @@ spspEdges(
 );
 
 template<class GRAPH, class DISTANCE_ITERATOR>
-inline void
+void
 ssspEdges(
      const GRAPH&,
      const size_t,
@@ -306,7 +306,7 @@ ssspEdges(
 );
 
 template<class GRAPH, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
-inline void
+void
 ssspEdges(
      const GRAPH&,
      const size_t,
@@ -315,7 +315,7 @@ ssspEdges(
 );
 
 template<class GRAPH, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
-inline void
+void
 ssspEdges(
      const GRAPH&,
      const size_t,
@@ -325,7 +325,7 @@ ssspEdges(
 );
 
 template<class GRAPH, class SUBGRAPH_MASK, class DISTANCE_ITERATOR>
-inline void
+void
 ssspEdges(
      const GRAPH&,
      const SUBGRAPH_MASK&,
@@ -334,7 +334,7 @@ ssspEdges(
 );
 
 template<class GRAPH, class SUBGRAPH_MASK, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
-inline void
+void
 ssspEdges(
      const GRAPH&,
      const SUBGRAPH_MASK&,
@@ -344,7 +344,7 @@ ssspEdges(
 );
 
 template<class GRAPH, class SUBGRAPH_MASK, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
-inline void
+void
 ssspEdges(
      const GRAPH&,
      const SUBGRAPH_MASK&,
@@ -355,7 +355,7 @@ ssspEdges(
 );
 
 template<class GRAPH, class EDGE_WEIGHT_ITERATOR, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
-inline void
+void
 ssspEdges(
      const GRAPH&,
      const size_t,
@@ -365,7 +365,7 @@ ssspEdges(
 );
 
 template<class GRAPH, class EDGE_WEIGHT_ITERATOR, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
-inline void
+void
 ssspEdges(
      const GRAPH&,
      const size_t,
@@ -382,7 +382,7 @@ class EDGE_WEIGHT_ITERATOR,
 class DISTANCE_ITERATOR,
 class PARENT_ITERATOR
 >
-inline void
+void
 ssspEdges(
     const GRAPH&,
     const SUBGRAPH_MASK&,
@@ -399,7 +399,7 @@ class EDGE_WEIGHT_ITERATOR,
 class DISTANCE_ITERATOR,
 class PARENT_ITERATOR
 >
-inline void
+void
 ssspEdges(
      const GRAPH&,
      const SUBGRAPH_MASK&,
@@ -437,7 +437,7 @@ class T,
 class DISTANCE_ITERATOR,
 class PARENT_ITERATOR
 >
-inline void
+void
 spspEdges(
      const GRAPH&,
      const SUBGRAPH_MASK&,

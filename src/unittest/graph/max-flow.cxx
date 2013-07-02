@@ -62,46 +62,46 @@ void testPushRelabel() {
     typedef double Flow;
     typedef andres::graph::MaxFlowPushRelabel<Digraph, Flow> MaxFlowPushRelabel;
     
-	// define graph
-	Digraph digraph;
-	digraph.insertVertices(6);
-	digraph.insertEdge(0, 1);
-	digraph.insertEdge(0, 2);
-	digraph.insertEdge(1, 3);
-	digraph.insertEdge(2, 4);
-	digraph.insertEdge(3, 4);
-	digraph.insertEdge(3, 5);
-	digraph.insertEdge(4, 5);
+    // define graph
+    Digraph digraph;
+    digraph.insertVertices(6);
+    digraph.insertEdge(0, 1);
+    digraph.insertEdge(0, 2);
+    digraph.insertEdge(1, 3);
+    digraph.insertEdge(2, 4);
+    digraph.insertEdge(3, 4);
+    digraph.insertEdge(3, 5);
+    digraph.insertEdge(4, 5);
 
-	// define edge weights
-	std::vector<double> edgeWeights(digraph.numberOfEdges());
-	edgeWeights[0] = 20;
-	edgeWeights[1] = 15;
-	edgeWeights[2] = 10;
-	edgeWeights[3] = 5;
-	edgeWeights[4] = 5;
-	edgeWeights[5] = 8;
-	edgeWeights[6] = 10;
+    // define edge weights
+    std::vector<double> edgeWeights(digraph.numberOfEdges());
+    edgeWeights[0] = 20;
+    edgeWeights[1] = 15;
+    edgeWeights[2] = 10;
+    edgeWeights[3] = 5;
+    edgeWeights[4] = 5;
+    edgeWeights[5] = 8;
+    edgeWeights[6] = 10;
 
-	// define source and sink vertex
-	size_t sourceVertexIndex = 0;
-	size_t sinkVertexIndex = 5;
+    // define source and sink vertex
+    size_t sourceVertexIndex = 0;
+    size_t sinkVertexIndex = 5;
 
-	MaxFlowPushRelabel maxFlowPushRelabel(
-		digraph, 
-		edgeWeights.begin(), 
-		sourceVertexIndex, 
-		sinkVertexIndex
-	);
+    MaxFlowPushRelabel maxFlowPushRelabel(
+        digraph, 
+        edgeWeights.begin(), 
+        sourceVertexIndex, 
+        sinkVertexIndex
+    );
     
-	test(maxFlowPushRelabel.flow(0) == 10);
-	test(maxFlowPushRelabel.flow(1) == 5);
-	test(maxFlowPushRelabel.flow(2) == 10);
-	test(maxFlowPushRelabel.flow(3) == 5);
-	test(maxFlowPushRelabel.flow(4) == 5);
-	test(maxFlowPushRelabel.flow(5) == 5);
-	test(maxFlowPushRelabel.flow(6) == 10);
-	test(maxFlowPushRelabel.maxFlow() == 15);
+    test(maxFlowPushRelabel.flow(0) == 10);
+    test(maxFlowPushRelabel.flow(1) == 5);
+    test(maxFlowPushRelabel.flow(2) == 10);
+    test(maxFlowPushRelabel.flow(3) == 5);
+    test(maxFlowPushRelabel.flow(4) == 5);
+    test(maxFlowPushRelabel.flow(5) == 5);
+    test(maxFlowPushRelabel.flow(6) == 10);
+    test(maxFlowPushRelabel.maxFlow() == 15);
     
     // with subgraph masks
     
@@ -114,13 +114,13 @@ void testPushRelabel() {
     );
     
     test(maxFlowPushRelabel.flow(0) == 0);
-	test(maxFlowPushRelabel.flow(1) == 5);
-	test(maxFlowPushRelabel.flow(2) == 0);
-	test(maxFlowPushRelabel.flow(3) == 5);
-	test(maxFlowPushRelabel.flow(4) == 0);
-	test(maxFlowPushRelabel.flow(5) == 0);
-	test(maxFlowPushRelabel.flow(6) == 5);
-	test(maxFlowPushRelabel.maxFlow() == 5);
+    test(maxFlowPushRelabel.flow(1) == 5);
+    test(maxFlowPushRelabel.flow(2) == 0);
+    test(maxFlowPushRelabel.flow(3) == 5);
+    test(maxFlowPushRelabel.flow(4) == 0);
+    test(maxFlowPushRelabel.flow(5) == 0);
+    test(maxFlowPushRelabel.flow(6) == 5);
+    test(maxFlowPushRelabel.maxFlow() == 5);
     
     maxFlowPushRelabel(
         digraph,
@@ -131,13 +131,13 @@ void testPushRelabel() {
     );
     
     test(maxFlowPushRelabel.flow(0) == 10);
-	test(maxFlowPushRelabel.flow(1) == 0);
-	test(maxFlowPushRelabel.flow(2) == 10);
-	test(maxFlowPushRelabel.flow(3) == 0);
-	test(maxFlowPushRelabel.flow(4) == 5);
-	test(maxFlowPushRelabel.flow(5) == 5);
-	test(maxFlowPushRelabel.flow(6) == 5);
-	test(maxFlowPushRelabel.maxFlow() == 10);
+    test(maxFlowPushRelabel.flow(1) == 0);
+    test(maxFlowPushRelabel.flow(2) == 10);
+    test(maxFlowPushRelabel.flow(3) == 0);
+    test(maxFlowPushRelabel.flow(4) == 5);
+    test(maxFlowPushRelabel.flow(5) == 5);
+    test(maxFlowPushRelabel.flow(6) == 5);
+    test(maxFlowPushRelabel.maxFlow() == 10);
     
     maxFlowPushRelabel(
         digraph,
@@ -148,13 +148,13 @@ void testPushRelabel() {
     );
     
     test(maxFlowPushRelabel.flow(0) == 0);
-	test(maxFlowPushRelabel.flow(1) == 5);
-	test(maxFlowPushRelabel.flow(2) == 0);
-	test(maxFlowPushRelabel.flow(3) == 5);
-	test(maxFlowPushRelabel.flow(4) == 0);
-	test(maxFlowPushRelabel.flow(5) == 0);
-	test(maxFlowPushRelabel.flow(6) == 5);
-	test(maxFlowPushRelabel.maxFlow() == 5);
+    test(maxFlowPushRelabel.flow(1) == 5);
+    test(maxFlowPushRelabel.flow(2) == 0);
+    test(maxFlowPushRelabel.flow(3) == 5);
+    test(maxFlowPushRelabel.flow(4) == 0);
+    test(maxFlowPushRelabel.flow(5) == 0);
+    test(maxFlowPushRelabel.flow(6) == 5);
+    test(maxFlowPushRelabel.maxFlow() == 5);
     
     maxFlowPushRelabel.clear();
     
@@ -167,49 +167,49 @@ void testPushRelabel() {
     );
     
     test(maxFlowPushRelabel.flow(0) == 0);
-	test(maxFlowPushRelabel.flow(1) == 5);
-	test(maxFlowPushRelabel.flow(2) == 0);
-	test(maxFlowPushRelabel.flow(3) == 5);
-	test(maxFlowPushRelabel.flow(4) == 0);
-	test(maxFlowPushRelabel.flow(5) == 0);
-	test(maxFlowPushRelabel.flow(6) == 5);
-	test(maxFlowPushRelabel.maxFlow() == 5);
+    test(maxFlowPushRelabel.flow(1) == 5);
+    test(maxFlowPushRelabel.flow(2) == 0);
+    test(maxFlowPushRelabel.flow(3) == 5);
+    test(maxFlowPushRelabel.flow(4) == 0);
+    test(maxFlowPushRelabel.flow(5) == 0);
+    test(maxFlowPushRelabel.flow(6) == 5);
+    test(maxFlowPushRelabel.maxFlow() == 5);
         
-	maxFlowPushRelabel.clear();
+    maxFlowPushRelabel.clear();
 
 }
 
 void testEdmondsKarp() {
-	typedef andres::graph::Digraph<> Digraph;
-	typedef double Flow;
-	typedef andres::graph::MaxFlowEdmondsKarp<Digraph, Flow> MaxFlowEdmondsKarp;
+    typedef andres::graph::Digraph<> Digraph;
+    typedef double Flow;
+    typedef andres::graph::MaxFlowEdmondsKarp<Digraph, Flow> MaxFlowEdmondsKarp;
     
     // define graph
-	Digraph digraph;
-	digraph.insertVertices(6);
-	digraph.insertEdge(0, 1);
-	digraph.insertEdge(0, 2);
-	digraph.insertEdge(1, 3);
-	digraph.insertEdge(2, 4);
-	digraph.insertEdge(3, 4);
-	digraph.insertEdge(3, 5);
-	digraph.insertEdge(4, 5);
+    Digraph digraph;
+    digraph.insertVertices(6);
+    digraph.insertEdge(0, 1);
+    digraph.insertEdge(0, 2);
+    digraph.insertEdge(1, 3);
+    digraph.insertEdge(2, 4);
+    digraph.insertEdge(3, 4);
+    digraph.insertEdge(3, 5);
+    digraph.insertEdge(4, 5);
     
-	// define edge weights
-	std::vector<double> edgeWeights(digraph.numberOfEdges());
-	edgeWeights[0] = 20;
-	edgeWeights[1] = 15;
-	edgeWeights[2] = 10;
-	edgeWeights[3] = 5;
-	edgeWeights[4] = 5;
-	edgeWeights[5] = 8;
-	edgeWeights[6] = 10;
+    // define edge weights
+    std::vector<double> edgeWeights(digraph.numberOfEdges());
+    edgeWeights[0] = 20;
+    edgeWeights[1] = 15;
+    edgeWeights[2] = 10;
+    edgeWeights[3] = 5;
+    edgeWeights[4] = 5;
+    edgeWeights[5] = 8;
+    edgeWeights[6] = 10;
     
-	// define source and sink vertex
-	size_t sourceVertexIndex = 0;
-	size_t sinkVertexIndex = 5;
+    // define source and sink vertex
+    size_t sourceVertexIndex = 0;
+    size_t sinkVertexIndex = 5;
     
-	MaxFlowEdmondsKarp maxFlowEdmondsKarp(
+    MaxFlowEdmondsKarp maxFlowEdmondsKarp(
         digraph,
         edgeWeights.begin(),
         sourceVertexIndex,
@@ -217,13 +217,13 @@ void testEdmondsKarp() {
     );
     
     test(maxFlowEdmondsKarp.flow(0) == 10);
-	test(maxFlowEdmondsKarp.flow(1) == 5);
-	test(maxFlowEdmondsKarp.flow(2) == 10);
-	test(maxFlowEdmondsKarp.flow(3) == 5);
-	test(maxFlowEdmondsKarp.flow(4) == 2);
-	test(maxFlowEdmondsKarp.flow(5) == 8);
-	test(maxFlowEdmondsKarp.flow(6) == 7);
-	test(maxFlowEdmondsKarp.maxFlow() == 15);
+    test(maxFlowEdmondsKarp.flow(1) == 5);
+    test(maxFlowEdmondsKarp.flow(2) == 10);
+    test(maxFlowEdmondsKarp.flow(3) == 5);
+    test(maxFlowEdmondsKarp.flow(4) == 2);
+    test(maxFlowEdmondsKarp.flow(5) == 8);
+    test(maxFlowEdmondsKarp.flow(6) == 7);
+    test(maxFlowEdmondsKarp.maxFlow() == 15);
     
     // with subgraph masks
     
@@ -236,12 +236,12 @@ void testEdmondsKarp() {
     );
     
     test(maxFlowEdmondsKarp.flow(0) == 0);
-	test(maxFlowEdmondsKarp.flow(1) == 5);
-	test(maxFlowEdmondsKarp.flow(2) == 0);
-	test(maxFlowEdmondsKarp.flow(3) == 5);
-	test(maxFlowEdmondsKarp.flow(4) == 0);
-	test(maxFlowEdmondsKarp.flow(5) == 0);
-	test(maxFlowEdmondsKarp.flow(6) == 5);
+    test(maxFlowEdmondsKarp.flow(1) == 5);
+    test(maxFlowEdmondsKarp.flow(2) == 0);
+    test(maxFlowEdmondsKarp.flow(3) == 5);
+    test(maxFlowEdmondsKarp.flow(4) == 0);
+    test(maxFlowEdmondsKarp.flow(5) == 0);
+    test(maxFlowEdmondsKarp.flow(6) == 5);
     test(maxFlowEdmondsKarp.maxFlow() == 5);
     
     maxFlowEdmondsKarp(
@@ -253,12 +253,12 @@ void testEdmondsKarp() {
     );
     
     test(maxFlowEdmondsKarp.flow(0) == 10);
-	test(maxFlowEdmondsKarp.flow(1) == 0);
-	test(maxFlowEdmondsKarp.flow(2) == 10);
-	test(maxFlowEdmondsKarp.flow(3) == 0);
-	test(maxFlowEdmondsKarp.flow(4) == 2);
-	test(maxFlowEdmondsKarp.flow(5) == 8);
-	test(maxFlowEdmondsKarp.flow(6) == 2);
+    test(maxFlowEdmondsKarp.flow(1) == 0);
+    test(maxFlowEdmondsKarp.flow(2) == 10);
+    test(maxFlowEdmondsKarp.flow(3) == 0);
+    test(maxFlowEdmondsKarp.flow(4) == 2);
+    test(maxFlowEdmondsKarp.flow(5) == 8);
+    test(maxFlowEdmondsKarp.flow(6) == 2);
     test(maxFlowEdmondsKarp.maxFlow() == 10);
     
     maxFlowEdmondsKarp(
@@ -270,13 +270,13 @@ void testEdmondsKarp() {
     );
     
     test(maxFlowEdmondsKarp.flow(0) == 0);
-	test(maxFlowEdmondsKarp.flow(1) == 5);
-	test(maxFlowEdmondsKarp.flow(2) == 0);
-	test(maxFlowEdmondsKarp.flow(3) == 5);
-	test(maxFlowEdmondsKarp.flow(4) == 0);
-	test(maxFlowEdmondsKarp.flow(5) == 0);
-	test(maxFlowEdmondsKarp.flow(6) == 5);
-	test(maxFlowEdmondsKarp.maxFlow() == 5);
+    test(maxFlowEdmondsKarp.flow(1) == 5);
+    test(maxFlowEdmondsKarp.flow(2) == 0);
+    test(maxFlowEdmondsKarp.flow(3) == 5);
+    test(maxFlowEdmondsKarp.flow(4) == 0);
+    test(maxFlowEdmondsKarp.flow(5) == 0);
+    test(maxFlowEdmondsKarp.flow(6) == 5);
+    test(maxFlowEdmondsKarp.maxFlow() == 5);
     
     maxFlowEdmondsKarp.clear();
     
@@ -288,21 +288,21 @@ void testEdmondsKarp() {
         sinkVertexIndex
     );
 
-	test(maxFlowEdmondsKarp.flow(1) == 5);
-	test(maxFlowEdmondsKarp.flow(2) == 0);
-	test(maxFlowEdmondsKarp.flow(3) == 5);
-	test(maxFlowEdmondsKarp.flow(4) == 0);
-	test(maxFlowEdmondsKarp.flow(5) == 0);
-	test(maxFlowEdmondsKarp.flow(6) == 5);
-	test(maxFlowEdmondsKarp.maxFlow() == 5);
+    test(maxFlowEdmondsKarp.flow(1) == 5);
+    test(maxFlowEdmondsKarp.flow(2) == 0);
+    test(maxFlowEdmondsKarp.flow(3) == 5);
+    test(maxFlowEdmondsKarp.flow(4) == 0);
+    test(maxFlowEdmondsKarp.flow(5) == 0);
+    test(maxFlowEdmondsKarp.flow(6) == 5);
+    test(maxFlowEdmondsKarp.maxFlow() == 5);
 
     maxFlowEdmondsKarp.clear();
 
 }
 
 int main() {
-	testPushRelabel();
+    testPushRelabel();
     testEdmondsKarp();
 
-	return 0;
+    return 0;
 }

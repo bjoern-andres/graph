@@ -61,6 +61,67 @@ void testConstruction() {
     }
 }
 
+void testAssign() {
+    {
+        andres::graph::Graph<> g;
+        g.reserveVertices(5);
+        g.reserveEdges(10);
+        g.multipleEdgesEnabled() = true;
+        g.assign();
+        test(!g.multipleEdgesEnabled());
+        test(g.numberOfVertices() == 0);
+        test(g.numberOfEdges() == 0);
+        g.reserveVertices(5);
+        g.reserveEdges(10);
+        test(g.numberOfVertices() == 0);
+        test(g.numberOfEdges() == 0);
+    }
+    {
+        andres::graph::Graph<> g;
+        g.reserveVertices(5);
+        g.reserveEdges(10);
+        g.multipleEdgesEnabled() = true;
+        g.assign(10);
+        test(!g.multipleEdgesEnabled());
+        test(g.numberOfVertices() == 10);
+        test(g.numberOfEdges() == 0);
+        g.reserveVertices(5);
+        g.reserveEdges(10);
+        test(g.numberOfVertices() == 10);
+        test(g.numberOfEdges() == 0);
+    }
+    {
+        size_t n = 10;
+        andres::graph::Graph<> g(n);
+        g.reserveVertices(5);
+        g.reserveEdges(10);
+        g.multipleEdgesEnabled() = true;
+        g.assign();
+        test(!g.multipleEdgesEnabled());
+        test(g.numberOfVertices() == 0);
+        test(g.numberOfEdges() == 0);
+        g.reserveVertices(5);
+        g.reserveEdges(10);
+        test(g.numberOfVertices() == 0);
+        test(g.numberOfEdges() == 0);
+    }
+    {
+        size_t n = 10;
+        andres::graph::Graph<> g(n);
+        g.reserveVertices(5);
+        g.reserveEdges(10);
+        g.multipleEdgesEnabled() = true;
+        g.assign(n);
+        test(!g.multipleEdgesEnabled());
+        test(g.numberOfVertices() == 10);
+        test(g.numberOfEdges() == 0);
+        g.reserveVertices(5);
+        g.reserveEdges(10);
+        test(g.numberOfVertices() == 10);
+        test(g.numberOfEdges() == 0);
+    }
+}
+
 void testVertexInsertion() {
     andres::graph::Graph<> g;
 
@@ -574,6 +635,7 @@ void testMultipleEdges() {
 
 int main() {
     testConstruction();
+    testAssign();
     testVertexInsertion();
     testIterators();
     testEdgeInsertion();
