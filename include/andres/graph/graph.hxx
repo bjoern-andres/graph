@@ -25,15 +25,18 @@
 /// - Algorithms
 ///   - Connected components by breadth-first search and disjoint sets 
 ///   - Shortest paths (SSSP, SPSP) in weighted and unweighted graphs.
-///   - Maximum s-t-flow by a push-relabel algorithm with FIFO vertex 
-///     selection rule.
+///   - Maximum s-t-flow
+///     - Push-relabel algorithm with FIFO vertex selection rule.
+///     - Edmonds-Karp algorithm
+///     .
 ///   - Minimum multicuts by interger programming, using Cplex or Gurobi 
-///   . 
+///   .
 /// 
 /// \section section_license License
 /// Copyright (c) 2013 by Bjoern Andres.
 /// 
-/// This software was developed by Bjoern Andres.
+/// This software was developed by Bjoern Andres, Duligur Ibeling,
+/// and Mark Matten.
 /// Enquiries shall be directed to bjoern@andres.sc.
 ///
 /// Redistribution and use in source and binary forms, with or without 
@@ -72,6 +75,7 @@
 #include <set> 
 #include <iostream>
 #include <utility> // std::pair
+#include <algorithm> // std::fill
 
 #include "andres/random-access-set.hxx"
 
@@ -172,7 +176,9 @@ public:
     IteratorHelper<T> operator--(int); // postfix
     IteratorHelper<T> operator+(const difference_type) const;
     IteratorHelper<T> operator-(const difference_type) const;
+    #ifdef _MSC_VER
     difference_type operator-(const IteratorHelper<T>&) const;
+    #endif
 
     // access
     size_t operator*() const;
@@ -234,6 +240,8 @@ public:
     // construction
     Graph(const Visitor& = Visitor());
     Graph(const size_t, const Visitor& = Visitor());
+    void assign(const Visitor& = Visitor());
+    void assign(const size_t, const Visitor& = Visitor());
     void reserveVertices(const size_t);
     void reserveEdges(const size_t);
 
@@ -300,6 +308,8 @@ public:
     // construction
     Digraph(const Visitor& = Visitor());
     Digraph(const size_t, const Visitor& = Visitor());
+    void assign(const Visitor& = Visitor());
+    void assign(const size_t, const Visitor& = Visitor());
     void reserveVertices(const size_t);
     void reserveEdges(const size_t);
 
@@ -535,6 +545,7 @@ IteratorHelper<T>::operator-(
     return Base::operator-(d);
 }
 
+#ifdef _MSC_VER
 template<bool T>
 inline typename IteratorHelper<T>::difference_type
 IteratorHelper<T>::operator-(
@@ -542,6 +553,7 @@ IteratorHelper<T>::operator-(
 ) const {
     return Base::operator-(other);
 }
+#endif
 
 } // namespace graph_detail
 // \endcond
@@ -723,6 +735,40 @@ Graph<VISITOR>::Graph(
     visitor_.insertVertices(0, numberOfVertices);
 }
 
+/// Clear an undirected graph.
+///
+/// \param visitor Visitor to follow changes of integer indices of vertices and edges.
+///
+template<typename VISITOR>
+inline void
+Graph<VISITOR>::assign(
+    const Visitor& visitor
+) {
+    vertices_.clear();
+    edges_.clear();
+    multipleEdgesEnabled_ = false;
+    visitor_ = visitor;
+}
+
+/// Clear an undirected graph with an initial number of vertices.
+///
+/// \param numberOfVertices Number of vertices.
+/// \param visitor Visitor to follow changes of integer indices of vertices and edges.
+///
+template<typename VISITOR>
+inline void
+Graph<VISITOR>::assign(
+    const size_t numberOfVertices,
+    const Visitor& visitor
+) {
+    vertices_.resize(numberOfVertices);
+    std::fill(vertices_.begin(), vertices_.end(), Vertex());
+    edges_.clear();
+    multipleEdgesEnabled_ = false;
+    visitor_ = visitor;
+    visitor_.insertVertices(0, numberOfVertices);
+}
+    
 /// Get the number of vertices.
 ///
 template<typename VISITOR>
@@ -1371,6 +1417,40 @@ Digraph<VISITOR>::Digraph(
     multipleEdgesEnabled_(false),
     visitor_(visitor)
 {
+    visitor_.insertVertices(0, numberOfVertices);
+}
+
+/// Clear a directed graph.
+///
+/// \param visitor Visitor to follow changes of integer indices of vertices and edges.
+///
+template<typename VISITOR>
+inline void
+Digraph<VISITOR>::assign(
+    const Visitor& visitor
+) {
+    vertices_.clear();
+    edges_.clear();
+    multipleEdgesEnabled_ = false;
+    visitor_ = visitor;
+}
+
+/// Clear a directed graph with an initial number of vertices.
+///
+/// \param numberOfVertices Number of vertices.
+/// \param visitor Visitor to follow changes of integer indices of vertices and edges.
+///
+template<typename VISITOR>
+inline void
+Digraph<VISITOR>::assign(
+    const size_t numberOfVertices,
+    const Visitor& visitor
+) {
+    vertices_.resize(numberOfVertices);
+    std::fill(vertices_.begin(), vertices_.end(), Vertex());
+    edges_.clear();
+    multipleEdgesEnabled_ = false;
+    visitor_ = visitor;
     visitor_.insertVertices(0, numberOfVertices);
 }
 
