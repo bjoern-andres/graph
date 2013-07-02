@@ -356,7 +356,7 @@ MaxFlowPushRelabel<GRAPH, FLOW>::relabel(
 	EDGE_WEIGHT_ITERATOR edgeWeightIterator,
 	const size_t u
 ) {
-	size_t minHeight = (2 * graph.numberOfVertices()) + 1;
+	size_t minHeight = (2 * graph.numberOfVertices());
 	const size_t oldHeight = height_[u];
 	for(EdgeIterator it = graph.edgesFromVertexBegin(u); it != graph.edgesFromVertexEnd(u); ++it) {
 		const size_t edgeIndex = *it;

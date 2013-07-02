@@ -78,7 +78,7 @@ void testPushRelabel() {
 	);
     
     MaxFlowPushRelabel maxFlowPushRelabel1(digraph, SubgraphMask1(), edgeWeights.begin(), sourceVertexIndex, sinkVertexIndex);
-        
+
 	maxFlowPushRelabel.clear(); // just to see if it works
 
 }
