@@ -500,16 +500,16 @@ private:
         } else {
             return edgeWeightIterator[e] - f[e];
         } };
-        bool inMask(const size_t e) const {
-            if (e >= edges) return subgraphMask.edge(e - edges);
-            else return subgraphMask.edge(e);
-        }
         
     private:
         const size_t edges;
         const std::vector<Flow>& f;
         const EDGE_WEIGHT_ITERATOR& edgeWeightIterator;
         const SUBGRAPH_MASK& subgraphMask;
+        bool inMask (const size_t e) const {
+            if (e >= edges) { return subgraphMask.edge(e - edges); }
+            else { return subgraphMask.edge(e); }
+        };
     };
     
 };

@@ -1175,13 +1175,13 @@ spspEdges(
     std::fill(parents.begin(), parents.end(), 0);
     std::queue<size_t> queues[2];
     for (typename GRAPH::AdjacencyIterator i = g.adjacenciesFromVertexBegin(vs); i < g.adjacenciesFromVertexEnd(vs) ; ++i) {
-        if (mask.edge(i->edge())) {
+        if (mask.edge(i->edge()) && mask.vertex(i->vertex())) {
             queues[0].push(i->edge());
             parents[i->edge()] = i->edge() + 1;
         }        
     }
     for (typename GRAPH::AdjacencyIterator i = g.adjacenciesToVertexBegin(vt); i < g.adjacenciesToVertexEnd(vt) ; ++i) {
-        if (mask.edge(i->edge())) {
+        if (mask.edge(i->edge()) && mask.vertex(i->vertex())) {
         queues[1].push(i->edge());
         parents[i->edge()] = -static_cast<std::ptrdiff_t>(i->edge()) - 1;
         }
