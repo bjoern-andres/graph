@@ -33,7 +33,8 @@
 /// \section section_license License
 /// Copyright (c) 2013 by Bjoern Andres.
 /// 
-/// This software was developed by Bjoern Andres.
+/// This software was developed by Bjoern Andres, Duligur Ibeling,
+/// and Mark Matten.
 /// Enquiries shall be directed to bjoern@andres.sc.
 ///
 /// Redistribution and use in source and binary forms, with or without 
