@@ -2,7 +2,8 @@ Graphs and Graph Algorithms in C++
 ============
 
 Copyright (c) 2013 by Bjoern Andres, http://www.andres.sc/
-
+This software was developed by Bjoern Andres, Duligur Ibeling,
+and Mark Matten.
 
 Synopsis
 ------------
@@ -28,7 +29,9 @@ Features
 - Algorithms
   - Connected components by breadth-first search and disjoint sets
   - Shortest paths (SSSP, SPSP) in weighted and unweighted graphs
-  - Maximum s-t-flow (Push-Relabel Algorithm with FIFO vertex selection rule)
+  - Maximum s-t-flow
+    - Push-Relabel Algorithm with FIFO vertex selection rule
+    - Edmonds-Karp Algorithm
   - Minimum multicuts by interger programming, using Cplex or Gurobi
 
 
@@ -37,14 +40,16 @@ Contributions
 
 - Mark Matten, markmatten@gmail.com
   - Push-Relabel Algorithm with FIFO vertex selection rule for computing maximum s-t-flow
-
+- Duligur Ibeling, duligur@gmail.com
+  - Edmonds-Karp Algorithm for computing maximum s-t-flow
 
 License
 ------------
 
 Copyright (c) 2013 by Bjoern Andres, http://www.andres.sc/
 
-This software was developed by Bjoern Andres.
+This software was developed by Bjoern Andres, Duligur Ibeling,
+and Mark Matten.
 Enquiries shall be directed to bjoern@andres.sc.
 
 Redistribution and use in source and binary forms, with or without
