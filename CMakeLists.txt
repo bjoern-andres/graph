@@ -64,8 +64,8 @@ add_test(test-graph-paths test-graph-paths)
 add_executable(test-graph-components src/unittest/graph/components.cxx ${headers})
 add_test(test-graph-components test-graph-components)
 
-add_executable(test-max-flow src/unittest/graph/max-flow.cxx ${headers})
-add_test(test-max-flow test-max-flow)
+add_executable(test-graph-max-flow src/unittest/graph/max-flow.cxx ${headers})
+add_test(test-graph-max-flow test-graph-max-flow)
 
 if(CPLEX_FOUND)
     add_executable(test-graph-multicut-cplex src/unittest/graph/multicut-cplex.cxx ${headers})
