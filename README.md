@@ -4,6 +4,7 @@ Graphs and Graph Algorithms in C++
 Copyright (c) 2013 by Bjoern Andres, http://www.andres.sc/
 
 This software was developed by Bjoern Andres, Duligur Ibeling, and Mark Matten.
+Enquiries shall be directed to bjoern@andres.sc.
 
 Synopsis
 ------------
@@ -48,8 +49,7 @@ License
 
 Copyright (c) 2013 by Bjoern Andres, http://www.andres.sc/
 
-This software was developed by Bjoern Andres, Duligur Ibeling,
-and Mark Matten.
+This software was developed by Bjoern Andres, Duligur Ibeling, and Mark Matten.
 Enquiries shall be directed to bjoern@andres.sc.
 
 Redistribution and use in source and binary forms, with or without
