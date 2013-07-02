@@ -29,7 +29,9 @@ Features
 - Algorithms
   - Connected components by breadth-first search and disjoint sets
   - Shortest paths (SSSP, SPSP) in weighted and unweighted graphs
-  - Maximum s-t-flow (Push-Relabel Algorithm with FIFO vertex selection rule)
+  - Maximum s-t-flow
+    - Push-Relabel Algorithm with FIFO vertex selection rule
+    - Edmonds-Karp Algorithm
   - Minimum multicuts by interger programming, using Cplex or Gurobi
 
 
