@@ -25,10 +25,12 @@
 /// - Algorithms
 ///   - Connected components by breadth-first search and disjoint sets 
 ///   - Shortest paths (SSSP, SPSP) in weighted and unweighted graphs.
-///   - Maximum s-t-flow by a push-relabel algorithm with FIFO vertex 
-///     selection rule.
+///   - Maximum s-t-flow
+///     - Push-relabel algorithm with FIFO vertex selection rule.
+///     - Edmonds-Karp algorithm
+///     .
 ///   - Minimum multicuts by interger programming, using Cplex or Gurobi 
-///   . 
+///   .
 /// 
 /// \section section_license License
 /// Copyright (c) 2013 by Bjoern Andres.
