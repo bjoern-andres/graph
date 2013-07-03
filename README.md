@@ -9,7 +9,7 @@ Enquiries shall be directed to bjoern@andres.sc.
 Synopsis
 ------------
 
-This set of header files implements directed and undirected graphs as adjacency lists.
+This set of header files implements directed and undirected graphs as adjacency lists with constant-time access.
 Vertices and edges are always indexed by contiguous integers.
 This indexing simplifies the implementation of algorithms for static graphs.
 In dynamic settings where vertices and edges are removed from a graph,
