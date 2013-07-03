@@ -27,7 +27,7 @@ Features
 - Insertion and removal of vertices and edges
 - Multiple edges, which are disabled by default, can be enabled
 - Visitors that follow changes of vertex and edge indices
-- Algorithms
+- Graph algorithms
    - Connected components
       * by breadth-first search 
       * by disjoint sets

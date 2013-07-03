@@ -8,13 +8,12 @@
 /// Enquiries shall be directed to bjoern@andres.sc.
 ///
 /// \section section_abstract Short Description
-/// This C++ header file implements directed and undirected graphs as adjacency
-/// lists with constant-time access. Unlike in other implementations such as 
-/// the boost graph library, vertices and edges are always indexed by 
-/// contiguous integers. This indexing simplifies the implementation of 
-/// algorithms for static graphs. In dynamic settings where vertices and edges 
-/// are removed from a graph, indices of vertices and edges can change. These 
-/// changes can be followed, if necessary, by means of a simple visitor.
+/// This set of header files implements directed and undirected graphs as 
+/// adjacency lists with constant-time access. Vertices and edges are always 
+/// indexed by contiguous integers. This indexing simplifies the implementation 
+/// of algorithms for static graphs. In dynamic settings where vertices and 
+/// edges are removed from a graph, indices of vertices and edges can change. 
+/// These changes can be followed, if necessary, by means of a visitor.
 ///
 /// \section section_features Features
 /// - Directed and undirected graphs, implemented as adjacency lists
@@ -25,9 +24,16 @@
 /// - Insertion and removal of vertices and edges 
 /// - Multiple edges, which are disabled by default, can be enabled
 /// - Visitors that follow changes of vertex and edge indices 
-/// - Algorithms
-///   - Connected components by breadth-first search and disjoint sets 
-///   - Shortest paths (SSSP, SPSP) in weighted and unweighted graphs.
+/// - Graph algorithms
+///   - Connected components 
+///     - by breadth-first search
+///     - by disjoint sets 
+///     .
+///   - Shortest paths in weighted and unweighted graphs, as sequences of edges 
+///     or vertices
+///     - Single source shortest path (SSSP)
+///     - Single pair shortest path (SPSP)
+///     .
 ///   - Maximum s-t-flow
 ///     - Push-relabel algorithm with FIFO vertex selection rule.
 ///     - Edmonds-Karp algorithm
