@@ -28,21 +28,25 @@ Features
 - Multiple edges, which are disabled by default, can be enabled
 - Visitors that follow changes of vertex and edge indices
 - Algorithms
-   - Connected components by breadth-first search and disjoint sets
-   - Shortest paths (SSSP, SPSP) in weighted and unweighted graphs
+   - Connected components
+      * by breadth-first search 
+      * by disjoint sets
+   - Shortest paths in weighted and unweighted graphs, as sequences of edges or vertices
+      * Single source shortest path (SSSP)
+      * Single pair shortest path (SPSP)
    - Maximum s-t-flow
       * Push-Relabel Algorithm with FIFO vertex selection rule
       * Edmonds-Karp Algorithm
    - Minimum multicuts by interger programming, using Cplex or Gurobi
 
 
-Contributions
+Contributors
 ------------
 
-- Mark Matten, markmatten@gmail.com
-   - Push-Relabel Algorithm with FIFO vertex selection rule for computing maximum s-t-flow
 - Duligur Ibeling, duligur@gmail.com
    - Edmonds-Karp Algorithm for computing maximum s-t-flow
+- Mark Matten, markmatten@gmail.com
+   - Push-Relabel Algorithm with FIFO vertex selection rule for computing maximum s-t-flow
 
 License
 ------------
