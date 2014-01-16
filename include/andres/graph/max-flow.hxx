@@ -3,6 +3,7 @@
 #define ANDRES_GRAPH_MAX_FLOW_HXX
 
 #include <cassert>
+#include <cstddef>
 #include <vector>
 #include <queue>
 #include <limits> // std::numeric_limit
@@ -29,37 +30,37 @@ public:
     MaxFlowPushRelabel();
     void clear();
     Flow maxFlow() const;
-    Flow flow(const size_t) const;
-    size_t numberOfPushes() const;
-    size_t numberOfRelabels() const;
+    Flow flow(const std::size_t) const;
+    std::size_t numberOfPushes() const;
+    std::size_t numberOfRelabels() const;
     template<class EDGE_WEIGHT_ITERATOR>
-        MaxFlowPushRelabel(const GraphType&, EDGE_WEIGHT_ITERATOR, const size_t, const size_t);
+        MaxFlowPushRelabel(const GraphType&, EDGE_WEIGHT_ITERATOR, const std::size_t, const std::size_t);
     template<class EDGE_WEIGHT_ITERATOR, class SUBGRAPH_MASK>
-        MaxFlowPushRelabel(const GraphType&, const SUBGRAPH_MASK&, EDGE_WEIGHT_ITERATOR, const size_t, const size_t);
+        MaxFlowPushRelabel(const GraphType&, const SUBGRAPH_MASK&, EDGE_WEIGHT_ITERATOR, const std::size_t, const std::size_t);
     template<class EDGE_WEIGHT_ITERATOR, class SUBGRAPH_MASK>
-        Flow operator()(const GraphType&, const SUBGRAPH_MASK&, EDGE_WEIGHT_ITERATOR, const size_t, const size_t);
+        Flow operator()(const GraphType&, const SUBGRAPH_MASK&, EDGE_WEIGHT_ITERATOR, const std::size_t, const std::size_t);
 
 private:
     template<class EDGE_WEIGHT_ITERATOR>
-        void push(const GraphType&, EDGE_WEIGHT_ITERATOR, const size_t);
+        void push(const GraphType&, EDGE_WEIGHT_ITERATOR, const std::size_t);
     template<class EDGE_WEIGHT_ITERATOR>
-        void pushBack(const GraphType&, EDGE_WEIGHT_ITERATOR, const size_t);
+        void pushBack(const GraphType&, EDGE_WEIGHT_ITERATOR, const std::size_t);
     template<class EDGE_WEIGHT_ITERATOR, class SUBGRAPH_MASK>
-        void relabel(const GraphType&, const SUBGRAPH_MASK&, EDGE_WEIGHT_ITERATOR, const size_t);
+        void relabel(const GraphType&, const SUBGRAPH_MASK&, EDGE_WEIGHT_ITERATOR, const std::size_t);
     template<class EDGE_WEIGHT_ITERATOR, class SUBGRAPH_MASK>
-        void discharge(const GraphType&, const SUBGRAPH_MASK&, EDGE_WEIGHT_ITERATOR, const size_t);
-    void gapRelabel(const GraphType&, const size_t);
+        void discharge(const GraphType&, const SUBGRAPH_MASK&, EDGE_WEIGHT_ITERATOR, const std::size_t);
+    void gapRelabel(const GraphType&, const std::size_t);
 
-    std::vector<size_t> height_;
-    std::vector<size_t> labelCount_;    
+    std::vector<std::size_t> height_;
+    std::vector<std::size_t> labelCount_;
     std::vector<Flow> excess_;
     std::vector<Flow> flow_;
     std::vector<bool> active_;
-    std::queue<size_t> queue_;
-    size_t sourceVertexIndex_;
-    size_t sinkVertexIndex_;
-    size_t pushCount_;
-    size_t relabelCount_;
+    std::queue<std::size_t> queue_;
+    std::size_t sourceVertexIndex_;
+    std::size_t sinkVertexIndex_;
+    std::size_t pushCount_;
+    std::size_t relabelCount_;
 };
 
 /// Construct an instance of the push-relabel algorithm.
@@ -92,8 +93,8 @@ inline
 MaxFlowPushRelabel<GRAPH, FLOW>::MaxFlowPushRelabel(
     const GraphType& graph,
     EDGE_WEIGHT_ITERATOR edgeWeightIterator,
-    const size_t sourceVertexIndex,
-    const size_t sinkVertexIndex
+    const std::size_t sourceVertexIndex,
+    const std::size_t sinkVertexIndex
 )
 :   height_(), 
     labelCount_(),
@@ -124,8 +125,8 @@ MaxFlowPushRelabel<GRAPH, FLOW>::MaxFlowPushRelabel(
     const GraphType& graph,
     const SUBGRAPH_MASK& mask,
     EDGE_WEIGHT_ITERATOR edgeWeightIterator,
-    const size_t sourceVertexIndex,
-    const size_t sinkVertexIndex
+    const std::size_t sourceVertexIndex,
+    const std::size_t sinkVertexIndex
 )
 :   height_(),
     labelCount_(),
@@ -177,7 +178,7 @@ MaxFlowPushRelabel<GRAPH, FLOW>::maxFlow() const  {
 template<class GRAPH, class FLOW>
 inline typename MaxFlowPushRelabel<GRAPH, FLOW>::Flow 
 MaxFlowPushRelabel<GRAPH, FLOW>::flow(
-    const size_t edgeIndex
+    const std::size_t edgeIndex
 ) const {
     assert(edgeIndex < flow_.size());
     return flow_[edgeIndex];
@@ -188,7 +189,7 @@ MaxFlowPushRelabel<GRAPH, FLOW>::flow(
 /// \return The number of pushes.
 ///
 template<class GRAPH, class FLOW>
-inline size_t 
+inline std::size_t
 MaxFlowPushRelabel<GRAPH, FLOW>::numberOfPushes() const {
     return pushCount_;
 }
@@ -198,7 +199,7 @@ MaxFlowPushRelabel<GRAPH, FLOW>::numberOfPushes() const {
 /// \return The number of relabels.
 ///
 template<class GRAPH, class FLOW>
-inline size_t 
+inline std::size_t
 MaxFlowPushRelabel<GRAPH, FLOW>::numberOfRelabels() const {
     return relabelCount_;
 }
@@ -218,13 +219,13 @@ MaxFlowPushRelabel<GRAPH, FLOW>::operator()(
     const GraphType& graph,
     const SUBGRAPH_MASK& mask,
     EDGE_WEIGHT_ITERATOR edgeWeightIterator,
-    const size_t sourceVertexIndex,
-    const size_t sinkVertexIndex
+    const std::size_t sourceVertexIndex,
+    const std::size_t sinkVertexIndex
 ) {
     assert(mask.vertex(sourceVertexIndex) && mask.vertex(sinkVertexIndex));
     
-    const size_t numberOfVertices = graph.numberOfVertices();
-    const size_t numberOfEdges = graph.numberOfEdges();
+    const std::size_t numberOfVertices = graph.numberOfVertices();
+    const std::size_t numberOfEdges = graph.numberOfEdges();
 
     // initialization
     sourceVertexIndex_ = sourceVertexIndex;
@@ -234,7 +235,7 @@ MaxFlowPushRelabel<GRAPH, FLOW>::operator()(
     height_.resize(numberOfVertices);
     excess_.resize(numberOfVertices);
     active_.resize(numberOfVertices);
-    std::fill(height_.begin(), height_.end(), size_t());
+    std::fill(height_.begin(), height_.end(), std::size_t());
     std::fill(excess_.begin(), excess_.end(), Flow());
     std::fill(active_.begin(), active_.end(), false);
     height_[sourceVertexIndex] = numberOfVertices;
@@ -242,7 +243,7 @@ MaxFlowPushRelabel<GRAPH, FLOW>::operator()(
     active_[sourceVertexIndex] = true;
     active_[sinkVertexIndex] = true;
     labelCount_.resize((2 * numberOfVertices) + 2); // 2n + 1 is the maximum possible height for a vertex
-    std::fill(labelCount_.begin(), labelCount_.end(), size_t());
+    std::fill(labelCount_.begin(), labelCount_.end(), std::size_t());
     labelCount_[0] = numberOfVertices - 1;
     labelCount_[numberOfVertices] = 1;
     flow_.resize(numberOfEdges);
@@ -250,9 +251,9 @@ MaxFlowPushRelabel<GRAPH, FLOW>::operator()(
 
     // first, push as much flow as possible from the source to all adjacent vertices
     for(EdgeIterator it = graph.edgesFromVertexBegin(sourceVertexIndex); it != graph.edgesFromVertexEnd(sourceVertexIndex); ++it) {
-        const size_t edgeIndex = *it;
+        const std::size_t edgeIndex = *it;
         if (mask.edge(edgeIndex)) {
-            const size_t v = graph.vertexOfEdge(edgeIndex, 1);
+            const std::size_t v = graph.vertexOfEdge(edgeIndex, 1);
             if (mask.vertex(v)) {
                 push(graph, edgeWeightIterator, edgeIndex);
             }
@@ -260,7 +261,7 @@ MaxFlowPushRelabel<GRAPH, FLOW>::operator()(
     }
     
     while(!queue_.empty()) { // main loop
-        const size_t u = queue_.front();
+        const std::size_t u = queue_.front();
         queue_.pop();
         active_[u] = false;
         discharge(graph, mask, edgeWeightIterator, u);
@@ -282,10 +283,10 @@ inline void
 MaxFlowPushRelabel<GRAPH, FLOW>::push(
     const GRAPH& graph,
     EDGE_WEIGHT_ITERATOR edgeWeightIterator,
-    const size_t edgeIndex
+    const std::size_t edgeIndex
 ) {
-    const size_t u = graph.vertexOfEdge(edgeIndex, 0);
-    const size_t v = graph.vertexOfEdge(edgeIndex, 1);
+    const std::size_t u = graph.vertexOfEdge(edgeIndex, 0);
+    const std::size_t v = graph.vertexOfEdge(edgeIndex, 1);
     // push from u to v
     Flow pushAmount = std::min(excess_[u], edgeWeightIterator[edgeIndex] - flow_[edgeIndex]);
     flow_[edgeIndex] += pushAmount;
@@ -310,10 +311,10 @@ inline void
 MaxFlowPushRelabel<GRAPH, FLOW>::pushBack(
     const GRAPH& graph,
     EDGE_WEIGHT_ITERATOR edgeWeightIterator,
-    const size_t edgeIndex
+    const std::size_t edgeIndex
 ) {
-    const size_t u = graph.vertexOfEdge(edgeIndex, 0);
-    const size_t v = graph.vertexOfEdge(edgeIndex, 1);
+    const std::size_t u = graph.vertexOfEdge(edgeIndex, 0);
+    const std::size_t v = graph.vertexOfEdge(edgeIndex, 1);
     // push back from v to u
     Flow pushAmount = std::min(excess_[v], flow_[edgeIndex]);
     flow_[edgeIndex] -= pushAmount;
@@ -340,14 +341,14 @@ MaxFlowPushRelabel<GRAPH, FLOW>::relabel(
     const GRAPH& graph,
     const SUBGRAPH_MASK& mask,
     EDGE_WEIGHT_ITERATOR edgeWeightIterator,
-    const size_t u
+    const std::size_t u
 ) {
-    size_t minHeight = 2 * graph.numberOfVertices();
-    const size_t oldHeight = height_[u];
+    std::size_t minHeight = 2 * graph.numberOfVertices();
+    const std::size_t oldHeight = height_[u];
     for(EdgeIterator it = graph.edgesFromVertexBegin(u); it != graph.edgesFromVertexEnd(u); ++it) {
-        const size_t edgeIndex = *it;
+        const std::size_t edgeIndex = *it;
         if (mask.edge(edgeIndex)) {
-            const size_t v = graph.vertexOfEdge(edgeIndex, 1); // edge is (u, v)
+            const std::size_t v = graph.vertexOfEdge(edgeIndex, 1); // edge is (u, v)
             if (mask.vertex(v)) {
                 if(edgeWeightIterator[edgeIndex] - flow_[edgeIndex] > 0) {
                     minHeight = std::min(minHeight, height_[v]);
@@ -356,9 +357,9 @@ MaxFlowPushRelabel<GRAPH, FLOW>::relabel(
         }
     }
     for(EdgeIterator it = graph.edgesToVertexBegin(u); it != graph.edgesToVertexEnd(u); ++it) {
-        const size_t edgeIndex = *it;
+        const std::size_t edgeIndex = *it;
         if (mask.edge(edgeIndex)) {
-            const size_t v = graph.vertexOfEdge(edgeIndex, 0); // edge is (v, u)
+            const std::size_t v = graph.vertexOfEdge(edgeIndex, 0); // edge is (v, u)
             if (mask.vertex(v)) {
                 if(flow_[edgeIndex] > 0) {
                     minHeight = std::min(minHeight, height_[v]);
@@ -395,13 +396,13 @@ MaxFlowPushRelabel<GRAPH, FLOW>::discharge(
     const GRAPH& graph,
     const SUBGRAPH_MASK& mask,
     EDGE_WEIGHT_ITERATOR edgeWeightIterator,
-    const size_t u
+    const std::size_t u
 ) {
     while(excess_[u] > 0) {
         for(EdgeIterator it = graph.edgesFromVertexBegin(u); it != graph.edgesFromVertexEnd(u); ++it) {
-            const size_t edgeIndex = *it;
+            const std::size_t edgeIndex = *it;
             if (mask.edge(edgeIndex)) {
-                const size_t v = graph.vertexOfEdge(edgeIndex, 1); // edge is the pair (u, v)
+                const std::size_t v = graph.vertexOfEdge(edgeIndex, 1); // edge is the pair (u, v)
                 if (mask.vertex(v)) {
                     if(edgeWeightIterator[edgeIndex] - flow_[edgeIndex] > 0 && height_[u] > height_[v]) {
                         push(graph, edgeWeightIterator, edgeIndex);
@@ -410,9 +411,9 @@ MaxFlowPushRelabel<GRAPH, FLOW>::discharge(
             }
         }
         for(EdgeIterator it = graph.edgesToVertexBegin(u); it != graph.edgesToVertexEnd(u); ++it) {
-            const size_t edgeIndex = *it;
+            const std::size_t edgeIndex = *it;
             if (mask.edge(edgeIndex)) {
-                const size_t v = graph.vertexOfEdge(edgeIndex, 0); // edge is the pair (v, u)
+                const std::size_t v = graph.vertexOfEdge(edgeIndex, 0); // edge is the pair (v, u)
                 if (mask.vertex(v)) {
                     if(flow_[edgeIndex] > 0 && height_[u] > height_[v]) {
                         pushBack(graph, edgeWeightIterator, edgeIndex);
@@ -433,9 +434,9 @@ template<class GRAPH, class FLOW>
 inline void
 MaxFlowPushRelabel<GRAPH, FLOW>::gapRelabel(
     const GRAPH& graph,
-    const size_t threshold
+    const std::size_t threshold
 ) {
-    for(size_t i = 0; i < graph.numberOfVertices(); i++) {
+    for(std::size_t i = 0; i < graph.numberOfVertices(); i++) {
         if(height_[i] > threshold) {
             height_[i] = std::max(height_[i], graph.numberOfVertices() + 1);;
         }
@@ -452,34 +453,34 @@ public:
     
     MaxFlowEdmondsKarp();
     template <class EDGE_WEIGHT_ITERATOR>
-        MaxFlowEdmondsKarp(const GraphType&, EDGE_WEIGHT_ITERATOR, const size_t, const size_t);
+        MaxFlowEdmondsKarp(const GraphType&, EDGE_WEIGHT_ITERATOR, const std::size_t, const std::size_t);
     template <class EDGE_WEIGHT_ITERATOR, class SUBGRAPH_MASK>
-        MaxFlowEdmondsKarp(const GraphType&, const SUBGRAPH_MASK&, EDGE_WEIGHT_ITERATOR, const size_t, const size_t);
+        MaxFlowEdmondsKarp(const GraphType&, const SUBGRAPH_MASK&, EDGE_WEIGHT_ITERATOR, const std::size_t, const std::size_t);
     void clear();
     Flow maxFlow() const;
-    Flow flow(const size_t) const;
+    Flow flow(const std::size_t) const;
     template<class EDGE_WEIGHT_ITERATOR, class SUBGRAPH_MASK>
-        Flow operator()(const GraphType&, const SUBGRAPH_MASK&, const EDGE_WEIGHT_ITERATOR, const size_t, const size_t);
+        Flow operator()(const GraphType&, const SUBGRAPH_MASK&, const EDGE_WEIGHT_ITERATOR, const std::size_t, const std::size_t);
     
 private:
-    std::deque<size_t> augmentingPath_;
+    std::deque<std::size_t> augmentingPath_;
     Digraph<> rgraph_;
     std::vector<Flow> flow_;
-    size_t sourceVertexIndex_;
-    size_t sinkVertexIndex_;
+    std::size_t sourceVertexIndex_;
+    std::size_t sinkVertexIndex_;
     Flow maxFlow_;
     
     template <class EDGE_WEIGHT_ITERATOR, class SUBGRAPH_MASK>
     class ResidualMask {
     public:
-        ResidualMask(const size_t e, const std::vector<Flow>& flow, const EDGE_WEIGHT_ITERATOR& ew, const SUBGRAPH_MASK& sm)
+        ResidualMask(const std::size_t e, const std::vector<Flow>& flow, const EDGE_WEIGHT_ITERATOR& ew, const SUBGRAPH_MASK& sm)
             : edges(e), f(flow), edgeWeightIterator(ew), subgraphMask(sm)
             {}
-        bool vertex (const size_t v) const
+        bool vertex (const std::size_t v) const
             { return subgraphMask.vertex(v); }
-        bool edge (const size_t e) const
+        bool edge (const std::size_t e) const
             { return capacity(e) > Flow() && inMask(e) ; }
-        Flow capacity (const size_t e) const
+        Flow capacity (const std::size_t e) const
             {
                 if (e >= edges) {
                     return f[e - edges];
@@ -489,11 +490,11 @@ private:
             }
 
     private:
-        const size_t edges;
+        const std::size_t edges;
         const std::vector<Flow>& f;
         const EDGE_WEIGHT_ITERATOR& edgeWeightIterator;
         const SUBGRAPH_MASK& subgraphMask;
-        bool inMask (const size_t e) const
+        bool inMask (const std::size_t e) const
             {
                 if(e >= edges) { return subgraphMask.edge(e - edges); }
                 else { return subgraphMask.edge(e); }
@@ -527,8 +528,8 @@ inline
 MaxFlowEdmondsKarp<GRAPH, FLOW>::MaxFlowEdmondsKarp(
     const GraphType& graph,
     EDGE_WEIGHT_ITERATOR edgeWeightIterator,
-    const size_t sourceVertexIndex,
-    const size_t sinkVertexIndex
+    const std::size_t sourceVertexIndex,
+    const std::size_t sinkVertexIndex
 )
 :   augmentingPath_(),
     rgraph_(),
@@ -555,8 +556,8 @@ MaxFlowEdmondsKarp<GRAPH, FLOW>::MaxFlowEdmondsKarp(
     const GraphType& graph,
     const SUBGRAPH_MASK& subgraphMask,
     EDGE_WEIGHT_ITERATOR edgeWeightIterator,
-    const size_t sourceVertexIndex,
-    const size_t sinkVertexIndex
+    const std::size_t sourceVertexIndex,
+    const std::size_t sinkVertexIndex
 )
 :   augmentingPath_(),
     rgraph_(),
@@ -599,7 +600,7 @@ MaxFlowEdmondsKarp<GRAPH, FLOW>::maxFlow() const  {
 template<class GRAPH, class FLOW>
 inline typename MaxFlowEdmondsKarp<GRAPH, FLOW>::Flow
 MaxFlowEdmondsKarp<GRAPH, FLOW>::flow(
-    const size_t edgeIndex
+    const std::size_t edgeIndex
 ) const {
     assert(edgeIndex < flow_.size());
     return flow_[edgeIndex];
@@ -620,10 +621,10 @@ MaxFlowEdmondsKarp<GRAPH, FLOW>::operator()(
     const GraphType& graph,
     const SUBGRAPH_MASK& subgraphMask,
     const EDGE_WEIGHT_ITERATOR edgeWeightIterator,
-    const size_t sourceVertexIndex,
-    const size_t sinkVertexIndex
+    const std::size_t sourceVertexIndex,
+    const std::size_t sinkVertexIndex
 ) {
-    const size_t numberOfEdges = graph.numberOfEdges();
+    const std::size_t numberOfEdges = graph.numberOfEdges();
     
     // initialization
     sourceVertexIndex_ = sourceVertexIndex;
@@ -632,10 +633,10 @@ MaxFlowEdmondsKarp<GRAPH, FLOW>::operator()(
     std::fill(flow_.begin(), flow_.end(), Flow());
     augmentingPath_.clear();
     rgraph_.assign(graph.numberOfVertices());
-    for(size_t edge = 0; edge < numberOfEdges; ++edge) {
+    for(std::size_t edge = 0; edge < numberOfEdges; ++edge) {
         rgraph_.insertEdge(graph.vertexOfEdge(edge, 0), graph.vertexOfEdge(edge, 1));
     }
-    for(size_t edge = 0; edge < numberOfEdges; ++edge) {
+    for(std::size_t edge = 0; edge < numberOfEdges; ++edge) {
         rgraph_.insertEdge(graph.vertexOfEdge(edge, 1), graph.vertexOfEdge(edge, 0));
     }
     ResidualMask<EDGE_WEIGHT_ITERATOR, SUBGRAPH_MASK> residualMask(numberOfEdges, flow_, edgeWeightIterator, subgraphMask);
@@ -646,12 +647,12 @@ MaxFlowEdmondsKarp<GRAPH, FLOW>::operator()(
     Flow minResidualCapacity;
     while(spspEdges(rgraph_, residualMask, sourceVertexIndex_, sinkVertexIndex_, augmentingPath_)) {
         minResidualCapacity = residualMask.capacity(augmentingPath_[0]);
-        for(std::deque<size_t>::iterator it = augmentingPath_.begin(); it < augmentingPath_.end(); ++it) {
+        for(std::deque<std::size_t>::iterator it = augmentingPath_.begin(); it < augmentingPath_.end(); ++it) {
             if(residualMask.capacity(*it) < minResidualCapacity) {
                 minResidualCapacity = residualMask.capacity(*it);
             }
         }
-        for(std::deque<size_t>::iterator it = augmentingPath_.begin(); it < augmentingPath_.end(); ++it) {
+        for(std::deque<std::size_t>::iterator it = augmentingPath_.begin(); it < augmentingPath_.end(); ++it) {
             if(*it < numberOfEdges) {
                 flow_[*it] += minResidualCapacity; // this call updates also the residualMask which holds a reference to flow_
             }
@@ -662,7 +663,7 @@ MaxFlowEdmondsKarp<GRAPH, FLOW>::operator()(
     }
     
     // sum flow out of source to get the max flow
-    for(size_t edge = 0; edge < numberOfEdges; ++edge) {
+    for(std::size_t edge = 0; edge < numberOfEdges; ++edge) {
         if(graph.vertexOfEdge(edge, 0) == sourceVertexIndex_) {
             maxFlow_ += flow_[edge];
         }
