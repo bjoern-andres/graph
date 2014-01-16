@@ -2,6 +2,7 @@
 #ifndef ANDRES_RANDOM_ACCESS_SET_HXX
 #define ANDRES_RANDOM_ACCESS_SET_HXX
 
+#include <cstddef>
 #include <vector>
 #include <algorithm> // std::lower_bound, std::upper_bound
 #include <functional> // std::greater
@@ -39,7 +40,7 @@ public:
     typedef typename Vector::difference_type	difference_type;
     typedef typename Vector::const_pointer const_pointer;
 
-    RandomAccessSet(const size_t, const Comparison& = Comparison(), 
+    RandomAccessSet(const std::size_t, const Comparison& = Comparison(),
         const Allocator& = Allocator());
     RandomAccessSet(const Comparison& = Comparison(), 
         const Allocator& = Allocator());
@@ -108,7 +109,7 @@ inline
 template<class Key, class Comparison, class Allocator>
 inline
     RandomAccessSet<Key, Comparison, Allocator>::RandomAccessSet(
-    const size_t reserveSize, 
+    const std::size_t reserveSize,
     const Comparison& comparison, 
     const Allocator& allocator
 )

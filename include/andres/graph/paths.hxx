@@ -2,6 +2,7 @@
 #ifndef ANDRES_GRAPH_PATHS_HXX
 #define ANDRES_GRAPH_PATHS_HXX
 
+#include <cstddef>
 #include <utility> // std::pair
 
 #include "andres/graph/graph.hxx" // DefaultSubgraphMask
@@ -17,7 +18,7 @@ namespace graph {
 /// \param ignoreEdgeBetweenFirstAndLast Flag.
 ///
 template<class GRAPH, class ITERATOR>
-inline std::pair<bool, size_t> 
+inline std::pair<bool, std::size_t>
 findChord(
     const GRAPH& graph,
     ITERATOR begin,
@@ -37,7 +38,7 @@ findChord(
 /// \param ignoreEdgeBetweenFirstAndLast Flag.
 ///
 template<class GRAPH, class SUBGRAPH_MASK, class ITERATOR>
-inline std::pair<bool, size_t> 
+inline std::pair<bool, std::size_t>
 findChord(
     const GRAPH& graph,
     const SUBGRAPH_MASK& mask,
@@ -50,12 +51,12 @@ findChord(
         if(ignoreEdgeBetweenFirstAndLast && it == begin && it2 == end - 1) {
             continue;
         }
-        std::pair<bool, size_t> p = graph.findEdge(*it, *it2);
+        std::pair<bool, std::size_t> p = graph.findEdge(*it, *it2);
         if(p.first && mask.edge(p.second)) {
             return p;
         }
     }
-    return std::pair<bool, size_t>(false, 0);
+    return std::pair<bool, std::size_t>(false, 0);
 }
 
 } // namespace graph

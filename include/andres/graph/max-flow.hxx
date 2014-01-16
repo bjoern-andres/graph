@@ -638,19 +638,26 @@ MaxFlowEdmondsKarp<GRAPH, FLOW>::operator()(
     for(size_t edge = 0; edge < numberOfEdges; ++edge) {
         rgraph_.insertEdge(graph.vertexOfEdge(edge, 1), graph.vertexOfEdge(edge, 0));
     }
-    ResidualMask<EDGE_WEIGHT_ITERATOR, SUBGRAPH_MASK> rm(numberOfEdges, flow_, edgeWeightIterator, subgraphMask);
+    ResidualMask<EDGE_WEIGHT_ITERATOR, SUBGRAPH_MASK> residualMask(numberOfEdges, flow_, edgeWeightIterator, subgraphMask);
     maxFlow_ = Flow();
     
-    // while there's an augmenting path, augment flow along it. choose the shortest augmenting path by number of edges
+    // while there is an augmenting path, augment flow along it.
+    // choose the shortest augmenting path by number of edges
     Flow minResidualCapacity;
-    while(spspEdges(rgraph_, rm, sourceVertexIndex_, sinkVertexIndex_, augmentingPath_)) {
-        minResidualCapacity = rm.capacity(augmentingPath_[0]);
+    while(spspEdges(rgraph_, residualMask, sourceVertexIndex_, sinkVertexIndex_, augmentingPath_)) {
+        minResidualCapacity = residualMask.capacity(augmentingPath_[0]);
         for(std::deque<size_t>::iterator it = augmentingPath_.begin(); it < augmentingPath_.end(); ++it) {
-            if(rm.capacity(*it) < minResidualCapacity) minResidualCapacity = rm.capacity(*it);
+            if(residualMask.capacity(*it) < minResidualCapacity) {
+                minResidualCapacity = residualMask.capacity(*it);
+            }
         }
         for(std::deque<size_t>::iterator it = augmentingPath_.begin(); it < augmentingPath_.end(); ++it) {
-            if(*it < numberOfEdges) flow_[*it] += minResidualCapacity;
-            else flow_[*it - numberOfEdges] -= minResidualCapacity;
+            if(*it < numberOfEdges) {
+                flow_[*it] += minResidualCapacity; // this call updates also the residualMask which holds a reference to flow_
+            }
+            else {
+                flow_[*it - numberOfEdges] -= minResidualCapacity; // this call updates also the residualMask which holds a reference to flow_
+            }
         }
     }
     

@@ -2,6 +2,7 @@
 #ifndef ANDRES_PARTITION_HXX
 #define ANDRES_PARTITION_HXX
 
+#include <cstddef>
 #include <vector>
 #include <map>
 
@@ -9,7 +10,7 @@
 namespace andres {
 
 /// Disjoint set data structure with path compression.
-template<class T = size_t>
+template<class T = std::size_t>
 class Partition {
 public:
     typedef T Index;
@@ -45,12 +46,12 @@ inline
 Partition<T>::Partition(
     const Index size
 )
-:   parents_(static_cast<size_t>(size)),
-    ranks_(static_cast<size_t>(size)),
+:   parents_(static_cast<std::size_t>(size)),
+    ranks_(static_cast<std::size_t>(size)),
     numberOfSets_(size)
 {
     for(Index j = 0; j < size; ++j) {
-        parents_[static_cast<size_t>(j)] = j;
+        parents_[static_cast<std::size_t>(j)] = j;
     }
 }
 
@@ -63,11 +64,11 @@ inline void
 Partition<T>::assign(
     const Index size
 ) {
-    parents_.resize(static_cast<size_t>(size));
-    ranks_.resize(static_cast<size_t>(size));
+    parents_.resize(static_cast<std::size_t>(size));
+    ranks_.resize(static_cast<std::size_t>(size));
     numberOfSets_ = size;
     for(Index j = 0; j < size; ++j) {
-        parents_[static_cast<size_t>(j)] = j;
+        parents_[static_cast<std::size_t>(j)] = j;
     }
 }
 
@@ -94,8 +95,8 @@ Partition<T>::find(
 ) const {
     // find the root
     Index root = element;
-    while(parents_[static_cast<size_t>(root)] != root) {
-        root = parents_[static_cast<size_t>(root)];
+    while(parents_[static_cast<std::size_t>(root)] != root) {
+        root = parents_[static_cast<std::size_t>(root)];
     }
     return root;
 }
@@ -113,13 +114,13 @@ Partition<T>::find(
 ) {
     // find the root
     Index root = element;
-    while(parents_[static_cast<size_t>(root)] != root) {
-        root = parents_[static_cast<size_t>(root)];
+    while(parents_[static_cast<std::size_t>(root)] != root) {
+        root = parents_[static_cast<std::size_t>(root)];
     }
     // path compression
     while(element != root) {
-        const Index tmp = parents_[static_cast<size_t>(element)];
-        parents_[static_cast<size_t>(element)] = root;
+        const Index tmp = parents_[static_cast<std::size_t>(element)];
+        parents_[static_cast<std::size_t>(element)] = root;
         element = tmp;
     }
     return root;
@@ -139,17 +140,17 @@ Partition<T>::merge(
     // merge by rank
     element1 = find(element1);
     element2 = find(element2);
-    if(ranks_[static_cast<size_t>(element1)] < ranks_[static_cast<size_t>(element2)]) {
-        parents_[static_cast<size_t>(element1)] = element2;
+    if(ranks_[static_cast<std::size_t>(element1)] < ranks_[static_cast<std::size_t>(element2)]) {
+        parents_[static_cast<std::size_t>(element1)] = element2;
         --numberOfSets_;
     }
-    else if(ranks_[static_cast<size_t>(element1)] > ranks_[static_cast<size_t>(element2)]) {
-        parents_[static_cast<size_t>(element2)] = element1;
+    else if(ranks_[static_cast<std::size_t>(element1)] > ranks_[static_cast<std::size_t>(element2)]) {
+        parents_[static_cast<std::size_t>(element2)] = element1;
         --numberOfSets_;
     }
     else if(element1 != element2) {
-        parents_[static_cast<size_t>(element2)] = element1;
-        ++ranks_[static_cast<size_t>(element1)];
+        parents_[static_cast<std::size_t>(element2)] = element1;
+        ++ranks_[static_cast<std::size_t>(element1)];
         --numberOfSets_;
     }
 }
@@ -164,10 +165,10 @@ Partition<T>::insert(
     const Index number
 ) {
     const Index numberOfElements = static_cast<Index>(parents_.size());
-    ranks_.insert(ranks_.end(), static_cast<size_t>(number), 0);
-    parents_.insert(parents_.end(), static_cast<size_t>(number), 0);
+    ranks_.insert(ranks_.end(), static_cast<std::size_t>(number), 0);
+    parents_.insert(parents_.end(), static_cast<std::size_t>(number), 0);
     for(Index j = numberOfElements; j < numberOfElements + number; ++j) {
-        parents_[static_cast<size_t>(j)] = j;
+        parents_[static_cast<std::size_t>(j)] = j;
     }
     numberOfSets_ += number;
 }
@@ -183,7 +184,7 @@ Partition<T>::representatives(
     Iterator it
 ) const {
     for(Index j = 0; j < numberOfElements(); ++j) {
-        if(parents_[static_cast<size_t>(j)] == j) {
+        if(parents_[static_cast<std::size_t>(j)] == j) {
             *it = j;
             ++it;
         }
@@ -200,10 +201,10 @@ Partition<T>::representativeLabeling(
     std::map<Index, Index>& out
 ) const {
     out.clear();	
-    std::vector<Index> r(static_cast<size_t>(numberOfSets())); 
+    std::vector<Index> r(static_cast<std::size_t>(numberOfSets()));
     representatives(r.begin());
     for(Index j = 0; j < numberOfSets(); ++j) {
-        out[r[static_cast<size_t>(j)]] = j;
+        out[r[static_cast<std::size_t>(j)]] = j;
     }
 }
 

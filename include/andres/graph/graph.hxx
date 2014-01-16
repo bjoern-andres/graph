@@ -79,6 +79,7 @@
 #define ANDRES_GRAPH_HXX
 
 #include <cassert>
+#include <cstddef>
 #include <iterator> // std::random_access_iterator
 #include <vector>
 #include <set> 
@@ -95,7 +96,7 @@ namespace andres {
 namespace graph {
 
 /// The adjacency of a vertex consists of a vertex and a connecting edge.
-template<class T = size_t>
+template<class T = std::size_t>
 class Adjacency {
 public:
     typedef T Value;
@@ -118,7 +119,7 @@ private:
 };
 
 /// An entire graph.
-template<class T = size_t>
+template<class T = std::size_t>
 struct DefaultSubgraphMask {
     typedef T Value;
 
@@ -135,21 +136,21 @@ struct UnitEdgeWeightIterator {
     typedef value_type& reference;
     typedef std::random_access_iterator_tag iterator_category;
 
-    value_type operator[](const size_t) const
+    value_type operator[](const std::size_t) const
         { return 1; }
 };
 
 // \cond SUPPRESS_DOXYGEN
 namespace graph_detail {
 
-template<bool DIRECTED, class T = size_t>
+template<bool DIRECTED, class T = std::size_t>
 class Edge {
 public:
     typedef T Value;
 
     Edge(const Value, const Value);
-    Value operator[](const size_t) const;
-    Value& operator[](const size_t);
+    Value operator[](const std::size_t) const;
+    Value& operator[](const std::size_t);
 
 private:
     Value vertexIndices_[2];
@@ -190,8 +191,8 @@ public:
     #endif
 
     // access
-    size_t operator*() const;
-    size_t operator[](const size_t j) const;
+    std::size_t operator*() const;
+    std::size_t operator[](const std::size_t j) const;
 };
 
 typedef IteratorHelper<true> VertexIterator;
@@ -206,13 +207,13 @@ typedef IteratorHelper<false> EdgeIterator;
 ///
 struct IdleGraphVisitor {
     IdleGraphVisitor() {}
-    void insertVertex(const size_t a) const {}
-    void insertVertices(const size_t a, const size_t n) const {}
-    void eraseVertex(const size_t a) const {}
-    void relabelVertex(const size_t a, const size_t b) const {}
-    void insertEdge(const size_t a) const {}
-    void eraseEdge(const size_t a) const {}
-    void relabelEdge(const size_t a, const size_t b) const {}
+    void insertVertex(const std::size_t a) const {}
+    void insertVertices(const std::size_t a, const std::size_t n) const {}
+    void eraseVertex(const std::size_t a) const {}
+    void relabelVertex(const std::size_t a, const std::size_t b) const {}
+    void insertEdge(const std::size_t a) const {}
+    void eraseEdge(const std::size_t a) const {}
+    void relabelEdge(const std::size_t a, const std::size_t b) const {}
 };
 
 /// Visitors can be used to follow the indices of vertices and edges.
@@ -221,19 +222,19 @@ struct IdleGraphVisitor {
 ///
 struct VerboseGraphVisitor {
     VerboseGraphVisitor() {}
-    void insertVertex(const size_t a) const 
+    void insertVertex(const std::size_t a) const
         { std::cout << "inserting vertex " << a << std::endl; }
-    void insertVertices(const size_t a, const size_t n) const 
+    void insertVertices(const std::size_t a, const std::size_t n) const
         { std::cout << "inserting " << n << " vertices, starting from index " << a << std::endl; }
-    void eraseVertex(const size_t a) const 
+    void eraseVertex(const std::size_t a) const
         { std::cout << "removing vertex " << a << std::endl; }
-    void relabelVertex(const size_t a, const size_t b) const 
+    void relabelVertex(const std::size_t a, const std::size_t b) const
         { std::cout << "relabeling vertex " << a << ". new label is " << b << std::endl; }
-    void insertEdge(const size_t a) const 
+    void insertEdge(const std::size_t a) const
         { std::cout << "inserting edge " << a << std::endl; }
-    void eraseEdge(const size_t a) const 
+    void eraseEdge(const std::size_t a) const
         { std::cout << "removing edge " << a << std::endl; }
-    void relabelEdge(const size_t a, const size_t b) const 
+    void relabelEdge(const std::size_t a, const std::size_t b) const
         { std::cout << "relabeling edge " << a << ". new label is " << b << std::endl; }
 };
    
@@ -248,47 +249,47 @@ public:
 
     // construction
     Graph(const Visitor& = Visitor());
-    Graph(const size_t, const Visitor& = Visitor());
+    Graph(const std::size_t, const Visitor& = Visitor());
     void assign(const Visitor& = Visitor());
-    void assign(const size_t, const Visitor& = Visitor());
-    void reserveVertices(const size_t);
-    void reserveEdges(const size_t);
+    void assign(const std::size_t, const Visitor& = Visitor());
+    void reserveVertices(const std::size_t);
+    void reserveEdges(const std::size_t);
 
     // iterator access (compatible with Digraph)
-    VertexIterator verticesFromVertexBegin(const size_t) const;
-    VertexIterator verticesFromVertexEnd(const size_t) const;
-    VertexIterator verticesToVertexBegin(const size_t) const;
-    VertexIterator verticesToVertexEnd(const size_t) const;
-    EdgeIterator edgesFromVertexBegin(const size_t) const;
-    EdgeIterator edgesFromVertexEnd(const size_t) const;
-    EdgeIterator edgesToVertexBegin(const size_t) const;
-    EdgeIterator edgesToVertexEnd(const size_t) const;
-    AdjacencyIterator adjacenciesFromVertexBegin(const size_t) const; 
-    AdjacencyIterator adjacenciesFromVertexEnd(const size_t) const;
-    AdjacencyIterator adjacenciesToVertexBegin(const size_t) const;
-    AdjacencyIterator adjacenciesToVertexEnd(const size_t) const;
+    VertexIterator verticesFromVertexBegin(const std::size_t) const;
+    VertexIterator verticesFromVertexEnd(const std::size_t) const;
+    VertexIterator verticesToVertexBegin(const std::size_t) const;
+    VertexIterator verticesToVertexEnd(const std::size_t) const;
+    EdgeIterator edgesFromVertexBegin(const std::size_t) const;
+    EdgeIterator edgesFromVertexEnd(const std::size_t) const;
+    EdgeIterator edgesToVertexBegin(const std::size_t) const;
+    EdgeIterator edgesToVertexEnd(const std::size_t) const;
+    AdjacencyIterator adjacenciesFromVertexBegin(const std::size_t) const;
+    AdjacencyIterator adjacenciesFromVertexEnd(const std::size_t) const;
+    AdjacencyIterator adjacenciesToVertexBegin(const std::size_t) const;
+    AdjacencyIterator adjacenciesToVertexEnd(const std::size_t) const;
 
     // access (compatible with Digraph)
-    size_t numberOfVertices() const;
-    size_t numberOfEdges() const;
-    size_t numberOfEdgesFromVertex(const size_t) const; 
-    size_t numberOfEdgesToVertex(const size_t) const; 
-    size_t vertexOfEdge(const size_t, const size_t) const;
-    size_t edgeFromVertex(const size_t, const size_t) const;
-    size_t edgeToVertex(const size_t, const size_t) const; 
-    size_t vertexFromVertex(const size_t, const size_t) const; 
-    size_t vertexToVertex(const size_t, const size_t) const; 
-    const Adjacency<>& adjacencyFromVertex(const size_t, const size_t) const;  
-    const Adjacency<>& adjacencyToVertex(const size_t, const size_t) const;  
-    std::pair<bool, size_t> findEdge(const size_t, const size_t) const;
+    std::size_t numberOfVertices() const;
+    std::size_t numberOfEdges() const;
+    std::size_t numberOfEdgesFromVertex(const std::size_t) const;
+    std::size_t numberOfEdgesToVertex(const std::size_t) const;
+    std::size_t vertexOfEdge(const std::size_t, const std::size_t) const;
+    std::size_t edgeFromVertex(const std::size_t, const std::size_t) const;
+    std::size_t edgeToVertex(const std::size_t, const std::size_t) const;
+    std::size_t vertexFromVertex(const std::size_t, const std::size_t) const;
+    std::size_t vertexToVertex(const std::size_t, const std::size_t) const;
+    const Adjacency<>& adjacencyFromVertex(const std::size_t, const std::size_t) const;
+    const Adjacency<>& adjacencyToVertex(const std::size_t, const std::size_t) const;
+    std::pair<bool, std::size_t> findEdge(const std::size_t, const std::size_t) const;
     bool multipleEdgesEnabled() const;
 
     // manipulation
-    size_t insertVertex();
-    size_t insertVertices(const size_t);
-    size_t insertEdge(const size_t, const size_t);
-    void eraseVertex(const size_t);
-    void eraseEdge(const size_t);
+    std::size_t insertVertex();
+    std::size_t insertVertices(const std::size_t);
+    std::size_t insertEdge(const std::size_t, const std::size_t);
+    void eraseVertex(const std::size_t);
+    void eraseEdge(const std::size_t);
     bool& multipleEdgesEnabled();
 
 private:
@@ -296,8 +297,8 @@ private:
     typedef graph_detail::Adjacencies Vertex;
     typedef graph_detail::Edge<false> Edge;
 
-    void insertAdjacenciesForEdge(const size_t);
-    void eraseAdjacenciesForEdge(const size_t);
+    void insertAdjacenciesForEdge(const std::size_t);
+    void eraseAdjacenciesForEdge(const std::size_t);
 
     std::vector<Vertex> vertices_;
     std::vector<Edge> edges_;
@@ -316,47 +317,47 @@ public:
 
     // construction
     Digraph(const Visitor& = Visitor());
-    Digraph(const size_t, const Visitor& = Visitor());
+    Digraph(const std::size_t, const Visitor& = Visitor());
     void assign(const Visitor& = Visitor());
-    void assign(const size_t, const Visitor& = Visitor());
-    void reserveVertices(const size_t);
-    void reserveEdges(const size_t);
+    void assign(const std::size_t, const Visitor& = Visitor());
+    void reserveVertices(const std::size_t);
+    void reserveEdges(const std::size_t);
 
     // iterator access 
-    VertexIterator verticesFromVertexBegin(const size_t) const;
-    VertexIterator verticesFromVertexEnd(const size_t) const;
-    VertexIterator verticesToVertexBegin(const size_t) const;
-    VertexIterator verticesToVertexEnd(const size_t) const;
-    EdgeIterator edgesFromVertexBegin(const size_t) const;
-    EdgeIterator edgesFromVertexEnd(const size_t) const;
-    EdgeIterator edgesToVertexBegin(const size_t) const;
-    EdgeIterator edgesToVertexEnd(const size_t) const;
-    AdjacencyIterator adjacenciesFromVertexBegin(const size_t) const; 
-    AdjacencyIterator adjacenciesFromVertexEnd(const size_t) const;
-    AdjacencyIterator adjacenciesToVertexBegin(const size_t) const;
-    AdjacencyIterator adjacenciesToVertexEnd(const size_t) const;
+    VertexIterator verticesFromVertexBegin(const std::size_t) const;
+    VertexIterator verticesFromVertexEnd(const std::size_t) const;
+    VertexIterator verticesToVertexBegin(const std::size_t) const;
+    VertexIterator verticesToVertexEnd(const std::size_t) const;
+    EdgeIterator edgesFromVertexBegin(const std::size_t) const;
+    EdgeIterator edgesFromVertexEnd(const std::size_t) const;
+    EdgeIterator edgesToVertexBegin(const std::size_t) const;
+    EdgeIterator edgesToVertexEnd(const std::size_t) const;
+    AdjacencyIterator adjacenciesFromVertexBegin(const std::size_t) const;
+    AdjacencyIterator adjacenciesFromVertexEnd(const std::size_t) const;
+    AdjacencyIterator adjacenciesToVertexBegin(const std::size_t) const;
+    AdjacencyIterator adjacenciesToVertexEnd(const std::size_t) const;
 
     // access 
-    size_t numberOfVertices() const;
-    size_t numberOfEdges() const;
-    size_t numberOfEdgesFromVertex(const size_t) const; 
-    size_t numberOfEdgesToVertex(const size_t) const; 
-    size_t vertexOfEdge(const size_t, const size_t) const;
-    size_t edgeFromVertex(const size_t, const size_t) const;
-    size_t edgeToVertex(const size_t, const size_t) const; 
-    size_t vertexFromVertex(const size_t, const size_t) const; 
-    size_t vertexToVertex(const size_t, const size_t) const; 
-    const Adjacency<>& adjacencyFromVertex(const size_t, const size_t) const;  
-    const Adjacency<>& adjacencyToVertex(const size_t, const size_t) const;  
-    std::pair<bool, size_t> findEdge(const size_t, const size_t) const;
+    std::size_t numberOfVertices() const;
+    std::size_t numberOfEdges() const;
+    std::size_t numberOfEdgesFromVertex(const std::size_t) const;
+    std::size_t numberOfEdgesToVertex(const std::size_t) const;
+    std::size_t vertexOfEdge(const std::size_t, const std::size_t) const;
+    std::size_t edgeFromVertex(const std::size_t, const std::size_t) const;
+    std::size_t edgeToVertex(const std::size_t, const std::size_t) const;
+    std::size_t vertexFromVertex(const std::size_t, const std::size_t) const;
+    std::size_t vertexToVertex(const std::size_t, const std::size_t) const;
+    const Adjacency<>& adjacencyFromVertex(const std::size_t, const std::size_t) const;
+    const Adjacency<>& adjacencyToVertex(const std::size_t, const std::size_t) const;
+    std::pair<bool, std::size_t> findEdge(const std::size_t, const std::size_t) const;
     bool multipleEdgesEnabled() const;
 
     // manipulation
-    size_t insertVertex();
-    size_t insertVertices(const size_t);
-    size_t insertEdge(const size_t, const size_t);
-    void eraseVertex(const size_t);
-    void eraseEdge(const size_t);
+    std::size_t insertVertex();
+    std::size_t insertVertices(const std::size_t);
+    std::size_t insertEdge(const std::size_t, const std::size_t);
+    void eraseVertex(const std::size_t);
+    void eraseEdge(const std::size_t);
     bool& multipleEdgesEnabled();
 
 private:
@@ -371,8 +372,8 @@ private:
     };
     typedef graph_detail::Edge<true> Edge;
 
-    void insertAdjacenciesForEdge(const size_t);
-    void eraseAdjacenciesForEdge(const size_t);
+    void insertAdjacenciesForEdge(const std::size_t);
+    void eraseAdjacenciesForEdge(const std::size_t);
 
     std::vector<Vertex> vertices_;
     std::vector<Edge> edges_;
@@ -411,7 +412,7 @@ template<bool DIRECTED, class T>
 inline typename Edge<DIRECTED, T>::Value
 Edge<DIRECTED, T>::operator[]
 (
-    const size_t j
+    const std::size_t j
 ) const {
     assert(j < 2);
 
@@ -421,7 +422,7 @@ Edge<DIRECTED, T>::operator[]
 template<bool DIRECTED, class T>
 inline typename Edge<DIRECTED, T>::Value&
 Edge<DIRECTED, T>::operator[](
-    const size_t j
+    const std::size_t j
 ) {
     assert(j < 2);
 
@@ -471,7 +472,7 @@ IteratorHelper<T>::operator=(
 }
 
 template<bool T>
-inline size_t 
+inline std::size_t
 IteratorHelper<T>::operator*() const { 
     if(T) { // evaluated at compile time
         return Base::operator*().vertex(); 
@@ -482,9 +483,9 @@ IteratorHelper<T>::operator*() const {
 }
 
 template<bool T>
-inline size_t 
+inline std::size_t
 IteratorHelper<T>::operator[](
-    const size_t j
+    const std::size_t j
 ) const {
     if(T) { // evaluated at compile time
         return Base::operator[](j).vertex(); 
@@ -733,7 +734,7 @@ Graph<VISITOR>::Graph(
 template<typename VISITOR>
 inline 
 Graph<VISITOR>::Graph(
-    const size_t numberOfVertices,
+    const std::size_t numberOfVertices,
     const Visitor& visitor
 )
 :   vertices_(numberOfVertices),
@@ -767,7 +768,7 @@ Graph<VISITOR>::assign(
 template<typename VISITOR>
 inline void
 Graph<VISITOR>::assign(
-    const size_t numberOfVertices,
+    const std::size_t numberOfVertices,
     const Visitor& visitor
 ) {
     vertices_.resize(numberOfVertices);
@@ -781,7 +782,7 @@ Graph<VISITOR>::assign(
 /// Get the number of vertices.
 ///
 template<typename VISITOR>
-inline size_t 
+inline std::size_t
 Graph<VISITOR>::numberOfVertices() const { 
     return vertices_.size(); 
 }
@@ -789,7 +790,7 @@ Graph<VISITOR>::numberOfVertices() const {
 /// Get the number of edges.
 ///
 template<typename VISITOR>
-inline size_t 
+inline std::size_t
 Graph<VISITOR>::numberOfEdges() const { 
     return edges_.size(); 
 }
@@ -801,9 +802,9 @@ Graph<VISITOR>::numberOfEdges() const {
 /// \sa edgeFromVertex()
 ///
 template<typename VISITOR>
-inline size_t 
+inline std::size_t
 Graph<VISITOR>::numberOfEdgesFromVertex(
-    const size_t vertex
+    const std::size_t vertex
 ) const { 
     return vertices_[vertex].size();
 }
@@ -815,9 +816,9 @@ Graph<VISITOR>::numberOfEdgesFromVertex(
 /// \sa edgeToVertex()
 ///
 template<typename VISITOR>
-inline size_t 
+inline std::size_t
 Graph<VISITOR>::numberOfEdgesToVertex(
-    const size_t vertex
+    const std::size_t vertex
 ) const { 
     return vertices_[vertex].size();
 }
@@ -828,10 +829,10 @@ Graph<VISITOR>::numberOfEdgesToVertex(
 /// \param j Number of the vertex in the edge; either 0 or 1.
 ///
 template<typename VISITOR>
-inline size_t
+inline std::size_t
 Graph<VISITOR>::vertexOfEdge(
-    const size_t edge,
-    const size_t j
+    const std::size_t edge,
+    const std::size_t j
 ) const {
     assert(j < 2);
 
@@ -846,10 +847,10 @@ Graph<VISITOR>::vertexOfEdge(
 /// \sa numberOfEdgesFromVertex()
 ///
 template<typename VISITOR>
-inline size_t
+inline std::size_t
 Graph<VISITOR>::edgeFromVertex(
-    const size_t vertex,
-    const size_t j
+    const std::size_t vertex,
+    const std::size_t j
 ) const {
     return vertices_[vertex][j].edge();
 }
@@ -862,10 +863,10 @@ Graph<VISITOR>::edgeFromVertex(
 /// \sa numberOfEdgesToVertex()
 ///
 template<typename VISITOR>
-inline size_t
+inline std::size_t
 Graph<VISITOR>::edgeToVertex(
-    const size_t vertex,
-    const size_t j
+    const std::size_t vertex,
+    const std::size_t j
 ) const {
     return vertices_[vertex][j].edge();
 }
@@ -878,10 +879,10 @@ Graph<VISITOR>::edgeToVertex(
 /// \sa numberOfEdgesFromVertex() 
 ///
 template<typename VISITOR>
-inline size_t
+inline std::size_t
 Graph<VISITOR>::vertexFromVertex(
-    const size_t vertex,
-    const size_t j
+    const std::size_t vertex,
+    const std::size_t j
 ) const {
     return vertices_[vertex][j].vertex();
 }
@@ -894,10 +895,10 @@ Graph<VISITOR>::vertexFromVertex(
 /// \sa numberOfEdgesFromVertex() 
 ///
 template<typename VISITOR>
-inline size_t
+inline std::size_t
 Graph<VISITOR>::vertexToVertex(
-    const size_t vertex,
-    const size_t j
+    const std::size_t vertex,
+    const std::size_t j
 ) const {
     return vertices_[vertex][j].vertex();
 }
@@ -909,7 +910,7 @@ Graph<VISITOR>::vertexToVertex(
 /// \sa insertVertices()
 ///
 template<typename VISITOR>
-inline size_t 
+inline std::size_t
 Graph<VISITOR>::insertVertex() {
     vertices_.push_back(Vertex());
     visitor_.insertVertex(vertices_.size() - 1);
@@ -924,11 +925,11 @@ Graph<VISITOR>::insertVertex() {
 /// \sa insertVertex()
 ///
 template<typename VISITOR>
-inline size_t 
+inline std::size_t
 Graph<VISITOR>::insertVertices(
-    const size_t number
+    const std::size_t number
 ) {
-    size_t position = vertices_.size();
+    std::size_t position = vertices_.size();
     vertices_.insert(vertices_.end(), number, Vertex());
     visitor_.insertVertices(position, number);
     return position;
@@ -941,10 +942,10 @@ Graph<VISITOR>::insertVertices(
 /// \return Integer index of the newly inserted edge.
 /// 
 template<typename VISITOR>
-inline size_t 
+inline std::size_t
 Graph<VISITOR>::insertEdge(
-    const size_t vertexIndex0,
-    const size_t vertexIndex1
+    const std::size_t vertexIndex0,
+    const std::size_t vertexIndex1
 ) {
     assert(vertexIndex0 < numberOfVertices()); 
     assert(vertexIndex1 < numberOfVertices()); 
@@ -952,13 +953,13 @@ Graph<VISITOR>::insertEdge(
     if(multipleEdgesEnabled()) {
 insertEdgeMark:
         edges_.push_back(Edge(vertexIndex0, vertexIndex1));
-        size_t edgeIndex = edges_.size() - 1;
+        std::size_t edgeIndex = edges_.size() - 1;
         insertAdjacenciesForEdge(edgeIndex);
         visitor_.insertEdge(edgeIndex);  
         return edgeIndex;
     }
     else {
-        std::pair<bool, size_t> p = findEdge(vertexIndex0, vertexIndex1);
+        std::pair<bool, std::size_t> p = findEdge(vertexIndex0, vertexIndex1);
         if(p.first) { // edge already exists
             return p.second;
         }
@@ -975,7 +976,7 @@ insertEdgeMark:
 template<typename VISITOR>
 void 
 Graph<VISITOR>::eraseVertex(
-    const size_t vertexIndex
+    const std::size_t vertexIndex
 ) {
     assert(vertexIndex < numberOfVertices()); 
 
@@ -992,21 +993,21 @@ Graph<VISITOR>::eraseVertex(
         // move last vertex to the free position:
 
         // collect indices of edges affected by the move
-        size_t movingVertexIndex = numberOfVertices() - 1;
-        std::set<size_t> affectedEdgeIndices;
+        std::size_t movingVertexIndex = numberOfVertices() - 1;
+        std::set<std::size_t> affectedEdgeIndices;
         for(Vertex::const_iterator it = vertices_[movingVertexIndex].begin();
         it != vertices_[movingVertexIndex].end(); ++it) {
             affectedEdgeIndices.insert(it->edge());
         }
         
         // for all affected edges:
-        for(std::set<size_t>::const_iterator it = affectedEdgeIndices.begin(); 
+        for(std::set<std::size_t>::const_iterator it = affectedEdgeIndices.begin();
         it != affectedEdgeIndices.end(); ++it) { 
             // remove adjacencies
             eraseAdjacenciesForEdge(*it);
 
             // adapt vertex labels
-            for(size_t j=0; j<2; ++j) {
+            for(std::size_t j=0; j<2; ++j) {
                 if(edges_[*it][j] == movingVertexIndex) {
                     edges_[*it][j] = vertexIndex;
                 }
@@ -1022,7 +1023,7 @@ Graph<VISITOR>::eraseVertex(
         vertices_.pop_back(); // erase
 
         // insert adjacencies for edges of moved vertex
-        for(std::set<size_t>::const_iterator it = affectedEdgeIndices.begin(); 
+        for(std::set<std::size_t>::const_iterator it = affectedEdgeIndices.begin();
         it != affectedEdgeIndices.end(); ++it) { 
             insertAdjacenciesForEdge(*it);
         }
@@ -1039,7 +1040,7 @@ Graph<VISITOR>::eraseVertex(
 template<typename VISITOR>
 inline void 
 Graph<VISITOR>::eraseEdge(
-    const size_t edgeIndex
+    const std::size_t edgeIndex
 ) {
     assert(edgeIndex < numberOfEdges()); 
 
@@ -1049,7 +1050,7 @@ Graph<VISITOR>::eraseEdge(
         visitor_.eraseEdge(edgeIndex);
     }
     else { 
-        size_t movingEdgeIndex = numberOfEdges() - 1;
+        std::size_t movingEdgeIndex = numberOfEdges() - 1;
         eraseAdjacenciesForEdge(movingEdgeIndex);
         edges_[edgeIndex] = edges_[movingEdgeIndex]; // copy
         edges_.pop_back(); // delete
@@ -1069,7 +1070,7 @@ Graph<VISITOR>::eraseEdge(
 template<typename VISITOR>
 inline typename Graph<VISITOR>::VertexIterator 
 Graph<VISITOR>::verticesFromVertexBegin(
-    const size_t vertex
+    const std::size_t vertex
 ) const { 
     return vertices_[vertex].begin(); 
 }
@@ -1084,7 +1085,7 @@ Graph<VISITOR>::verticesFromVertexBegin(
 template<typename VISITOR>
 inline typename Graph<VISITOR>::VertexIterator 
 Graph<VISITOR>::verticesFromVertexEnd(
-    const size_t vertex
+    const std::size_t vertex
 ) const { 
     return vertices_[vertex].end(); 
 }
@@ -1099,7 +1100,7 @@ Graph<VISITOR>::verticesFromVertexEnd(
 template<typename VISITOR>
 inline typename Graph<VISITOR>::VertexIterator 
 Graph<VISITOR>::verticesToVertexBegin(
-    const size_t vertex
+    const std::size_t vertex
 ) const { 
     return vertices_[vertex].begin(); 
 }
@@ -1114,7 +1115,7 @@ Graph<VISITOR>::verticesToVertexBegin(
 template<typename VISITOR>
 inline typename Graph<VISITOR>::VertexIterator 
 Graph<VISITOR>::verticesToVertexEnd(
-    const size_t vertex
+    const std::size_t vertex
 ) const { 
     return vertices_[vertex].end(); 
 }
@@ -1129,7 +1130,7 @@ Graph<VISITOR>::verticesToVertexEnd(
 template<typename VISITOR>
 inline typename Graph<VISITOR>::EdgeIterator 
 Graph<VISITOR>::edgesFromVertexBegin(
-    const size_t vertex
+    const std::size_t vertex
 ) const { 
     return vertices_[vertex].begin(); 
 }
@@ -1144,7 +1145,7 @@ Graph<VISITOR>::edgesFromVertexBegin(
 template<typename VISITOR>
 inline typename Graph<VISITOR>::EdgeIterator 
 Graph<VISITOR>::edgesFromVertexEnd(
-    const size_t vertex
+    const std::size_t vertex
 ) const { 
     return vertices_[vertex].end(); 
 }
@@ -1159,7 +1160,7 @@ Graph<VISITOR>::edgesFromVertexEnd(
 template<typename VISITOR>
 inline typename Graph<VISITOR>::EdgeIterator 
 Graph<VISITOR>::edgesToVertexBegin(
-    const size_t vertex
+    const std::size_t vertex
 ) const { 
     return vertices_[vertex].begin(); 
 }
@@ -1174,7 +1175,7 @@ Graph<VISITOR>::edgesToVertexBegin(
 template<typename VISITOR>
 inline typename Graph<VISITOR>::EdgeIterator 
 Graph<VISITOR>::edgesToVertexEnd(
-    const size_t vertex
+    const std::size_t vertex
 ) const { 
     return vertices_[vertex].end(); 
 }
@@ -1189,7 +1190,7 @@ Graph<VISITOR>::edgesToVertexEnd(
 template<typename VISITOR>
 inline typename Graph<VISITOR>::AdjacencyIterator 
 Graph<VISITOR>::adjacenciesFromVertexBegin(
-    const size_t vertex
+    const std::size_t vertex
 ) const {
     return vertices_[vertex].begin();
 }
@@ -1204,7 +1205,7 @@ Graph<VISITOR>::adjacenciesFromVertexBegin(
 template<typename VISITOR>
 inline typename Graph<VISITOR>::AdjacencyIterator 
 Graph<VISITOR>::adjacenciesFromVertexEnd(
-    const size_t vertex
+    const std::size_t vertex
 ) const {
     return vertices_[vertex].end();
 }
@@ -1219,7 +1220,7 @@ Graph<VISITOR>::adjacenciesFromVertexEnd(
 template<typename VISITOR>
 inline typename Graph<VISITOR>::AdjacencyIterator 
 Graph<VISITOR>::adjacenciesToVertexBegin(
-    const size_t vertex
+    const std::size_t vertex
 ) const {
     return vertices_[vertex].begin();
 }
@@ -1234,7 +1235,7 @@ Graph<VISITOR>::adjacenciesToVertexBegin(
 template<typename VISITOR>
 inline typename Graph<VISITOR>::AdjacencyIterator 
 Graph<VISITOR>::adjacenciesToVertexEnd(
-    const size_t vertex
+    const std::size_t vertex
 ) const {
     return vertices_[vertex].end();
 }
@@ -1246,7 +1247,7 @@ Graph<VISITOR>::adjacenciesToVertexEnd(
 template<typename VISITOR>
 inline void 
 Graph<VISITOR>::reserveVertices(
-    const size_t number
+    const std::size_t number
 ) {
     vertices_.reserve(number);
 }
@@ -1258,7 +1259,7 @@ Graph<VISITOR>::reserveVertices(
 template<typename VISITOR>
 inline void 
 Graph<VISITOR>::reserveEdges(
-    const size_t number
+    const std::size_t number
 ) {
     edges_.reserve(number);
 }
@@ -1271,8 +1272,8 @@ Graph<VISITOR>::reserveEdges(
 template<typename VISITOR>
 inline const Adjacency<>&
 Graph<VISITOR>::adjacencyFromVertex(
-    const size_t vertex, 
-    const size_t j
+    const std::size_t vertex,
+    const std::size_t j
 ) const {
     return vertices_[vertex][j];
 }
@@ -1285,8 +1286,8 @@ Graph<VISITOR>::adjacencyFromVertex(
 template<typename VISITOR>
 inline const Adjacency<>&
 Graph<VISITOR>::adjacencyToVertex(
-    const size_t vertex, 
-    const size_t j
+    const std::size_t vertex,
+    const std::size_t j
 ) const {
     return vertices_[vertex][j];
 }
@@ -1300,16 +1301,16 @@ Graph<VISITOR>::adjacencyToVertex(
 ///     to vertex1 exists, pair.first is false and pair.second is undefined.
 ///
 template<typename VISITOR>
-inline std::pair<bool, size_t>
+inline std::pair<bool, std::size_t>
 Graph<VISITOR>::findEdge(
-    const size_t vertex0, 
-    const size_t vertex1
+    const std::size_t vertex0,
+    const std::size_t vertex1
 ) const {
     assert(vertex0 < numberOfVertices());
     assert(vertex1 < numberOfVertices());
 
-    size_t v0 = vertex0;
-    size_t v1 = vertex1;
+    std::size_t v0 = vertex0;
+    std::size_t v1 = vertex1;
     if(numberOfEdgesFromVertex(vertex1) < numberOfEdgesFromVertex(vertex0)) {
         v0 = vertex1;
         v1 = vertex0;
@@ -1321,7 +1322,7 @@ Graph<VISITOR>::findEdge(
     ); // binary search
     if(it != verticesFromVertexEnd(v0) && *it == v1) {
         // access the corresponding edge in constant time
-        const size_t j = std::distance(verticesFromVertexBegin(v0), it);
+        const std::size_t j = std::distance(verticesFromVertexBegin(v0), it);
         return std::make_pair(true, edgeFromVertex(v0, j));
     }
     else {
@@ -1354,11 +1355,11 @@ Graph<VISITOR>::multipleEdgesEnabled() {
 template<typename VISITOR>
 inline void 
 Graph<VISITOR>::insertAdjacenciesForEdge(
-    const size_t edgeIndex
+    const std::size_t edgeIndex
 ) {
     const Edge& edge = edges_[edgeIndex];
-    const size_t vertexIndex0 = edge[0];
-    const size_t vertexIndex1 = edge[1];
+    const std::size_t vertexIndex0 = edge[0];
+    const std::size_t vertexIndex1 = edge[1];
     vertices_[vertexIndex0].insert(
         AdjacencyType(vertexIndex1, edgeIndex)
     );
@@ -1372,11 +1373,11 @@ Graph<VISITOR>::insertAdjacenciesForEdge(
 template<typename VISITOR>
 inline void 
 Graph<VISITOR>::eraseAdjacenciesForEdge(
-    const size_t edgeIndex
+    const std::size_t edgeIndex
 ) {
     const Edge& edge = edges_[edgeIndex];
-    const size_t vertexIndex0 = edge[0];
-    const size_t vertexIndex1 = edge[1];
+    const std::size_t vertexIndex0 = edge[0];
+    const std::size_t vertexIndex1 = edge[1];
     Vertex& vertex0 = vertices_[vertexIndex0];
     Vertex& vertex1 = vertices_[vertexIndex1];
 
@@ -1418,7 +1419,7 @@ Digraph<VISITOR>::Digraph(
 template<typename VISITOR>
 inline 
 Digraph<VISITOR>::Digraph(
-    const size_t numberOfVertices,
+    const std::size_t numberOfVertices,
     const Visitor& visitor
 )
 :   vertices_(numberOfVertices),
@@ -1452,7 +1453,7 @@ Digraph<VISITOR>::assign(
 template<typename VISITOR>
 inline void
 Digraph<VISITOR>::assign(
-    const size_t numberOfVertices,
+    const std::size_t numberOfVertices,
     const Visitor& visitor
 ) {
     vertices_.resize(numberOfVertices);
@@ -1466,7 +1467,7 @@ Digraph<VISITOR>::assign(
 /// Get the number of vertices.
 ///
 template<typename VISITOR>
-inline size_t 
+inline std::size_t
 Digraph<VISITOR>::numberOfVertices() const { 
     return vertices_.size(); 
 }
@@ -1474,7 +1475,7 @@ Digraph<VISITOR>::numberOfVertices() const {
 /// Get the number of edges.
 ///
 template<typename VISITOR>
-inline size_t 
+inline std::size_t
 Digraph<VISITOR>::numberOfEdges() const { 
     return edges_.size(); 
 }
@@ -1486,9 +1487,9 @@ Digraph<VISITOR>::numberOfEdges() const {
 /// \sa edgeFromVertex()
 ///
 template<typename VISITOR>
-inline size_t 
+inline std::size_t
 Digraph<VISITOR>::numberOfEdgesFromVertex(
-    const size_t vertex
+    const std::size_t vertex
 ) const { 
     return vertices_[vertex].to_.size();
 }
@@ -1500,9 +1501,9 @@ Digraph<VISITOR>::numberOfEdgesFromVertex(
 /// \sa edgeToVertex()
 ///
 template<typename VISITOR>
-inline size_t 
+inline std::size_t
 Digraph<VISITOR>::numberOfEdgesToVertex(
-    const size_t vertex
+    const std::size_t vertex
 ) const { 
     return vertices_[vertex].from_.size();
 }
@@ -1513,10 +1514,10 @@ Digraph<VISITOR>::numberOfEdgesToVertex(
 /// \param j Number of the vertex in the edge; either 0 or 1.
 ///
 template<typename VISITOR>
-inline size_t
+inline std::size_t
 Digraph<VISITOR>::vertexOfEdge(
-    const size_t edge,
-    const size_t j
+    const std::size_t edge,
+    const std::size_t j
 ) const {
     assert(j < 2);
 
@@ -1531,10 +1532,10 @@ Digraph<VISITOR>::vertexOfEdge(
 /// \sa numberOfEdgesFromVertex()
 ///
 template<typename VISITOR>
-inline size_t
+inline std::size_t
 Digraph<VISITOR>::edgeFromVertex(
-    const size_t vertex,
-    const size_t j
+    const std::size_t vertex,
+    const std::size_t j
 ) const {
     return vertices_[vertex].to_[j].edge();
 }
@@ -1547,10 +1548,10 @@ Digraph<VISITOR>::edgeFromVertex(
 /// \sa numberOfEdgesToVertex()
 ///
 template<typename VISITOR>
-inline size_t
+inline std::size_t
 Digraph<VISITOR>::edgeToVertex(
-    const size_t vertex,
-    const size_t j
+    const std::size_t vertex,
+    const std::size_t j
 ) const {
     return vertices_[vertex].from_[j].edge();
 }
@@ -1563,10 +1564,10 @@ Digraph<VISITOR>::edgeToVertex(
 /// \sa numberOfEdgesFromVertex()
 ///
 template<typename VISITOR>
-inline size_t
+inline std::size_t
 Digraph<VISITOR>::vertexFromVertex(
-    const size_t vertex,
-    const size_t j
+    const std::size_t vertex,
+    const std::size_t j
 ) const {
     return vertices_[vertex].to_[j].vertex();
 }
@@ -1579,10 +1580,10 @@ Digraph<VISITOR>::vertexFromVertex(
 /// \sa numberOfEdgesFromVertex()
 ///
 template<typename VISITOR>
-inline size_t
+inline std::size_t
 Digraph<VISITOR>::vertexToVertex(
-    const size_t vertex,
-    const size_t j
+    const std::size_t vertex,
+    const std::size_t j
 ) const {
     return vertices_[vertex].from_[j].vertex();
 }
@@ -1594,7 +1595,7 @@ Digraph<VISITOR>::vertexToVertex(
 /// \sa insertVertices()
 ///
 template<typename VISITOR>
-inline size_t 
+inline std::size_t
 Digraph<VISITOR>::insertVertex() {
     vertices_.push_back(Vertex());
     visitor_.insertVertex(vertices_.size() - 1);
@@ -1609,11 +1610,11 @@ Digraph<VISITOR>::insertVertex() {
 /// \sa insertVertex()
 ///
 template<typename VISITOR>
-inline size_t 
+inline std::size_t
 Digraph<VISITOR>::insertVertices(
-    const size_t number
+    const std::size_t number
 ) {
-    size_t position = vertices_.size();
+    std::size_t position = vertices_.size();
     vertices_.insert(vertices_.end(), number, Vertex());
     visitor_.insertVertices(position, number);
     return position;
@@ -1626,10 +1627,10 @@ Digraph<VISITOR>::insertVertices(
 /// \return Integer index of the newly inserted edge.
 ///
 template<typename VISITOR>
-inline size_t 
+inline std::size_t
 Digraph<VISITOR>::insertEdge(
-    const size_t vertexIndex0,
-    const size_t vertexIndex1
+    const std::size_t vertexIndex0,
+    const std::size_t vertexIndex1
 ) {
     assert(vertexIndex0 < numberOfVertices()); 
     assert(vertexIndex1 < numberOfVertices()); 
@@ -1637,13 +1638,13 @@ Digraph<VISITOR>::insertEdge(
     if(multipleEdgesEnabled()) {
 insertEdgeMark:
         edges_.push_back(Edge(vertexIndex0, vertexIndex1));
-        size_t edgeIndex = edges_.size() - 1;
+        std::size_t edgeIndex = edges_.size() - 1;
         insertAdjacenciesForEdge(edgeIndex);
         visitor_.insertEdge(edgeIndex);  
         return edgeIndex;
     }
     else {
-        std::pair<bool, size_t> p = findEdge(vertexIndex0, vertexIndex1);
+        std::pair<bool, std::size_t> p = findEdge(vertexIndex0, vertexIndex1);
         if(p.first) { // edge already exists
             return p.second;
         }
@@ -1660,7 +1661,7 @@ insertEdgeMark:
 template<typename VISITOR>
 void 
 Digraph<VISITOR>::eraseVertex(
-    const size_t vertexIndex
+    const std::size_t vertexIndex
 ) {
     assert(vertexIndex < numberOfVertices()); 
 
@@ -1680,8 +1681,8 @@ Digraph<VISITOR>::eraseVertex(
         // move last vertex to the free position:
 
         // collect indices of edges affected by the move
-        size_t movingVertexIndex = numberOfVertices() - 1;
-        std::set<size_t> affectedEdgeIndices;
+        std::size_t movingVertexIndex = numberOfVertices() - 1;
+        std::set<std::size_t> affectedEdgeIndices;
         for(Adjacencies::const_iterator it = vertices_[movingVertexIndex].from_.begin();
         it != vertices_[movingVertexIndex].from_.end(); ++it) {
             affectedEdgeIndices.insert(it->edge());
@@ -1692,13 +1693,13 @@ Digraph<VISITOR>::eraseVertex(
         }
         
         // for all affected edges:
-        for(std::set<size_t>::const_iterator it = affectedEdgeIndices.begin(); 
+        for(std::set<std::size_t>::const_iterator it = affectedEdgeIndices.begin();
         it != affectedEdgeIndices.end(); ++it) { 
             // remove adjacencies
             eraseAdjacenciesForEdge(*it);
 
             // adapt vertex labels
-            for(size_t j=0; j<2; ++j) {
+            for(std::size_t j=0; j<2; ++j) {
                 if(edges_[*it][j] == movingVertexIndex) {
                     edges_[*it][j] = vertexIndex;
                 }
@@ -1710,7 +1711,7 @@ Digraph<VISITOR>::eraseVertex(
         vertices_.pop_back(); // erase
 
         // insert adjacencies for edges of moved vertex
-        for(std::set<size_t>::const_iterator it = affectedEdgeIndices.begin(); 
+        for(std::set<std::size_t>::const_iterator it = affectedEdgeIndices.begin();
         it != affectedEdgeIndices.end(); ++it) { 
             insertAdjacenciesForEdge(*it);
         }
@@ -1727,7 +1728,7 @@ Digraph<VISITOR>::eraseVertex(
 template<typename VISITOR>
 inline void 
 Digraph<VISITOR>::eraseEdge(
-    const size_t edgeIndex
+    const std::size_t edgeIndex
 ) {
     assert(edgeIndex < numberOfEdges()); 
 
@@ -1737,7 +1738,7 @@ Digraph<VISITOR>::eraseEdge(
         visitor_.eraseEdge(edgeIndex);
     }
     else { 
-        size_t movingEdgeIndex = numberOfEdges() - 1;
+        std::size_t movingEdgeIndex = numberOfEdges() - 1;
         eraseAdjacenciesForEdge(movingEdgeIndex);
         edges_[edgeIndex] = edges_[movingEdgeIndex]; // copy
         edges_.pop_back(); // delete
@@ -1757,7 +1758,7 @@ Digraph<VISITOR>::eraseEdge(
 template<typename VISITOR>
 inline typename Digraph<VISITOR>::VertexIterator 
 Digraph<VISITOR>::verticesFromVertexBegin(
-    const size_t vertex
+    const std::size_t vertex
 ) const { 
     return vertices_[vertex].to_.begin(); 
 }
@@ -1772,7 +1773,7 @@ Digraph<VISITOR>::verticesFromVertexBegin(
 template<typename VISITOR>
 inline typename Digraph<VISITOR>::VertexIterator 
 Digraph<VISITOR>::verticesFromVertexEnd(
-    const size_t vertex
+    const std::size_t vertex
 ) const { 
     return vertices_[vertex].to_.end(); 
 }
@@ -1787,7 +1788,7 @@ Digraph<VISITOR>::verticesFromVertexEnd(
 template<typename VISITOR>
 inline typename Digraph<VISITOR>::VertexIterator 
 Digraph<VISITOR>::verticesToVertexBegin(
-    const size_t vertex
+    const std::size_t vertex
 ) const { 
     return vertices_[vertex].from_.begin(); 
 }
@@ -1802,7 +1803,7 @@ Digraph<VISITOR>::verticesToVertexBegin(
 template<typename VISITOR>
 inline typename Digraph<VISITOR>::VertexIterator 
 Digraph<VISITOR>::verticesToVertexEnd(
-    const size_t vertex
+    const std::size_t vertex
 ) const { 
     return vertices_[vertex].from_.end(); 
 }
@@ -1817,7 +1818,7 @@ Digraph<VISITOR>::verticesToVertexEnd(
 template<typename VISITOR>
 inline typename Digraph<VISITOR>::EdgeIterator 
 Digraph<VISITOR>::edgesFromVertexBegin(
-    const size_t vertex
+    const std::size_t vertex
 ) const { 
     return vertices_[vertex].to_.begin(); 
 }
@@ -1832,7 +1833,7 @@ Digraph<VISITOR>::edgesFromVertexBegin(
 template<typename VISITOR>
 inline typename Digraph<VISITOR>::EdgeIterator 
 Digraph<VISITOR>::edgesFromVertexEnd(
-    const size_t vertex
+    const std::size_t vertex
 ) const { 
     return vertices_[vertex].to_.end(); 
 }
@@ -1847,7 +1848,7 @@ Digraph<VISITOR>::edgesFromVertexEnd(
 template<typename VISITOR>
 inline typename Digraph<VISITOR>::EdgeIterator 
 Digraph<VISITOR>::edgesToVertexBegin(
-    const size_t vertex
+    const std::size_t vertex
 ) const { 
     return vertices_[vertex].from_.begin(); 
 }
@@ -1862,7 +1863,7 @@ Digraph<VISITOR>::edgesToVertexBegin(
 template<typename VISITOR>
 inline typename Digraph<VISITOR>::EdgeIterator 
 Digraph<VISITOR>::edgesToVertexEnd(
-    const size_t vertex
+    const std::size_t vertex
 ) const { 
     return vertices_[vertex].from_.end(); 
 }
@@ -1877,7 +1878,7 @@ Digraph<VISITOR>::edgesToVertexEnd(
 template<typename VISITOR>
 inline typename Digraph<VISITOR>::AdjacencyIterator 
 Digraph<VISITOR>::adjacenciesFromVertexBegin(
-    const size_t vertex
+    const std::size_t vertex
 ) const {
     return vertices_[vertex].to_.begin();
 }
@@ -1892,7 +1893,7 @@ Digraph<VISITOR>::adjacenciesFromVertexBegin(
 template<typename VISITOR>
 inline typename Digraph<VISITOR>::AdjacencyIterator 
 Digraph<VISITOR>::adjacenciesFromVertexEnd(
-    const size_t vertex
+    const std::size_t vertex
 ) const {
     return vertices_[vertex].to_.end();
 }
@@ -1907,7 +1908,7 @@ Digraph<VISITOR>::adjacenciesFromVertexEnd(
 template<typename VISITOR>
 inline typename Digraph<VISITOR>::AdjacencyIterator 
 Digraph<VISITOR>::adjacenciesToVertexBegin(
-    const size_t vertex
+    const std::size_t vertex
 ) const {
     return vertices_[vertex].from_.begin();
 }
@@ -1922,7 +1923,7 @@ Digraph<VISITOR>::adjacenciesToVertexBegin(
 template<typename VISITOR>
 inline typename Digraph<VISITOR>::AdjacencyIterator 
 Digraph<VISITOR>::adjacenciesToVertexEnd(
-    const size_t vertex
+    const std::size_t vertex
 ) const {
     return vertices_[vertex].from_.end();
 }
@@ -1934,7 +1935,7 @@ Digraph<VISITOR>::adjacenciesToVertexEnd(
 template<typename VISITOR>
 inline void 
 Digraph<VISITOR>::reserveVertices(
-    const size_t number
+    const std::size_t number
 ) {
     vertices_.reserve(number);
 }
@@ -1946,7 +1947,7 @@ Digraph<VISITOR>::reserveVertices(
 template<typename VISITOR>
 inline void 
 Digraph<VISITOR>::reserveEdges(
-    const size_t number
+    const std::size_t number
 ) {
     edges_.reserve(number);
 }
@@ -1959,8 +1960,8 @@ Digraph<VISITOR>::reserveEdges(
 template<typename VISITOR>
 inline const Adjacency<>&
 Digraph<VISITOR>::adjacencyFromVertex(
-    const size_t vertex, 
-    const size_t j
+    const std::size_t vertex,
+    const std::size_t j
 ) const {
     return vertices_[vertex].to_[j];
 }
@@ -1973,8 +1974,8 @@ Digraph<VISITOR>::adjacencyFromVertex(
 template<typename VISITOR>
 inline const Adjacency<>&
 Digraph<VISITOR>::adjacencyToVertex(
-    const size_t vertex, 
-    const size_t j
+    const std::size_t vertex,
+    const std::size_t j
 ) const {
     return vertices_[vertex].from_[j];
 }
@@ -1988,10 +1989,10 @@ Digraph<VISITOR>::adjacencyToVertex(
 ///     to vertex1 exists, pair.first is false and pair.second is undefined.
 ///
 template<typename VISITOR>
-inline std::pair<bool, size_t>
+inline std::pair<bool, std::size_t>
 Digraph<VISITOR>::findEdge(
-    const size_t vertex0, 
-    const size_t vertex1
+    const std::size_t vertex0,
+    const std::size_t vertex1
 ) const {
     assert(vertex0 < numberOfVertices());
     assert(vertex1 < numberOfVertices());
@@ -2003,7 +2004,7 @@ Digraph<VISITOR>::findEdge(
     ); // binary search
     if(it != verticesFromVertexEnd(vertex0) && *it == vertex1) {
         // access the corresponding edge in constant time
-        const size_t j = std::distance(verticesFromVertexBegin(vertex0), it);
+        const std::size_t j = std::distance(verticesFromVertexBegin(vertex0), it);
         return std::make_pair(true, edgeFromVertex(vertex0, j));
     }
     else {
@@ -2036,11 +2037,11 @@ Digraph<VISITOR>::multipleEdgesEnabled() {
 template<typename VISITOR>
 inline void 
 Digraph<VISITOR>::insertAdjacenciesForEdge(
-    const size_t edgeIndex
+    const std::size_t edgeIndex
 ) {
     const Edge& edge = edges_[edgeIndex];
-    const size_t vertexIndex0 = edge[0];
-    const size_t vertexIndex1 = edge[1];
+    const std::size_t vertexIndex0 = edge[0];
+    const std::size_t vertexIndex1 = edge[1];
     vertices_[vertexIndex0].to_.insert(
         AdjacencyType(vertexIndex1, edgeIndex)
     );
@@ -2052,11 +2053,11 @@ Digraph<VISITOR>::insertAdjacenciesForEdge(
 template<typename VISITOR>
 inline void 
 Digraph<VISITOR>::eraseAdjacenciesForEdge(
-    const size_t edgeIndex
+    const std::size_t edgeIndex
 ) {
     const Edge& edge = edges_[edgeIndex];
-    const size_t vertexIndex0 = edge[0];
-    const size_t vertexIndex1 = edge[1];
+    const std::size_t vertexIndex0 = edge[0];
+    const std::size_t vertexIndex1 = edge[1];
     Vertex& vertex0 = vertices_[vertexIndex0];
     Vertex& vertex1 = vertices_[vertexIndex1];
 

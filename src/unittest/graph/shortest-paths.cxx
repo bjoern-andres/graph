@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <stdexcept>
 
 #include "andres/graph/graph.hxx"
@@ -8,38 +9,38 @@ inline void test(const bool& pred) {
 }
 
 struct SubgraphMask1 {
-    bool vertex(const size_t v) const { return v != 1; }
-    bool edge(const size_t e) const { return e != 3; }
+    bool vertex(const std::size_t v) const { return v != 1; }
+    bool edge(const std::size_t e) const { return e != 3; }
 };
 
 struct SubgraphMask2 {
-    bool vertex(const size_t v) const { return v != 1; }
-    bool edge(const size_t e) const { return e < 3 || e > 6; }
+    bool vertex(const std::size_t v) const { return v != 1; }
+    bool edge(const std::size_t e) const { return e < 3 || e > 6; }
 };
 
 struct SubgraphMask3 {
-    bool vertex(const size_t v) const { return v != 1; }
-    bool edge(const size_t e) const { return e != 3; }
+    bool vertex(const std::size_t v) const { return v != 1; }
+    bool edge(const std::size_t e) const { return e != 3; }
 };
 
 struct SubgraphMask4 {
-    bool vertex(const size_t j) const { return true; }
-    bool edge(const size_t j) const { return j != 3; }
+    bool vertex(const std::size_t j) const { return true; }
+    bool edge(const std::size_t j) const { return j != 3; }
 };
 
 struct SubgraphMask5 {
-    bool vertex(const size_t j) const { return true; }
-    bool edge(const size_t j) const { return j != 3; }
+    bool vertex(const std::size_t j) const { return true; }
+    bool edge(const std::size_t j) const { return j != 3; }
 };
 
 struct SubgraphMask6 {
-    bool vertex(const size_t j) const { return true; }
-    bool edge(const size_t j) const { return j != 3; }
+    bool vertex(const std::size_t j) const { return true; }
+    bool edge(const std::size_t j) const { return j != 3; }
 };
 
 struct SubgraphMask7 {
-    bool vertex(const size_t j) const { return true; }
-    bool edge(const size_t j) const { return j != 3; }
+    bool vertex(const std::size_t j) const { return true; }
+    bool edge(const std::size_t j) const { return j != 3; }
 };
 
 int main() {
@@ -57,7 +58,7 @@ int main() {
         g.insertEdge(6, 7);
         g.insertEdge(7, 3);
 
-        std::deque<size_t> path;
+        std::deque<std::size_t> path;
 
         bool found = andres::graph::spsp(g, 0, 3, path);
         test(found == true);
@@ -125,7 +126,7 @@ int main() {
         edgeWeights[8] = 0.2f;
         edgeWeights[9] = 1.0f;
 
-        std::deque<size_t> path;
+        std::deque<std::size_t> path;
         float distance = 0;      
 
         // start vertex 0
@@ -563,7 +564,7 @@ int main() {
         g.insertEdge(6, 7); // 8
         g.insertEdge(7, 3); // 9
 
-        std::deque<size_t> path;
+        std::deque<std::size_t> path;
 
         bool found = andres::graph::spsp(g, 0, 3, path);   
         test(found == true);
@@ -656,7 +657,7 @@ int main() {
         edgeWeights[8] = 0.2f;
         edgeWeights[9] = 1.0f;
 
-        std::deque<size_t> path;
+        std::deque<std::size_t> path;
         float distance = 0;      
 
         // start vertex 0
@@ -1037,7 +1038,7 @@ int main() {
         // unweighted graph
         {
             std::vector<unsigned int> distances(g.numberOfVertices());
-            std::vector<size_t> parents(g.numberOfVertices());
+            std::vector<std::size_t> parents(g.numberOfVertices());
             andres::graph::sssp(g, 0, distances.begin(), parents.begin());
 
             test(distances[0] == 0);
@@ -1063,7 +1064,7 @@ int main() {
             
             // edge output
             
-            std::vector<size_t> parentsEdges(g.numberOfVertices());
+            std::vector<std::size_t> parentsEdges(g.numberOfVertices());
             andres::graph::ssspEdges(g, 0, distances.begin(), parents.begin(), parentsEdges.begin());
             
             test(distances[0] == 0);
@@ -1097,7 +1098,7 @@ int main() {
         // unweighted subgraph
         {
             std::vector<unsigned int> distances(g.numberOfVertices());
-            std::vector<size_t> parents(g.numberOfVertices());
+            std::vector<std::size_t> parents(g.numberOfVertices());
             andres::graph::sssp(g, SubgraphMask4(), 0, distances.begin(), parents.begin());
 
             test(distances[0] == 0);
@@ -1123,7 +1124,7 @@ int main() {
             
             // edge output
             
-            std::vector<size_t> parentsEdges(g.numberOfVertices());
+            std::vector<std::size_t> parentsEdges(g.numberOfVertices());
             andres::graph::ssspEdges(g, SubgraphMask4(), 0, distances.begin(), parents.begin(), parentsEdges.begin());
             
             test(distances[0] == 0);
@@ -1165,7 +1166,7 @@ int main() {
         // weighted graph
         {
             std::vector<unsigned int> distances(g.numberOfVertices());
-            std::vector<size_t> parents(g.numberOfVertices());
+            std::vector<std::size_t> parents(g.numberOfVertices());
             andres::graph::sssp(g, 0, edgeWeights.begin(), distances.begin(), 
                 parents.begin()
             );
@@ -1184,7 +1185,7 @@ int main() {
             
             // edge output
             
-            std::vector<size_t> parentsEdges(g.numberOfVertices());
+            std::vector<std::size_t> parentsEdges(g.numberOfVertices());
             andres::graph::ssspEdges(g, 0, edgeWeights.begin(), distances.begin(), parents.begin(), parentsEdges.begin()
             );
             
@@ -1212,7 +1213,7 @@ int main() {
 
 
             std::vector<unsigned int> distances(g.numberOfVertices());
-            std::vector<size_t> parents(g.numberOfVertices());
+            std::vector<std::size_t> parents(g.numberOfVertices());
             andres::graph::sssp(g, SubgraphMask5(), 0, edgeWeights.begin(),
                 distances.begin(), parents.begin()
             );
@@ -1231,7 +1232,7 @@ int main() {
             
             // edge output
             
-            std::vector<size_t> parentsEdges(g.numberOfVertices());
+            std::vector<std::size_t> parentsEdges(g.numberOfVertices());
             andres::graph::ssspEdges(g, SubgraphMask5(), 0, edgeWeights.begin(), distances.begin(), parents.begin(), parentsEdges.begin()
             );
             
@@ -1268,7 +1269,7 @@ int main() {
         // unweighted graph
         {
             std::vector<unsigned int> distances(g.numberOfVertices());
-            std::vector<size_t> parents(g.numberOfVertices());
+            std::vector<std::size_t> parents(g.numberOfVertices());
             andres::graph::sssp(g, 0, distances.begin(), parents.begin());
 
             test(distances[0] == 0);
@@ -1285,7 +1286,7 @@ int main() {
             
             // edge output
             
-            std::vector<size_t> parentsEdges(g.numberOfVertices());
+            std::vector<std::size_t> parentsEdges(g.numberOfVertices());
             andres::graph::ssspEdges(g, 0, distances.begin(), parents.begin(), parentsEdges.begin());
             
             test(distances[0] == 0);
@@ -1312,7 +1313,7 @@ int main() {
 
 
             std::vector<unsigned int> distances(g.numberOfVertices());
-            std::vector<size_t> parents(g.numberOfVertices());
+            std::vector<std::size_t> parents(g.numberOfVertices());
             andres::graph::sssp(g, SubgraphMask6(), 0, distances.begin(), parents.begin());
 
             test(distances[0] == 0);
@@ -1329,7 +1330,7 @@ int main() {
             
             // edge output
             
-            std::vector<size_t> parentsEdges(g.numberOfVertices());
+            std::vector<std::size_t> parentsEdges(g.numberOfVertices());
             andres::graph::ssspEdges(g, SubgraphMask6(), 0, distances.begin(), parents.begin(), parentsEdges.begin());
             
             test(distances[0] == 0);
@@ -1363,7 +1364,7 @@ int main() {
         // weighted graph
         {
             std::vector<unsigned int> distances(g.numberOfVertices());
-            std::vector<size_t> parents(g.numberOfVertices());
+            std::vector<std::size_t> parents(g.numberOfVertices());
             andres::graph::sssp(g, 0, edgeWeights.begin(), distances.begin(), 
                 parents.begin()
             );
@@ -1382,7 +1383,7 @@ int main() {
             
             // edge output
             
-            std::vector<size_t> parentsEdges(g.numberOfVertices());
+            std::vector<std::size_t> parentsEdges(g.numberOfVertices());
             andres::graph::ssspEdges(g, 0, edgeWeights.begin(), distances.begin(),
                                      parents.begin(), parentsEdges.begin()
                                      );
@@ -1411,7 +1412,7 @@ int main() {
 
 
             std::vector<unsigned int> distances(g.numberOfVertices());
-            std::vector<size_t> parents(g.numberOfVertices());
+            std::vector<std::size_t> parents(g.numberOfVertices());
             andres::graph::sssp(g, SubgraphMask7(), 0, edgeWeights.begin(),
                 distances.begin(), parents.begin()
             );
@@ -1430,7 +1431,7 @@ int main() {
             
             // edge output
             
-            std::vector<size_t> parentsEdges(g.numberOfVertices());
+            std::vector<std::size_t> parentsEdges(g.numberOfVertices());
             andres::graph::ssspEdges(g, SubgraphMask7(), 0, edgeWeights.begin(),distances.begin(), parents.begin(), parentsEdges.begin());
             
             test(distances[0] == 0);

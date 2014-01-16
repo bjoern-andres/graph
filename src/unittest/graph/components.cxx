@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <stdexcept>
 
 #include "andres/graph/graph.hxx"
@@ -8,8 +9,8 @@ inline void test(const bool& pred) {
 }
 
 struct SubgraphMask {
-    bool vertex(const size_t v) const { return v != 3; }
-    bool edge(const size_t e) const { return e != 0; }
+    bool vertex(const std::size_t v) const { return v != 3; }
+    bool edge(const std::size_t e) const { return e != 0; }
 };
 
 template<class COMPONENTS>

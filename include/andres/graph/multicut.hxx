@@ -3,6 +3,7 @@
 #define ANDRES_MULTICUT_HXX
 
 #include <cassert>
+#include <cstddef>
 #include <stdexcept>
 #include <vector>
 #include <deque>
@@ -42,31 +43,31 @@ public:
         void repairSolution() const {}
         void optimize() const {}
         void addCycleInequalities() const {}
-        void endIteration(const size_t, const size_t) const {}
+        void endIteration(const std::size_t, const std::size_t) const {}
     };
 
     Multicut();
     void setup(const Graph&, const std::vector<double>&);
-    void solve(const size_t);
+    void solve(const std::size_t);
     template<class VISITOR>
-        void solve(const size_t, VISITOR&);
+        void solve(const std::size_t, VISITOR&);
     
     Ilp& ilp();
-    double label(const size_t) const;
+    double label(const std::size_t) const;
 
 private:
     struct SubgraphWithoutCut { // a subgraph mask
         SubgraphWithoutCut(const Multicut<GRAPH, ILP, COMPONENTS>& multicut)
             : multicut_(multicut) {}
-        bool vertex(const size_t v) const 
+        bool vertex(const std::size_t v) const
             { return true; }
-        bool edge(const size_t e) const 
+        bool edge(const std::size_t e) const
             { return multicut_.label(e) == 0; }
 
         const Multicut<GRAPH, ILP, COMPONENTS>& multicut_;
     };
 
-    size_t addCycleInequalities();
+    std::size_t addCycleInequalities();
     void repairSolution();
 
     Components components_;
@@ -85,7 +86,7 @@ Multicut<GRAPH, ILP, COMPONENTS>::Multicut()
 template<class GRAPH, class ILP, class COMPONENTS>
 inline double
 Multicut<GRAPH, ILP, COMPONENTS>::label(
-    const size_t edge
+    const std::size_t edge
 ) const {
     assert(edge < graph_->numberOfEdges());
     return ilp_.label(edge);
@@ -113,7 +114,7 @@ Multicut<GRAPH, ILP, COMPONENTS>::setup(
 template<class GRAPH, class ILP, class COMPONENTS>
 inline void 
 Multicut<GRAPH, ILP, COMPONENTS>::solve(
-    const size_t maxIterations
+    const std::size_t maxIterations
 ) {
     solve(maxIterations, IdleVisitor());
 }
@@ -122,10 +123,10 @@ template<class GRAPH, class ILP, class COMPONENTS>
 template<class VISITOR>
 void 
 Multicut<GRAPH, ILP, COMPONENTS>::solve(
-    const size_t maxIterations,
+    const std::size_t maxIterations,
     VISITOR& visitor
 ) {
-    for(size_t i = 0; maxIterations == 0 || i < maxIterations; ++i) {
+    for(std::size_t i = 0; maxIterations == 0 || i < maxIterations; ++i) {
         if(i != 0) {
             visitor.repairSolution();
             repairSolution();
@@ -133,7 +134,7 @@ Multicut<GRAPH, ILP, COMPONENTS>::solve(
         visitor.optimize();
         ilp_.optimize();
         visitor.addCycleInequalities();
-        size_t nc = addCycleInequalities();      
+        std::size_t nc = addCycleInequalities();
         visitor.endIteration(i, nc);        
         if(nc == 0) {
             break;
@@ -142,29 +143,29 @@ Multicut<GRAPH, ILP, COMPONENTS>::solve(
 }
 
 template<class GRAPH, class ILP, class COMPONENTS>
-size_t 
+std::size_t
 Multicut<GRAPH, ILP, COMPONENTS>::addCycleInequalities() {
     // label connected components
     components_.build(*graph_, SubgraphWithoutCut(*this));
 
     // search for violated non-chordal cycles and add corresp. inequalities
-    std::deque<size_t> path;
+    std::deque<std::size_t> path;
     std::vector<ptrdiff_t> buffer;
     std::vector<double> variables;
     std::vector<double> coefficients;
-    size_t counter = 0;
+    std::size_t counter = 0;
     #pragma omp parallel for private(path, buffer, variables, coefficients), schedule(guided)
     for(ptrdiff_t edge = 0; edge < graph_->numberOfEdges(); ++edge) {
         if(label(edge) == 1) {
-            const size_t v0 = graph_->vertexOfEdge(edge, 0);
-            const size_t v1 = graph_->vertexOfEdge(edge, 1);
+            const std::size_t v0 = graph_->vertexOfEdge(edge, 0);
+            const std::size_t v1 = graph_->vertexOfEdge(edge, 1);
             if(components_.areConnected(v0, v1)) { 
                 // search for shortest path
                 bool found = spsp(*graph_, SubgraphWithoutCut(*this), v0, v1, path, buffer); 
                 assert(found);
                 
                 // skip chordal paths
-                std::pair<bool, size_t> chordal;
+                std::pair<bool, std::size_t> chordal;
                 chordal = findChord(*graph_, path.begin(), path.end(), true);
                 if(chordal.first) {
                     continue;
@@ -172,8 +173,8 @@ Multicut<GRAPH, ILP, COMPONENTS>::addCycleInequalities() {
 
                 // add inequality
                 variables.resize(path.size());
-                for(size_t j = 0; j < path.size() - 1; ++j) {
-                    std::pair<bool, size_t> p = graph_->findEdge(path[j], path[j + 1]);
+                for(std::size_t j = 0; j < path.size() - 1; ++j) {
+                    std::pair<bool, std::size_t> p = graph_->findEdge(path[j], path[j + 1]);
                     assert(p.first);
                     variables[j] = static_cast<double>(p.second);
                 }              
@@ -201,9 +202,9 @@ template<class GRAPH, class ILP, class COMPONENTS>
 void
 Multicut<GRAPH, ILP, COMPONENTS>::repairSolution() {
     std::vector<double> repairedSolution(graph_->numberOfEdges());
-    for(size_t edge = 0; edge < graph_->numberOfEdges(); ++edge) {
-        const size_t v0 = graph_->vertexOfEdge(edge, 0);
-        const size_t v1 = graph_->vertexOfEdge(edge, 1);
+    for(std::size_t edge = 0; edge < graph_->numberOfEdges(); ++edge) {
+        const std::size_t v0 = graph_->vertexOfEdge(edge, 0);
+        const std::size_t v1 = graph_->vertexOfEdge(edge, 1);
         if(!components_.areConnected(v0, v1)) {
             repairedSolution[edge] = 1;
         }

@@ -2,6 +2,7 @@
 #ifndef ANDRES_CPLEX_HXX
 #define ANDRES_CPLEX_HXX
 
+#include <cstddef>
 #include "ilcplex/ilocplex.h"
 
 namespace andres {
@@ -16,11 +17,11 @@ public:
 
     Cplex();
     ~Cplex();
-    void setNumberOfThreads(const size_t);
+    void setNumberOfThreads(const std::size_t);
     void setAbsoluteGap(const value_type);
     void setRelativeGap(const value_type);
     void setVerbosity(const bool);
-    void initModel(const size_t, const value_type*);
+    void initModel(const std::size_t, const value_type*);
     void setLPSolver(const LPSolver);
     void setPreSolver(const PreSolver, const int = -1);
     template<class VariableIndexIterator, class CoefficientIterator>
@@ -31,8 +32,8 @@ public:
 
     void optimize();
 
-    value_type label(const size_t) const;
-    size_t numberOfThreads() const;
+    value_type label(const std::size_t) const;
+    std::size_t numberOfThreads() const;
     value_type absoluteGap() const;
     value_type relativeGap() const;
 
@@ -70,7 +71,7 @@ Cplex<T>::~Cplex() {
 template<class T>
 inline void
 Cplex<T>::setNumberOfThreads (
-    const size_t numberOfThreads
+    const std::size_t numberOfThreads
 ) {
     ilpSolver_.setParam(IloCplex::Threads, numberOfThreads);
 }
@@ -115,19 +116,19 @@ Cplex<T>::setVerbosity(
 template<class T>
 inline void
 Cplex<T>::initModel(
-    const size_t numberOfVariables,
+    const std::size_t numberOfVariables,
     const T* coefficients
 ) {
     ilpObjective_.setSense(IloObjective::Minimize);
     ilpVariables_ = IloNumVarArray(ilpEnvironment_, numberOfVariables, 0, 1, ILOBOOL);
     ilpObjectiveCoefficients_ = IloNumArray(ilpEnvironment_, numberOfVariables);
-    for(size_t j=0; j<numberOfVariables; ++j) {
+    for(std::size_t j=0; j<numberOfVariables; ++j) {
         ilpObjectiveCoefficients_[j] = coefficients[j];
     }
     ilpObjective_.setLinearCoefs(ilpVariables_, ilpObjectiveCoefficients_);
     ilpModel_.add(ilpObjective_);
     ilpStartValues_ = IloNumArray(ilpEnvironment_, numberOfVariables);
-    for(size_t j=0; j<numberOfVariables; ++j) {
+    for(std::size_t j=0; j<numberOfVariables; ++j) {
         ilpStartValues_[j] = 1;
     }
 }
@@ -142,13 +143,13 @@ Cplex<T>::optimize() {
 template<class T>
 inline T
 Cplex<T>::label (
-    const size_t variableIndex
+    const std::size_t variableIndex
 ) const {
     return ilpSolution_[variableIndex];
 }
 
 template<class T>
-inline size_t
+inline std::size_t
 Cplex<T>::numberOfThreads() const {
     return ilpSolver_.getParam(IloCplex::Threads);
 }
@@ -193,7 +194,7 @@ Cplex<T>::setStart(
     }
 
     // add new mip start
-    for(size_t j=0; j<ilpVariables_.getSize(); ++j, ++valueIterator) {
+    for(std::size_t j=0; j<ilpVariables_.getSize(); ++j, ++valueIterator) {
         ilpStartValues_[j] = *valueIterator;
     }
 
