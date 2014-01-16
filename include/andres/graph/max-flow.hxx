@@ -473,31 +473,44 @@ private:
     template <class EDGE_WEIGHT_ITERATOR, class SUBGRAPH_MASK>
     class ResidualMask {
     public:
-        ResidualMask(const std::size_t e, const std::vector<Flow>& flow, const EDGE_WEIGHT_ITERATOR& ew, const SUBGRAPH_MASK& sm)
-            : edges(e), f(flow), edgeWeightIterator(ew), subgraphMask(sm)
+        ResidualMask(
+            const std::size_t numberOfEdges,
+            const std::vector<Flow>& flow,
+            const EDGE_WEIGHT_ITERATOR& edgeWeightIterator,
+            const SUBGRAPH_MASK& subgraphMask
+        )
+            :   numberOfEdges_(numberOfEdges),
+                flow_(flow),
+                edgeWeightIterator_(edgeWeightIterator),
+                subgraphMask_(subgraphMask)
             {}
-        bool vertex (const std::size_t v) const
-            { return subgraphMask.vertex(v); }
-        bool edge (const std::size_t e) const
-            { return capacity(e) > Flow() && inMask(e) ; }
-        Flow capacity (const std::size_t e) const
+        bool vertex(const std::size_t v) const
+            { return subgraphMask_.vertex(v); }
+        bool edge(const std::size_t e) const
+            { return capacity(e) > Flow() && inMask(e); }
+        Flow capacity(const std::size_t e) const
             {
-                if (e >= edges) {
-                    return f[e - edges];
-                } else {
-                    return edgeWeightIterator[e] - f[e];
+                if(e >= numberOfEdges_) {
+                    return flow_[e - numberOfEdges_];
+                }
+                else {
+                    return edgeWeightIterator_[e] - flow_[e];
                 }
             }
 
     private:
-        const std::size_t edges;
-        const std::vector<Flow>& f;
-        const EDGE_WEIGHT_ITERATOR& edgeWeightIterator;
-        const SUBGRAPH_MASK& subgraphMask;
-        bool inMask (const std::size_t e) const
+        const std::size_t numberOfEdges_;
+        const std::vector<Flow>& flow_;
+        const EDGE_WEIGHT_ITERATOR& edgeWeightIterator_;
+        const SUBGRAPH_MASK& subgraphMask_;
+        bool inMask(const std::size_t e) const
             {
-                if(e >= edges) { return subgraphMask.edge(e - edges); }
-                else { return subgraphMask.edge(e); }
+                if(e >= numberOfEdges_) {
+                    return subgraphMask_.edge(e - numberOfEdges_);
+                }
+                else {
+                    return subgraphMask_.edge(e);
+                }
             }
     };
 };
