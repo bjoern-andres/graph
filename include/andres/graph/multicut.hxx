@@ -116,7 +116,8 @@ inline void
 Multicut<GRAPH, ILP, COMPONENTS>::solve(
     const std::size_t maxIterations
 ) {
-    solve(maxIterations, IdleVisitor());
+    IdleVisitor idleVisitor;
+    solve(maxIterations, idleVisitor);
 }
 
 template<class GRAPH, class ILP, class COMPONENTS>

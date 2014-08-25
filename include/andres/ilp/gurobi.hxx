@@ -2,6 +2,8 @@
 #ifndef ANDRES_GUROBI_HXX
 #define ANDRES_GUROBI_HXX
 
+#include <limits>
+
 #include "gurobi_c++.h"
 
 namespace andres {

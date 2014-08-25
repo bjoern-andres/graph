@@ -216,19 +216,16 @@ Cplex<T>::setPreSolver(
         ilpSolver_.setParam(IloCplex::PreInd, CPX_ON);
         ilpSolver_.setParam(IloCplex::PreDual, 0); // default
         ilpSolver_.setParam(IloCplex::RelaxPreInd, CPX_ON);
-        ilpSolver_.setParam(IloCplex::RelaxPreDual, 0); // default
         break;
     case PRE_SOLVER_PRIMAL:
         ilpSolver_.setParam(IloCplex::PreInd, CPX_ON);
         ilpSolver_.setParam(IloCplex::PreDual, -1); 
         ilpSolver_.setParam(IloCplex::RelaxPreInd, CPX_ON);
-        ilpSolver_.setParam(IloCplex::RelaxPreDual, -1);
         break;
     case PRE_SOLVER_DUAL:
         ilpSolver_.setParam(IloCplex::PreInd, CPX_ON);
         ilpSolver_.setParam(IloCplex::PreDual, 1); 
         ilpSolver_.setParam(IloCplex::RelaxPreInd, CPX_ON);
-        ilpSolver_.setParam(IloCplex::RelaxPreDual, 1);
         break;
     }
 }
