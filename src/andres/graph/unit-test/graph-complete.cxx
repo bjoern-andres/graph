@@ -374,7 +374,6 @@ void testAdjacencyIterator() {
     }
 
     // increment and decrement operators (consistency with operator==, operator!=)
-    // TODO: test edge indices
     {
         AdjacencyIterator it = g.adjacenciesFromVertexBegin(1);
         // operator++ (prefix)
@@ -414,7 +413,6 @@ void testAdjacencyIterator() {
     }
 
     // operator+, operator-
-    // TODO: test edge indices
     {
         AdjacencyIterator it = g.adjacenciesFromVertexBegin(1);
         // operator+
