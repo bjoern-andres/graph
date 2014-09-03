@@ -380,37 +380,37 @@ void testAdjacencyIterator() {
         // operator++ (prefix)
         AdjacencyIterator it2 = ++it;
         test(it2 == it);
-        test((*it).vertex() == 2);
-        test((*it).edge() == g.findEdge(1, 2).second);
+        test(it->vertex() == 2);
+        test(it->edge() == g.findEdge(1, 2).second);
         // operator-- (prefix)
         it2 = --it;
         test(it2 == it);
-        test((*it).vertex() == 0);
-        test((*it).edge() == g.findEdge(1, 0).second);
+        test(it->vertex() == 0);
+        test(it->edge() == g.findEdge(1, 0).second);
         // operator++ (postfix)
         it2 = it++;
         test(it2 != it);
-        test((*it).vertex() == 2);
-        test((*it).edge() == g.findEdge(1, 2).second);
+        test(it->vertex() == 2);
+        test(it->edge() == g.findEdge(1, 2).second);
         test((*it2).vertex() == 0);
         test((*it2).edge() == g.findEdge(1, 0).second);
         // operator-- (postfix)
         it2 = it--;
         test(it2 != it);
-        test((*it).vertex() == 0);
-        test((*it).edge() == g.findEdge(1, 0).second);
+        test(it->vertex() == 0);
+        test(it->edge() == g.findEdge(1, 0).second);
         test((*it2).vertex() == 2);
         test((*it2).edge() == g.findEdge(1, 2).second);
         // operator+=
         it2 = (it += 2);
         test(it2 == it);
-        test((*it).vertex() == 3);
-        test((*it).edge() == g.findEdge(1, 3).second);
+        test(it->vertex() == 3);
+        test(it->edge() == g.findEdge(1, 3).second);
         // operator-=
         it2 = (it -= 2);
         test(it2 == it);
-        test((*it).vertex() == 0);
-        test((*it).edge() == g.findEdge(1, 0).second);
+        test(it->vertex() == 0);
+        test(it->edge() == g.findEdge(1, 0).second);
     }
 
     // operator+, operator-
@@ -420,8 +420,8 @@ void testAdjacencyIterator() {
         // operator+
         AdjacencyIterator it2 = it + 2;
         test(it2 != it);
-        test((*it).vertex() == 0);
-        test((*it).edge() == g.findEdge(1, 0).second);
+        test(it->vertex() == 0);
+        test(it->edge() == g.findEdge(1, 0).second);
         test((*it2).vertex() == 3);
         test((*it2).edge() == g.findEdge(1, 3).second);
         // operator-
