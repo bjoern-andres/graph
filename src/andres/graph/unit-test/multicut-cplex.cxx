@@ -8,6 +8,7 @@ int main() {
     typedef andres::ilp::Cplex<> Ilp;
 
     testMulticut<Ilp>();
+    testMulticutCompleteGraph<Ilp>();
 
     return 0;
 }

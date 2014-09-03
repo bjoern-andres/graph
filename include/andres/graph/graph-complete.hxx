@@ -45,13 +45,15 @@ public:
         bool operator>=(const AdjacencyIterator&) const;
 
         // access
-        Adjacency<> operator*() const;
-        Adjacency<> operator[](const std::size_t) const;
+        const Adjacency<>& operator*();
+        const Adjacency<>* operator->();
+        const Adjacency<>& operator[](const std::size_t);
 
     protected:
         const GraphType* graph_;
         std::size_t vertex_;
         std::size_t adjacencyIndex_;
+        Adjacency<> adjacency_;
     };
 
     class VertexIterator
@@ -451,7 +453,8 @@ inline
 CompleteGraph<VISITOR>::AdjacencyIterator::AdjacencyIterator()
 :   graph_(0),
     vertex_(0),
-    adjacencyIndex_(0)
+    adjacencyIndex_(0),
+    adjacency_()
 {}
 
 template<typename VISITOR>
@@ -461,7 +464,8 @@ CompleteGraph<VISITOR>::AdjacencyIterator::AdjacencyIterator(
 )
 :   graph_(&graph),
     vertex_(0),
-    adjacencyIndex_(0)
+    adjacencyIndex_(0),
+    adjacency_()
 {}
 
 template<typename VISITOR>
@@ -472,7 +476,8 @@ CompleteGraph<VISITOR>::AdjacencyIterator::AdjacencyIterator(
 )
 :   graph_(&graph),
     vertex_(vertex),
-    adjacencyIndex_(0)
+    adjacencyIndex_(0),
+    adjacency_()
 {
     assert(vertex < graph.numberOfVertices());
 }
@@ -486,7 +491,8 @@ CompleteGraph<VISITOR>::AdjacencyIterator::AdjacencyIterator(
 )
 :   graph_(&graph),
     vertex_(vertex),
-    adjacencyIndex_(adjacencyIndex)
+    adjacencyIndex_(adjacencyIndex),
+    adjacency_()
 {
     assert(vertex < graph.numberOfVertices());
     assert(adjacencyIndex <= graph.numberOfVertices());
@@ -561,20 +567,6 @@ CompleteGraph<VISITOR>::AdjacencyIterator::operator-(
 }
 
 template<typename VISITOR>
-inline Adjacency<>
-CompleteGraph<VISITOR>::AdjacencyIterator::operator*() const {
-    return graph_->adjacencyFromVertex(vertex_, adjacencyIndex_);
-}
-
-template<typename VISITOR>
-inline Adjacency<>
-CompleteGraph<VISITOR>::AdjacencyIterator::operator[](
-    const std::size_t j
-) const {
-    return graph_->adjacencyFromVertex(vertex_, adjacencyIndex_ + j);
-}
-
-template<typename VISITOR>
 inline bool
 CompleteGraph<VISITOR>::AdjacencyIterator::operator==(
     const AdjacencyIterator& other
@@ -633,6 +625,29 @@ CompleteGraph<VISITOR>::AdjacencyIterator::operator>=(
     return adjacencyIndex_ >= other.adjacencyIndex_
         && vertex_ == other.vertex_
         && graph_ == other.graph_;
+}
+
+template<typename VISITOR>
+inline const Adjacency<>&
+CompleteGraph<VISITOR>::AdjacencyIterator::operator*() {
+    adjacency_ = graph_->adjacencyFromVertex(vertex_, adjacencyIndex_);
+    return adjacency_;
+}
+
+template<typename VISITOR>
+inline const Adjacency<>*
+CompleteGraph<VISITOR>::AdjacencyIterator::operator->() {
+    adjacency_ = graph_->adjacencyFromVertex(vertex_, adjacencyIndex_);
+    return &adjacency_;
+}
+
+template<typename VISITOR>
+inline const Adjacency<>&
+CompleteGraph<VISITOR>::AdjacencyIterator::operator[](
+    const std::size_t j
+) {
+    adjacency_ = graph_->adjacencyFromVertex(vertex_, adjacencyIndex_ + j);
+    return adjacency_;
 }
 
 // implementation of VertexIterator

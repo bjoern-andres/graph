@@ -101,7 +101,7 @@ class Adjacency {
 public:
     typedef T Value;
 
-    Adjacency(const Value, const Value);
+    Adjacency(const Value = T(), const Value = T());
     Value vertex() const;
     Value& vertex();
     Value edge() const;

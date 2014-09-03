@@ -1,6 +1,7 @@
 #pragma once
 
 #include "andres/graph/graph.hxx"
+#include "andres/graph/graph-complete.hxx"
 #include "andres/graph/multicut.hxx"
 
 inline void test(const bool& pred) { 
@@ -46,4 +47,43 @@ void testMulticut() {
     test(mc.label(4) == 1);
     test(mc.label(5) == 0);
     test(mc.label(6) == 0);
+}
+
+template<class ILP>
+void testMulticutCompleteGraph() {
+    typedef ILP Ilp;
+    typedef andres::graph::CompleteGraph<> Graph;
+    typedef andres::graph::Multicut<Graph, Ilp> Multicut;
+
+    // a simple weighted complete graph in which an optimal multicut is non-trivial
+
+    Graph graph(5);
+
+    std::vector<double> weights(10);
+    weights[graph.findEdge(0, 1).second] = 10;
+    weights[graph.findEdge(0, 2).second] = 1;
+    weights[graph.findEdge(0, 3).second] = 1;
+    weights[graph.findEdge(0, 4).second] = 1;
+    weights[graph.findEdge(1, 2).second] = 10;
+    weights[graph.findEdge(1, 3).second] = 1;
+    weights[graph.findEdge(1, 4).second] = 1;
+    weights[graph.findEdge(2, 3).second] = 1;
+    weights[graph.findEdge(2, 4).second] = 1;
+    weights[graph.findEdge(3, 4).second] = 10;
+
+    Multicut mc;
+    mc.ilp().setVerbosity(false);
+    mc.setup(graph, weights);
+    mc.solve(10);
+
+    test(mc.label(graph.findEdge(0, 1).second) == 0);
+    test(mc.label(graph.findEdge(0, 2).second) == 0);
+    test(mc.label(graph.findEdge(0, 3).second) == 1);
+    test(mc.label(graph.findEdge(0, 4).second) == 1);
+    test(mc.label(graph.findEdge(1, 2).second) == 0);
+    test(mc.label(graph.findEdge(1, 3).second) == 1);
+    test(mc.label(graph.findEdge(1, 4).second) == 1);
+    test(mc.label(graph.findEdge(2, 3).second) == 1);
+    test(mc.label(graph.findEdge(2, 4).second) == 1);
+    test(mc.label(graph.findEdge(3, 4).second) == 0);
 }
