@@ -392,15 +392,15 @@ void testAdjacencyIterator() {
         test(it2 != it);
         test(it->vertex() == 2);
         test(it->edge() == g.findEdge(1, 2).second);
-        test((*it2).vertex() == 0);
-        test((*it2).edge() == g.findEdge(1, 0).second);
+        test(it2->vertex() == 0);
+        test(it2->edge() == g.findEdge(1, 0).second);
         // operator-- (postfix)
         it2 = it--;
         test(it2 != it);
         test(it->vertex() == 0);
         test(it->edge() == g.findEdge(1, 0).second);
-        test((*it2).vertex() == 2);
-        test((*it2).edge() == g.findEdge(1, 2).second);
+        test(it2->vertex() == 2);
+        test(it2->edge() == g.findEdge(1, 2).second);
         // operator+=
         it2 = (it += 2);
         test(it2 == it);
@@ -422,13 +422,13 @@ void testAdjacencyIterator() {
         test(it2 != it);
         test(it->vertex() == 0);
         test(it->edge() == g.findEdge(1, 0).second);
-        test((*it2).vertex() == 3);
-        test((*it2).edge() == g.findEdge(1, 3).second);
+        test(it2->vertex() == 3);
+        test(it2->edge() == g.findEdge(1, 3).second);
         // operator-
         AdjacencyIterator it3 = it2 - 2;
         test(it3 != it2);
-        test((*it2).vertex() == 3);
-        test((*it2).edge() == g.findEdge(1, 3).second);
+        test(it2->vertex() == 3);
+        test(it2->edge() == g.findEdge(1, 3).second);
         test((*it3).vertex() == 0);
         test((*it3).edge() == g.findEdge(1, 0).second);
     }
