@@ -66,7 +66,7 @@ void testMulticutCompleteGraph() {
     weights[graph.findEdge(0, 4).second] = -1;
     weights[graph.findEdge(1, 2).second] = 10;
     weights[graph.findEdge(1, 3).second] = -1;
-    weights[graph.findEdge(1, 4).second] = -1;
+    weights[graph.findEdge(1, 4).second] = 4;
     weights[graph.findEdge(2, 3).second] = -1;
     weights[graph.findEdge(2, 4).second] = -1;
     weights[graph.findEdge(3, 4).second] = 10;
