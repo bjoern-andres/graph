@@ -15,6 +15,7 @@ class CompleteGraph {
 public:
     typedef VISITOR Visitor;
 
+    // \cond SUPPRESS_DOXYGEN
     class AdjacencyIterator {
     public:
         typedef CompleteGraph<Visitor> GraphType;
@@ -98,6 +99,7 @@ public:
         std::size_t operator*() const;
         std::size_t operator[](const std::size_t) const;
     };
+    // \endcond
 
     // construction
     CompleteGraph(const Visitor& = Visitor());
@@ -622,6 +624,8 @@ CompleteGraph<VISITOR>::edgeOfStrictlyIncreasingPairOfVertices(
     return (numberOfVertices() - 1) * vertex0 - vertex0 * (vertex0 + 1) / 2 + vertex1 - 1;
 }
 
+// \cond SUPPRESS_DOXYGEN
+
 // implementation of AdjacencyIterator
 
 template<typename VISITOR>
@@ -955,6 +959,8 @@ CompleteGraph<VISITOR>::EdgeIterator::operator[](
 ) const {
     return Base::graph_->edgeFromVertex(Base::vertex_, Base::adjacencyIndex_ + j);
 }
+
+// \endcond
 
 } // namespace graph
 } // namespace andres
