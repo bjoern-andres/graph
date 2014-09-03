@@ -1,6 +1,6 @@
 #include <stdexcept>
 
-#include "andres/graph/complete-graph.hxx"
+#include "andres/graph/graph-complete.hxx"
 
 inline void test(const bool& pred) {
     if(!pred) throw std::runtime_error("Test failed.");
