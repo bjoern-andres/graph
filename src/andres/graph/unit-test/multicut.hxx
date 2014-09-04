@@ -1,7 +1,6 @@
 #pragma once
 
 #include "andres/graph/graph.hxx"
-#include "andres/graph/graph-complete.hxx"
 #include "andres/graph/multicut.hxx"
 
 inline void test(const bool& pred) { 
