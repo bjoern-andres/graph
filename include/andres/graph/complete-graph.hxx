@@ -14,7 +14,7 @@ namespace andres {
 namespace graph {
 
 /// Complete graph.
-template<typename VISITOR = IdleGraphVisitor>
+template<typename VISITOR = IdleGraphVisitor<std::size_t> >
 class CompleteGraph {
 public:
     typedef VISITOR Visitor;

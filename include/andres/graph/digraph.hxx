@@ -20,7 +20,7 @@ namespace andres {
 namespace graph {
 
 /// Directed graph, implemented as an adjacency list.
-template<typename VISITOR = IdleGraphVisitor>
+template<typename VISITOR = IdleGraphVisitor<std::size_t> >
 class Digraph {
 public:
     typedef VISITOR Visitor;

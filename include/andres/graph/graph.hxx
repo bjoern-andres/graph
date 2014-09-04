@@ -23,7 +23,7 @@ namespace andres {
 namespace graph {
 
 /// Undirected graph, implemented as an adjacency list.
-template<typename VISITOR = IdleGraphVisitor>
+template<typename VISITOR = IdleGraphVisitor<std::size_t> >
 class Graph {
 public: 
     typedef VISITOR Visitor;
