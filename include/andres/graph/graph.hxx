@@ -73,11 +73,6 @@
 /// WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
 /// OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 /// ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-/// 
-/// \section section_todo Suggested bug fixes, changes and improvements
-/// - Explicit unit test of visitors
-/// - Template parameters to enable/disable multiple edges and digons
-/// - Tutorial
 ///
 #pragma once
 #ifndef ANDRES_GRAPH_HXX
