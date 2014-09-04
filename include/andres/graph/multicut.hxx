@@ -17,7 +17,7 @@
 namespace andres {
 namespace graph {
 
-/// Solver for the Minimum Cost Multicut Problem w.r.t. arbitrary graphs.
+/// Solver for the Minimum Cost Multicut Problem for arbitrary graphs.
 ///
 /// This is a variant of the solver proposed in 
 /// 
@@ -75,7 +75,7 @@ private:
     Ilp ilp_;
 };
 
-/// Solver for the Minimum Cost Multicut Problem w.r.t. complete graphs (aka. the Set Partition Problem).
+/// Solver for the Minimum Cost Multicut Problem for complete graphs (Set Partition Problem).
 template<class GRAPH_VISITOR, class ILP>
 class Multicut<CompleteGraph<GRAPH_VISITOR>, ILP> {
 public:

@@ -24,21 +24,26 @@
 /// - Insertion and removal of vertices and edges 
 /// - Multiple edges, which are disabled by default, can be enabled
 /// - Visitors that follow changes of vertex and edge indices 
-/// - Graph algorithms
+/// - Algorithms
 ///   - Connected components 
 ///     - by breadth-first search
 ///     - by disjoint sets 
 ///     .
-///   - Shortest paths in weighted and unweighted graphs, as sequences of edges 
+///   - Shortest paths in weighted and unweighted graphs, as sequences of edges
 ///     or vertices
 ///     - Single source shortest path (SSSP)
 ///     - Single pair shortest path (SPSP)
 ///     .
-///   - Maximum s-t-flow
+///   - Maximum st-Flow
 ///     - Push-relabel algorithm with FIFO vertex selection rule.
 ///     - Edmonds-Karp algorithm
 ///     .
-///   - Minimum multicuts by interger programming, using Cplex or Gurobi 
+///   - Minimum Cost Multicut
+///     - by interger programming, using Cplex or Gurobi.
+///     .
+///   - Set Partition
+///     - by a specialization of Minimum Cost Multicut for complete graphs.
+///     .
 ///   .
 /// 
 /// \section section_license License
