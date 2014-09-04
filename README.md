@@ -1,7 +1,7 @@
 Graphs and Graph Algorithms in C++
 ============
 
-Copyright (c) 2013 by Bjoern Andres, http://www.andres.sc/
+Copyright (c) 2014 by Bjoern Andres, http://www.andres.sc/graph
 
 This software was developed by Bjoern Andres, Duligur Ibeling, and Mark Matten.
 Enquiries shall be directed to bjoern@andres.sc.
@@ -37,7 +37,10 @@ Features
    - Maximum s-t-flow
       * Push-Relabel Algorithm with FIFO vertex selection rule
       * Edmonds-Karp Algorithm
-   - Minimum multicuts by interger programming, using Cplex or Gurobi
+   - Minimum Cost Multicut 
+      * by interger programming, using Cplex or Gurobi
+   - Set Partition
+      * by a specialization of Minimum Cost Multicut for complete graphs
 
 
 Contributors
@@ -51,7 +54,7 @@ Contributors
 License
 ------------
 
-Copyright (c) 2013 by Bjoern Andres, http://www.andres.sc/
+Copyright (c) 2014 by Bjoern Andres, http://www.andres.sc/
 
 This software was developed by Bjoern Andres, Duligur Ibeling, and Mark Matten.
 Enquiries shall be directed to bjoern@andres.sc.
