@@ -10,6 +10,7 @@
 #include <algorithm> // std::copy
 
 #include "andres/partition.hxx" 
+#include "andres/graph/complete-graph.hxx"
 #include "andres/graph/paths.hxx"
 #include "andres/graph/components.hxx"
 #include "andres/graph/shortest-paths.hxx"

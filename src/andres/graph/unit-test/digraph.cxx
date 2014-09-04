@@ -1,6 +1,6 @@
 #include <stdexcept>
 
-#include "andres/graph/graph.hxx"
+#include "andres/graph/digraph.hxx"
 
 inline void test(const bool& pred) { 
     if(!pred) throw std::runtime_error("Test failed."); 

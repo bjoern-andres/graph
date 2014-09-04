@@ -2,6 +2,7 @@
 #include <stdexcept>
 
 #include "andres/graph/graph.hxx"
+#include "andres/graph/digraph.hxx"
 #include "andres/graph/shortest-paths.hxx"
 
 inline void test(const bool& pred) { 

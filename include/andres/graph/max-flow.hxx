@@ -9,6 +9,7 @@
 #include <limits> // std::numeric_limit
 #include <algorithm> // std::max, std::min
 
+#include "andres/graph/digraph.hxx"
 #include "andres/graph/shortest-paths.hxx"
 
 namespace andres {

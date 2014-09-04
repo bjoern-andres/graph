@@ -9,7 +9,8 @@
 #include <vector>
 #include <algorithm> // std::reverse
 
-#include "andres/graph/graph.hxx" // DefaultSubgraphMask
+#include "subgraph.hxx" // DefaultSubgraphMask
+#include "edge-value.hxx" // UnitEdgeValueIterator
 
 namespace andres {
 namespace graph {
@@ -65,7 +66,7 @@ spsp(
     
 template<
     class GRAPH,
-    class EDGE_WEIGHT_ITERATOR,
+    class EDGE_VALUE_ITERATOR,
     class T
 >
 void
@@ -73,7 +74,7 @@ spsp(
     const GRAPH&,
     const std::size_t,
     const std::size_t,
-    EDGE_WEIGHT_ITERATOR,
+    EDGE_VALUE_ITERATOR,
     std::deque<std::size_t>&,
     T&
 );
@@ -81,7 +82,7 @@ spsp(
 template<
     class GRAPH,
     class SUBGRAPH_MASK,
-    class EDGE_WEIGHT_ITERATOR,
+    class EDGE_VALUE_ITERATOR,
     class T
 >
 void
@@ -90,7 +91,7 @@ spsp(
     const SUBGRAPH_MASK&,
     const std::size_t,
     const std::size_t,
-    EDGE_WEIGHT_ITERATOR,
+    EDGE_VALUE_ITERATOR,
     std::deque<std::size_t>&,
     T&
 );
@@ -131,12 +132,12 @@ sssp(
     PARENT_ITERATOR
 );
     
-template<class GRAPH, class EDGE_WEIGHT_ITERATOR, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
+template<class GRAPH, class EDGE_VALUE_ITERATOR, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
 void
 sssp(
     const GRAPH&,
     const std::size_t,
-    const EDGE_WEIGHT_ITERATOR,
+    const EDGE_VALUE_ITERATOR,
     DISTANCE_ITERATOR,
     PARENT_ITERATOR
 );
@@ -144,7 +145,7 @@ sssp(
 template<
     class GRAPH,
     class SUBGRAPH_MASK,
-    class EDGE_WEIGHT_ITERATOR,
+    class EDGE_VALUE_ITERATOR,
     class DISTANCE_ITERATOR,
     class PARENT_ITERATOR
 >
@@ -153,7 +154,7 @@ sssp(
     const GRAPH&,
     const SUBGRAPH_MASK&,
     const std::size_t,
-    const EDGE_WEIGHT_ITERATOR,
+    const EDGE_VALUE_ITERATOR,
     DISTANCE_ITERATOR,
     PARENT_ITERATOR
 );
@@ -161,7 +162,7 @@ sssp(
 template<
     class GRAPH,
     class SUBGRAPH_MASK,
-    class EDGE_WEIGHT_ITERATOR,
+    class EDGE_VALUE_ITERATOR,
     class DISTANCE_ITERATOR,
     class PARENT_ITERATOR,
     class VISITOR
@@ -171,7 +172,7 @@ sssp(
     const GRAPH&,
     const SUBGRAPH_MASK&,
     const std::size_t,
-    const EDGE_WEIGHT_ITERATOR,
+    const EDGE_VALUE_ITERATOR,
     DISTANCE_ITERATOR,
     PARENT_ITERATOR,
     VISITOR&
@@ -180,7 +181,7 @@ sssp(
 template<
     class GRAPH,
     class SUBGRAPH_MASK,
-    class EDGE_WEIGHT_ITERATOR,
+    class EDGE_VALUE_ITERATOR,
     class T,
     class DISTANCE_ITERATOR,
     class PARENT_ITERATOR
@@ -191,7 +192,7 @@ spsp(
     const SUBGRAPH_MASK&,
     const std::size_t,
     const std::size_t,
-    EDGE_WEIGHT_ITERATOR,
+    EDGE_VALUE_ITERATOR,
     std::deque<std::size_t>&,
     T&,
     DISTANCE_ITERATOR,
@@ -241,7 +242,7 @@ spspEdges(
  
 template<
 class GRAPH,
-class EDGE_WEIGHT_ITERATOR,
+class EDGE_VALUE_ITERATOR,
 class T
 >
 void
@@ -249,7 +250,7 @@ spspEdges(
     const GRAPH&,
     const std::size_t,
     const std::size_t,
-    EDGE_WEIGHT_ITERATOR,
+    EDGE_VALUE_ITERATOR,
     std::deque<std::size_t>&,
     T&
 );
@@ -257,7 +258,7 @@ spspEdges(
 template<
 class GRAPH,
 class SUBGRAPH_MASK,
-class EDGE_WEIGHT_ITERATOR,
+class EDGE_VALUE_ITERATOR,
 class T
 >
 void
@@ -266,7 +267,7 @@ spspEdges(
     const SUBGRAPH_MASK&,
     const std::size_t,
     const std::size_t,
-    EDGE_WEIGHT_ITERATOR,
+    EDGE_VALUE_ITERATOR,
     std::deque<std::size_t>&,
     T&
 );
@@ -328,22 +329,22 @@ ssspEdges(
 	 PARENT_ITERATOR
 );
 
-template<class GRAPH, class EDGE_WEIGHT_ITERATOR, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
+template<class GRAPH, class EDGE_VALUE_ITERATOR, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
 void
 ssspEdges(
      const GRAPH&,
      const std::size_t,
-     const EDGE_WEIGHT_ITERATOR,
+     const EDGE_VALUE_ITERATOR,
      DISTANCE_ITERATOR,
      PARENT_ITERATOR
 );
 
-template<class GRAPH, class EDGE_WEIGHT_ITERATOR, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
+template<class GRAPH, class EDGE_VALUE_ITERATOR, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
 void
 ssspEdges(
      const GRAPH&,
      const std::size_t,
-     const EDGE_WEIGHT_ITERATOR,
+     const EDGE_VALUE_ITERATOR,
      DISTANCE_ITERATOR,
      PARENT_ITERATOR,
 	 PARENT_ITERATOR
@@ -352,7 +353,7 @@ ssspEdges(
 template<
 class GRAPH,
 class SUBGRAPH_MASK,
-class EDGE_WEIGHT_ITERATOR,
+class EDGE_VALUE_ITERATOR,
 class DISTANCE_ITERATOR,
 class PARENT_ITERATOR
 >
@@ -361,7 +362,7 @@ ssspEdges(
     const GRAPH&,
     const SUBGRAPH_MASK&,
     const std::size_t,
-    const EDGE_WEIGHT_ITERATOR,
+    const EDGE_VALUE_ITERATOR,
     DISTANCE_ITERATOR,
     PARENT_ITERATOR
 );
@@ -369,7 +370,7 @@ ssspEdges(
 template<
 class GRAPH,
 class SUBGRAPH_MASK,
-class EDGE_WEIGHT_ITERATOR,
+class EDGE_VALUE_ITERATOR,
 class DISTANCE_ITERATOR,
 class PARENT_ITERATOR
 >
@@ -378,7 +379,7 @@ ssspEdges(
      const GRAPH&,
      const SUBGRAPH_MASK&,
      const std::size_t,
-     const EDGE_WEIGHT_ITERATOR,
+     const EDGE_VALUE_ITERATOR,
      DISTANCE_ITERATOR,
      PARENT_ITERATOR,
 	 PARENT_ITERATOR
@@ -387,7 +388,7 @@ ssspEdges(
 template<
 class GRAPH,
 class SUBGRAPH_MASK,
-class EDGE_WEIGHT_ITERATOR,
+class EDGE_VALUE_ITERATOR,
 class DISTANCE_ITERATOR,
 class PARENT_ITERATOR,
 class VISITOR
@@ -397,7 +398,7 @@ ssspEdges(
      const GRAPH&,
      const SUBGRAPH_MASK&,
      const std::size_t,
-     const EDGE_WEIGHT_ITERATOR,
+     const EDGE_VALUE_ITERATOR,
      DISTANCE_ITERATOR,
      PARENT_ITERATOR,
      VISITOR&
@@ -406,7 +407,7 @@ ssspEdges(
 template<
 class GRAPH,
 class SUBGRAPH_MASK,
-class EDGE_WEIGHT_ITERATOR,
+class EDGE_VALUE_ITERATOR,
 class T,
 class DISTANCE_ITERATOR,
 class PARENT_ITERATOR
@@ -417,7 +418,7 @@ spspEdges(
      const SUBGRAPH_MASK&,
      const std::size_t,
      const std::size_t,
-     EDGE_WEIGHT_ITERATOR,
+     EDGE_VALUE_ITERATOR,
      std::deque<std::size_t>&,
      T&,
      DISTANCE_ITERATOR,
@@ -728,7 +729,7 @@ spsp(
 ///
 template<
     class GRAPH, 
-    class EDGE_WEIGHT_ITERATOR, 
+    class EDGE_VALUE_ITERATOR,
     class T
 >
 inline void
@@ -736,7 +737,7 @@ spsp(
     const GRAPH& g, 
     const std::size_t vs,
     const std::size_t vt,
-    EDGE_WEIGHT_ITERATOR edgeWeights,
+    EDGE_VALUE_ITERATOR edgeWeights,
     std::deque<std::size_t>& path,
     T& distance
 ) {
@@ -762,7 +763,7 @@ spsp(
 template<
     class GRAPH, 
     class SUBGRAPH_MASK, 
-    class EDGE_WEIGHT_ITERATOR, 
+    class EDGE_VALUE_ITERATOR,
     class T
 >
 inline void
@@ -771,7 +772,7 @@ spsp(
     const SUBGRAPH_MASK& mask,
     const std::size_t vs,
     const std::size_t vt,
-    EDGE_WEIGHT_ITERATOR edgeWeights,
+    EDGE_VALUE_ITERATOR edgeWeights,
     std::deque<std::size_t>& path,
     T& distance
 ) {
@@ -815,7 +816,7 @@ sssp(
     PARENT_ITERATOR parents
 ) {
     typedef typename std::iterator_traits<DISTANCE_ITERATOR>::value_type Value;
-    sssp(g, DefaultSubgraphMask<>(), vs, UnitEdgeWeightIterator<Value>(), 
+    sssp(g, DefaultSubgraphMask<>(), vs, UnitEdgeValueIterator<Value>(),
         distances, parents
     );
 }
@@ -857,7 +858,7 @@ sssp(
     PARENT_ITERATOR parents 
 ) {
     typedef typename std::iterator_traits<DISTANCE_ITERATOR>::value_type Value;
-    sssp(g, mask, vs, UnitEdgeWeightIterator<Value>(), distances, parents);
+    sssp(g, mask, vs, UnitEdgeValueIterator<Value>(), distances, parents);
 }
 
 /// Search for shortest paths from a given vertex to every other vertex in a graph with **non-negative edge weights** using Dijkstra's algorithm.
@@ -868,12 +869,12 @@ sssp(
 /// \param distances Random access iterator pointing to distances
 /// \param parents Random access iterator pointing to parent vertices
 ///
-template<class GRAPH, class EDGE_WEIGHT_ITERATOR, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
+template<class GRAPH, class EDGE_VALUE_ITERATOR, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
 inline void
 sssp(
     const GRAPH& g, 
     const std::size_t vs,
-    const EDGE_WEIGHT_ITERATOR edgeWeights,
+    const EDGE_VALUE_ITERATOR edgeWeights,
     DISTANCE_ITERATOR distances,
     PARENT_ITERATOR parents
 ) {
@@ -905,7 +906,7 @@ struct DijkstraIdleVisitor {
 template<
     class GRAPH, 
     class SUBGRAPH_MASK, 
-    class EDGE_WEIGHT_ITERATOR, 
+    class EDGE_VALUE_ITERATOR,
     class DISTANCE_ITERATOR, 
     class PARENT_ITERATOR
 >
@@ -914,13 +915,13 @@ sssp(
     const GRAPH& g, 
     const SUBGRAPH_MASK& mask,
     const std::size_t vs,
-    const EDGE_WEIGHT_ITERATOR edgeWeights,
+    const EDGE_VALUE_ITERATOR edgeWeights,
     DISTANCE_ITERATOR distances,
     PARENT_ITERATOR parents
 ) {
     typedef DijkstraIdleVisitor<DISTANCE_ITERATOR, PARENT_ITERATOR> Visitor;
     Visitor visitor;
-    sssp<GRAPH, SUBGRAPH_MASK, EDGE_WEIGHT_ITERATOR, DISTANCE_ITERATOR, PARENT_ITERATOR, Visitor>(
+    sssp<GRAPH, SUBGRAPH_MASK, EDGE_VALUE_ITERATOR, DISTANCE_ITERATOR, PARENT_ITERATOR, Visitor>(
                 g, mask, vs, edgeWeights, distances, parents, visitor
     );
 }
@@ -938,7 +939,7 @@ sssp(
 template<
     class GRAPH, 
     class SUBGRAPH_MASK, 
-    class EDGE_WEIGHT_ITERATOR, 
+    class EDGE_VALUE_ITERATOR,
     class DISTANCE_ITERATOR, 
     class PARENT_ITERATOR,
     class VISITOR
@@ -948,7 +949,7 @@ sssp(
     const GRAPH& g, 
     const SUBGRAPH_MASK& mask,
     const std::size_t vs,
-    const EDGE_WEIGHT_ITERATOR edgeWeights,
+    const EDGE_VALUE_ITERATOR edgeWeights,
     DISTANCE_ITERATOR distances,
     PARENT_ITERATOR parents,
     VISITOR& visitor 
@@ -1015,7 +1016,7 @@ sssp(
 template<
     class GRAPH,
     class SUBGRAPH_MASK,
-    class EDGE_WEIGHT_ITERATOR,
+    class EDGE_VALUE_ITERATOR,
     class T,
     class DISTANCE_ITERATOR,
     class PARENT_ITERATOR
@@ -1026,7 +1027,7 @@ spsp(
     const SUBGRAPH_MASK& mask,
     const std::size_t vs,
     const std::size_t vt,
-    EDGE_WEIGHT_ITERATOR edgeWeights,
+    EDGE_VALUE_ITERATOR edgeWeights,
     std::deque<std::size_t>& path,
     T& distance,
     DISTANCE_ITERATOR distances,
@@ -1034,7 +1035,7 @@ spsp(
 ) {
     typedef graph_detail::DijkstraSPSPVisitor<DISTANCE_ITERATOR, PARENT_ITERATOR> Visitor;
     Visitor visitor(vs, vt, path);
-    sssp<GRAPH, SUBGRAPH_MASK, EDGE_WEIGHT_ITERATOR, DISTANCE_ITERATOR, PARENT_ITERATOR, Visitor>(
+    sssp<GRAPH, SUBGRAPH_MASK, EDGE_VALUE_ITERATOR, DISTANCE_ITERATOR, PARENT_ITERATOR, Visitor>(
         g, mask, vs, edgeWeights, distances, parents, visitor
     );
     distance = distances[vt];
@@ -1217,7 +1218,7 @@ spspEdges(
 ///
 template<
 class GRAPH,
-class EDGE_WEIGHT_ITERATOR,
+class EDGE_VALUE_ITERATOR,
 class T
 >
 inline void
@@ -1225,7 +1226,7 @@ spspEdges(
     const GRAPH& g,
     const std::size_t vs,
     const std::size_t vt,
-    EDGE_WEIGHT_ITERATOR edgeWeights,
+    EDGE_VALUE_ITERATOR edgeWeights,
     std::deque<std::size_t>& path,
     T& distance
 ) {
@@ -1251,7 +1252,7 @@ spspEdges(
 template<
 class GRAPH,
 class SUBGRAPH_MASK,
-class EDGE_WEIGHT_ITERATOR,
+class EDGE_VALUE_ITERATOR,
 class T
 >
 inline void
@@ -1260,7 +1261,7 @@ spspEdges(
     const SUBGRAPH_MASK& mask,
     const std::size_t vs,
     const std::size_t vt,
-    EDGE_WEIGHT_ITERATOR edgeWeights,
+    EDGE_VALUE_ITERATOR edgeWeights,
     std::deque<std::size_t>& path,
     T& distance
 ) {
@@ -1305,7 +1306,7 @@ ssspEdges(
 ) {
     typedef typename std::iterator_traits<DISTANCE_ITERATOR>::value_type Value;
     std::vector<std::size_t> parentsEdges(g.numberOfVertices());
-    ssspEdges(g, DefaultSubgraphMask<>(), vs, UnitEdgeWeightIterator<Value>(),
+    ssspEdges(g, DefaultSubgraphMask<>(), vs, UnitEdgeValueIterator<Value>(),
          distances, parents, parentsEdges.begin());
 }
 
@@ -1327,7 +1328,7 @@ ssspEdges(
     PARENT_ITERATOR parentsEdges
 ) {
     typedef typename std::iterator_traits<DISTANCE_ITERATOR>::value_type Value;
-    ssspEdges(g, DefaultSubgraphMask<>(), vs, UnitEdgeWeightIterator<Value>(),
+    ssspEdges(g, DefaultSubgraphMask<>(), vs, UnitEdgeValueIterator<Value>(),
          distances, parents, parentsEdges);
 }
 
@@ -1369,7 +1370,7 @@ ssspEdges(
 ) {
     typedef typename std::iterator_traits<DISTANCE_ITERATOR>::value_type Value;
     std::vector<std::size_t> parentsEdges(g.numberOfVertices());
-    ssspEdges(g, mask, vs, UnitEdgeWeightIterator<Value>(), distances, parentsEdges.begin());
+    ssspEdges(g, mask, vs, UnitEdgeValueIterator<Value>(), distances, parentsEdges.begin());
 }
 
 /// Search for shortest paths from a given vertex to every other vertex in an **unweighted** **subgraph** using Dijkstra's algorithm.
@@ -1392,7 +1393,7 @@ ssspEdges(
     PARENT_ITERATOR parentsEdges
 ) {
     typedef typename std::iterator_traits<DISTANCE_ITERATOR>::value_type Value;
-    ssspEdges(g, mask, vs, UnitEdgeWeightIterator<Value>(), distances, parents, parentsEdges);
+    ssspEdges(g, mask, vs, UnitEdgeValueIterator<Value>(), distances, parents, parentsEdges);
 }
  
 /// Search for shortest paths from a given vertex to every other vertex in a graph with **non-negative edge weights** using Dijkstra's algorithm. Uses edges internally (although this doesn't affect the output).
@@ -1403,12 +1404,12 @@ ssspEdges(
 /// \param distances Random access iterator pointing to distances
 /// \param parents Random access iterator pointing to parent vertices
 ///
-template<class GRAPH, class EDGE_WEIGHT_ITERATOR, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
+template<class GRAPH, class EDGE_VALUE_ITERATOR, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
 inline void
 ssspEdges(
     const GRAPH& g,
     const std::size_t vs,
-    const EDGE_WEIGHT_ITERATOR edgeWeights,
+    const EDGE_VALUE_ITERATOR edgeWeights,
     DISTANCE_ITERATOR distances,
     PARENT_ITERATOR parents
 ) {
@@ -1424,12 +1425,12 @@ ssspEdges(
 /// \param parents Random access iterator pointing to parent vertices
 /// \param parentsEdges Random access iterator pointing to the edge that led to each vertex in the shortest-paths tree.
 ///
-template<class GRAPH, class EDGE_WEIGHT_ITERATOR, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
+template<class GRAPH, class EDGE_VALUE_ITERATOR, class DISTANCE_ITERATOR, class PARENT_ITERATOR>
 inline void
 ssspEdges(
     const GRAPH& g,
     const std::size_t vs,
-    const EDGE_WEIGHT_ITERATOR edgeWeights,
+    const EDGE_VALUE_ITERATOR edgeWeights,
     DISTANCE_ITERATOR distances,
     PARENT_ITERATOR parents,
     PARENT_ITERATOR parentsEdges
@@ -1449,7 +1450,7 @@ ssspEdges(
 template<
 class GRAPH,
 class SUBGRAPH_MASK,
-class EDGE_WEIGHT_ITERATOR,
+class EDGE_VALUE_ITERATOR,
 class DISTANCE_ITERATOR,
 class PARENT_ITERATOR
 >
@@ -1458,14 +1459,14 @@ ssspEdges(
     const GRAPH& g,
     const SUBGRAPH_MASK& mask,
     const std::size_t vs,
-    const EDGE_WEIGHT_ITERATOR edgeWeights,
+    const EDGE_VALUE_ITERATOR edgeWeights,
     DISTANCE_ITERATOR distances,
     PARENT_ITERATOR parents
 ) {
     typedef DijkstraIdleVisitor<DISTANCE_ITERATOR, PARENT_ITERATOR> Visitor;
     Visitor visitor;
     std::vector<std::size_t> parentsEdges(g.numberOfVertices());
-    ssspEdges<GRAPH, SUBGRAPH_MASK, EDGE_WEIGHT_ITERATOR, DISTANCE_ITERATOR, PARENT_ITERATOR, Visitor>(g, mask, vs, edgeWeights, distances, parents, parentsEdges.begin(), visitor);
+    ssspEdges<GRAPH, SUBGRAPH_MASK, EDGE_VALUE_ITERATOR, DISTANCE_ITERATOR, PARENT_ITERATOR, Visitor>(g, mask, vs, edgeWeights, distances, parents, parentsEdges.begin(), visitor);
 }
 
 /// Search for shortest paths from a given vertex to every other vertex in a **subgraph** with **non-negative edge weights** using Dijkstra's algorithm.
@@ -1481,7 +1482,7 @@ ssspEdges(
 template<
 class GRAPH,
 class SUBGRAPH_MASK,
-class EDGE_WEIGHT_ITERATOR,
+class EDGE_VALUE_ITERATOR,
 class DISTANCE_ITERATOR,
 class PARENT_ITERATOR
 >
@@ -1490,14 +1491,14 @@ ssspEdges(
     const GRAPH& g,
     const SUBGRAPH_MASK& mask,
     const std::size_t vs,
-    const EDGE_WEIGHT_ITERATOR edgeWeights,
+    const EDGE_VALUE_ITERATOR edgeWeights,
     DISTANCE_ITERATOR distances,
     PARENT_ITERATOR parents,
     PARENT_ITERATOR parentsEdges
 ) {
     typedef DijkstraIdleVisitor<DISTANCE_ITERATOR, PARENT_ITERATOR> Visitor;
     Visitor visitor;
-    ssspEdges<GRAPH, SUBGRAPH_MASK, EDGE_WEIGHT_ITERATOR, DISTANCE_ITERATOR, PARENT_ITERATOR, Visitor>(
+    ssspEdges<GRAPH, SUBGRAPH_MASK, EDGE_VALUE_ITERATOR, DISTANCE_ITERATOR, PARENT_ITERATOR, Visitor>(
 		g, mask, vs, edgeWeights, distances, parents, parentsEdges, visitor);
 }
 
@@ -1515,7 +1516,7 @@ ssspEdges(
 template<
 class GRAPH,
 class SUBGRAPH_MASK,
-class EDGE_WEIGHT_ITERATOR,
+class EDGE_VALUE_ITERATOR,
 class DISTANCE_ITERATOR,
 class PARENT_ITERATOR,
 class VISITOR
@@ -1525,7 +1526,7 @@ ssspEdges(
     const GRAPH& g,
     const SUBGRAPH_MASK& mask,
     const std::size_t vs,
-    const EDGE_WEIGHT_ITERATOR edgeWeights,
+    const EDGE_VALUE_ITERATOR edgeWeights,
     DISTANCE_ITERATOR distances,
     PARENT_ITERATOR parents,
     PARENT_ITERATOR parentsEdges,
@@ -1597,7 +1598,7 @@ ssspEdges(
 template<
 class GRAPH,
 class SUBGRAPH_MASK,
-class EDGE_WEIGHT_ITERATOR,
+class EDGE_VALUE_ITERATOR,
 class T,
 class DISTANCE_ITERATOR,
 class PARENT_ITERATOR
@@ -1608,7 +1609,7 @@ spspEdges(
      const SUBGRAPH_MASK& mask,
      const std::size_t vs,
      const std::size_t vt,
-     EDGE_WEIGHT_ITERATOR edgeWeights,
+     EDGE_VALUE_ITERATOR edgeWeights,
      std::deque<std::size_t>& path,
      T& distance,
      DISTANCE_ITERATOR distances,
@@ -1618,7 +1619,7 @@ spspEdges(
 {
     typedef graph_detail::DijkstraSPSPVisitor<DISTANCE_ITERATOR, PARENT_ITERATOR> Visitor;
     Visitor visitor(vs, vt, path);
-    ssspEdges<GRAPH, SUBGRAPH_MASK, EDGE_WEIGHT_ITERATOR, DISTANCE_ITERATOR, PARENT_ITERATOR, Visitor>(g, mask, vs, edgeWeights, distances, parents, parentsEdges, visitor);
+    ssspEdges<GRAPH, SUBGRAPH_MASK, EDGE_VALUE_ITERATOR, DISTANCE_ITERATOR, PARENT_ITERATOR, Visitor>(g, mask, vs, edgeWeights, distances, parents, parentsEdges, visitor);
     distance = distances[vt];
 }
     

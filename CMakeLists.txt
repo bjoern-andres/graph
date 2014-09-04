@@ -2,7 +2,12 @@ cmake_minimum_required(VERSION 2.6)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 project(graph)
 include_directories(include)
-file(GLOB headers include/andres/*.hxx include/andres/graph/*.hxx include/andres/ilp/*.hxx)
+file(GLOB headers
+    include/andres/*.hxx
+    include/andres/graph/*.hxx
+    include/andres/graph/detail/*.hxx
+    include/andres/ilp/*.hxx
+)
 enable_testing()
 
 ##############################################################################

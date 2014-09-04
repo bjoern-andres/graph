@@ -1,88 +1,12 @@
-/// \mainpage
-/// Graphs and Graph Algorithms in C++.
-///
-/// Copyright (c) 2014 by Bjoern Andres, http://www.andres.sc
-///
-/// This software was developed by Bjoern Andres, Duligur Ibeling,
-/// and Mark Matten.
-/// Enquiries shall be directed to bjoern@andres.sc.
-///
-/// \section section_abstract Short Description
-/// This set of header files implements directed and undirected graphs as 
-/// adjacency lists with constant-time access. Vertices and edges are always 
-/// indexed by contiguous integers. This indexing simplifies the implementation 
-/// of algorithms for static graphs. In dynamic settings where vertices and 
-/// edges are removed from a graph, indices of vertices and edges can change. 
-/// These changes can be followed, if necessary, by means of a visitor.
-///
-/// \section section_features Features
-/// - Directed and undirected graphs, implemented as adjacency lists
-///   with constant-time access
-/// - Access to vertices and edges by contiguous integer indices
-/// - Access to neighboring vertices and incident edges by STL-compliant 
-///   random access iterators
-/// - Insertion and removal of vertices and edges 
-/// - Multiple edges, which are disabled by default, can be enabled
-/// - Visitors that follow changes of vertex and edge indices 
-/// - Algorithms
-///   - Connected components 
-///     - by breadth-first search
-///     - by disjoint sets 
-///     .
-///   - Shortest paths in weighted and unweighted graphs, as sequences of edges
-///     or vertices
-///     - Single source shortest path (SSSP)
-///     - Single pair shortest path (SPSP)
-///     .
-///   - Maximum st-Flow
-///     - Push-relabel algorithm with FIFO vertex selection rule.
-///     - Edmonds-Karp algorithm
-///     .
-///   - Minimum Cost Multicut
-///     - by interger programming, using Cplex or Gurobi.
-///     .
-///   - Set Partition
-///     - by a specialization of Minimum Cost Multicut for complete graphs.
-///     .
-///   .
-/// 
-/// \section section_license License
-/// Copyright (c) 2014 by Bjoern Andres.
-/// 
-/// This software was developed by Bjoern Andres, Duligur Ibeling,
-/// and Mark Matten.
-/// Enquiries shall be directed to bjoern@andres.sc.
-///
-/// Redistribution and use in source and binary forms, with or without 
-/// modification, are permitted provided that the following conditions are met:
-/// - Redistributions of source code must retain the above copyright notice,
-///   this list of conditions and the following disclaimer.
-/// - Redistributions in binary form must reproduce the above copyright notice, 
-///   this list of conditions and the following disclaimer in the documentation
-///   and/or other materials provided with the distribution.
-/// - The name of the author must not be used to endorse or promote products 
-///   derived from this software without specific prior written permission.
-///
-/// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED 
-/// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
-/// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO 
-/// EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-/// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-/// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
-/// OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-/// WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-/// OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
-/// ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-///
 #pragma once
-#ifndef ANDRES_GRAPH_HXX
-#define ANDRES_GRAPH_HXX
+#ifndef ANDRES_GRAPH_DIGRAPH_HXX
+#define ANDRES_GRAPH_DIGRAPH_HXX
 
 #include <cassert>
 #include <cstddef>
 #include <iterator> // std::random_access_iterator
 #include <vector>
-#include <set> 
+#include <set>
 #include <iostream>
 #include <utility> // std::pair
 #include <algorithm> // std::fill
@@ -92,30 +16,27 @@
 #include "visitor.hxx"
 #include "detail/graph.hxx"
 
-/// The public API.
 namespace andres {
-
-/// Graphs and Algorithms that Operate on Graphs.
 namespace graph {
 
-/// Undirected graph, implemented as an adjacency list.
+/// Directed graph, implemented as an adjacency list.
 template<typename VISITOR = IdleGraphVisitor>
-class Graph {
-public: 
+class Digraph {
+public:
     typedef VISITOR Visitor;
     typedef detail::VertexIterator VertexIterator;
     typedef detail::EdgeIterator EdgeIterator;
     typedef detail::Adjacencies::const_iterator AdjacencyIterator;
 
     // construction
-    Graph(const Visitor& = Visitor());
-    Graph(const std::size_t, const Visitor& = Visitor());
+    Digraph(const Visitor& = Visitor());
+    Digraph(const std::size_t, const Visitor& = Visitor());
     void assign(const Visitor& = Visitor());
     void assign(const std::size_t, const Visitor& = Visitor());
     void reserveVertices(const std::size_t);
     void reserveEdges(const std::size_t);
 
-    // iterator access (compatible with Digraph)
+    // iterator access
     VertexIterator verticesFromVertexBegin(const std::size_t) const;
     VertexIterator verticesFromVertexEnd(const std::size_t) const;
     VertexIterator verticesToVertexBegin(const std::size_t) const;
@@ -129,7 +50,7 @@ public:
     AdjacencyIterator adjacenciesToVertexBegin(const std::size_t) const;
     AdjacencyIterator adjacenciesToVertexEnd(const std::size_t) const;
 
-    // access (compatible with Digraph)
+    // access
     std::size_t numberOfVertices() const;
     std::size_t numberOfEdges() const;
     std::size_t numberOfEdgesFromVertex(const std::size_t) const;
@@ -154,8 +75,15 @@ public:
 
 private:
     typedef Adjacency<> AdjacencyType;
-    typedef detail::Adjacencies Vertex;
-    typedef detail::Edge<false> Edge;
+    typedef detail::Adjacencies Adjacencies;
+    struct Vertex {
+        Vertex()
+            : from_(), to_()
+            {}
+        Adjacencies from_;
+        Adjacencies to_;
+    };
+    typedef detail::Edge<true> Edge;
 
     void insertAdjacenciesForEdge(const std::size_t);
     void eraseAdjacenciesForEdge(const std::size_t);
@@ -166,13 +94,15 @@ private:
     Visitor visitor_;
 };
 
-/// Construct an undirected graph.
+// implementation of Digraph
+
+/// Construct a directed graph.
 ///
 /// \param visitor Visitor to follow changes of integer indices of vertices and edges.
 ///
 template<typename VISITOR>
-inline 
-Graph<VISITOR>::Graph(
+inline
+Digraph<VISITOR>::Digraph(
     const Visitor& visitor
 )
 :   vertices_(),
@@ -181,14 +111,14 @@ Graph<VISITOR>::Graph(
     visitor_(visitor)
 {}
 
-/// Construct an undirected graph with an initial number of vertices.
+/// Construct a directed graph with an initial number of vertices.
 ///
 /// \param numberOfVertices Number of vertices.
 /// \param visitor Visitor to follow changes of integer indices of vertices and edges.
 ///
 template<typename VISITOR>
-inline 
-Graph<VISITOR>::Graph(
+inline
+Digraph<VISITOR>::Digraph(
     const std::size_t numberOfVertices,
     const Visitor& visitor
 )
@@ -200,13 +130,13 @@ Graph<VISITOR>::Graph(
     visitor_.insertVertices(0, numberOfVertices);
 }
 
-/// Clear an undirected graph.
+/// Clear a directed graph.
 ///
 /// \param visitor Visitor to follow changes of integer indices of vertices and edges.
 ///
 template<typename VISITOR>
 inline void
-Graph<VISITOR>::assign(
+Digraph<VISITOR>::assign(
     const Visitor& visitor
 ) {
     vertices_.clear();
@@ -215,14 +145,14 @@ Graph<VISITOR>::assign(
     visitor_ = visitor;
 }
 
-/// Clear an undirected graph with an initial number of vertices.
+/// Clear a directed graph with an initial number of vertices.
 ///
 /// \param numberOfVertices Number of vertices.
 /// \param visitor Visitor to follow changes of integer indices of vertices and edges.
 ///
 template<typename VISITOR>
 inline void
-Graph<VISITOR>::assign(
+Digraph<VISITOR>::assign(
     const std::size_t numberOfVertices,
     const Visitor& visitor
 ) {
@@ -233,21 +163,21 @@ Graph<VISITOR>::assign(
     visitor_ = visitor;
     visitor_.insertVertices(0, numberOfVertices);
 }
-    
+
 /// Get the number of vertices.
 ///
 template<typename VISITOR>
 inline std::size_t
-Graph<VISITOR>::numberOfVertices() const { 
-    return vertices_.size(); 
+Digraph<VISITOR>::numberOfVertices() const {
+    return vertices_.size();
 }
 
 /// Get the number of edges.
 ///
 template<typename VISITOR>
 inline std::size_t
-Graph<VISITOR>::numberOfEdges() const { 
-    return edges_.size(); 
+Digraph<VISITOR>::numberOfEdges() const {
+    return edges_.size();
 }
 
 /// Get the number of edges that originate from a given vertex.
@@ -258,10 +188,10 @@ Graph<VISITOR>::numberOfEdges() const {
 ///
 template<typename VISITOR>
 inline std::size_t
-Graph<VISITOR>::numberOfEdgesFromVertex(
+Digraph<VISITOR>::numberOfEdgesFromVertex(
     const std::size_t vertex
-) const { 
-    return vertices_[vertex].size();
+) const {
+    return vertices_[vertex].to_.size();
 }
 
 /// Get the number of edges that are incident to a given vertex.
@@ -272,10 +202,10 @@ Graph<VISITOR>::numberOfEdgesFromVertex(
 ///
 template<typename VISITOR>
 inline std::size_t
-Graph<VISITOR>::numberOfEdgesToVertex(
+Digraph<VISITOR>::numberOfEdgesToVertex(
     const std::size_t vertex
-) const { 
-    return vertices_[vertex].size();
+) const {
+    return vertices_[vertex].from_.size();
 }
 
 /// Get the integer index of a vertex of an edge.
@@ -285,7 +215,7 @@ Graph<VISITOR>::numberOfEdgesToVertex(
 ///
 template<typename VISITOR>
 inline std::size_t
-Graph<VISITOR>::vertexOfEdge(
+Digraph<VISITOR>::vertexOfEdge(
     const std::size_t edge,
     const std::size_t j
 ) const {
@@ -303,11 +233,11 @@ Graph<VISITOR>::vertexOfEdge(
 ///
 template<typename VISITOR>
 inline std::size_t
-Graph<VISITOR>::edgeFromVertex(
+Digraph<VISITOR>::edgeFromVertex(
     const std::size_t vertex,
     const std::size_t j
 ) const {
-    return vertices_[vertex][j].edge();
+    return vertices_[vertex].to_[j].edge();
 }
 
 /// Get the integer index of an edge that is incident to a given vertex.
@@ -319,11 +249,11 @@ Graph<VISITOR>::edgeFromVertex(
 ///
 template<typename VISITOR>
 inline std::size_t
-Graph<VISITOR>::edgeToVertex(
+Digraph<VISITOR>::edgeToVertex(
     const std::size_t vertex,
     const std::size_t j
 ) const {
-    return vertices_[vertex][j].edge();
+    return vertices_[vertex].from_[j].edge();
 }
 
 /// Get the integer index of a vertex reachable from a given vertex via a single edge.
@@ -331,15 +261,15 @@ Graph<VISITOR>::edgeToVertex(
 /// \param vertex Integer index of a vertex.
 /// \param j Number of the vertex; between 0 and numberOfEdgesFromVertex(vertex) - 1.
 ///
-/// \sa numberOfEdgesFromVertex() 
+/// \sa numberOfEdgesFromVertex()
 ///
 template<typename VISITOR>
 inline std::size_t
-Graph<VISITOR>::vertexFromVertex(
+Digraph<VISITOR>::vertexFromVertex(
     const std::size_t vertex,
     const std::size_t j
 ) const {
-    return vertices_[vertex][j].vertex();
+    return vertices_[vertex].to_[j].vertex();
 }
 
 /// Get the integer index of a vertex from which a given vertex is reachable via a single edge.
@@ -347,15 +277,15 @@ Graph<VISITOR>::vertexFromVertex(
 /// \param vertex Integer index of a vertex.
 /// \param j Number of the vertex; between 0 and numberOfEdgesFromVertex(vertex) - 1.
 ///
-/// \sa numberOfEdgesFromVertex() 
+/// \sa numberOfEdgesFromVertex()
 ///
 template<typename VISITOR>
 inline std::size_t
-Graph<VISITOR>::vertexToVertex(
+Digraph<VISITOR>::vertexToVertex(
     const std::size_t vertex,
     const std::size_t j
 ) const {
-    return vertices_[vertex][j].vertex();
+    return vertices_[vertex].from_[j].vertex();
 }
 
 /// Insert an additional vertex.
@@ -366,7 +296,7 @@ Graph<VISITOR>::vertexToVertex(
 ///
 template<typename VISITOR>
 inline std::size_t
-Graph<VISITOR>::insertVertex() {
+Digraph<VISITOR>::insertVertex() {
     vertices_.push_back(Vertex());
     visitor_.insertVertex(vertices_.size() - 1);
     return vertices_.size() - 1;
@@ -381,7 +311,7 @@ Graph<VISITOR>::insertVertex() {
 ///
 template<typename VISITOR>
 inline std::size_t
-Graph<VISITOR>::insertVertices(
+Digraph<VISITOR>::insertVertices(
     const std::size_t number
 ) {
     std::size_t position = vertices_.size();
@@ -392,25 +322,25 @@ Graph<VISITOR>::insertVertices(
 
 /// Insert an additional edge.
 ///
-/// \param vertexIndex0 Integer index of the first vertex in the edge.
-/// \param vertexIndex1 Integer index of the second vertex in the edge.
+/// \param vertexIndex0 Integer index of the first vertex (source) of the edge.
+/// \param vertexIndex1 Integer index of the second vertex (target) of the edge.
 /// \return Integer index of the newly inserted edge.
-/// 
+///
 template<typename VISITOR>
 inline std::size_t
-Graph<VISITOR>::insertEdge(
+Digraph<VISITOR>::insertEdge(
     const std::size_t vertexIndex0,
     const std::size_t vertexIndex1
 ) {
-    assert(vertexIndex0 < numberOfVertices()); 
-    assert(vertexIndex1 < numberOfVertices()); 
-    
+    assert(vertexIndex0 < numberOfVertices());
+    assert(vertexIndex1 < numberOfVertices());
+
     if(multipleEdgesEnabled()) {
 insertEdgeMark:
         edges_.push_back(Edge(vertexIndex0, vertexIndex1));
         std::size_t edgeIndex = edges_.size() - 1;
         insertAdjacenciesForEdge(edgeIndex);
-        visitor_.insertEdge(edgeIndex);  
+        visitor_.insertEdge(edgeIndex);
         return edgeIndex;
     }
     else {
@@ -427,20 +357,23 @@ insertEdgeMark:
 /// Erase a vertex and all edges connecting this vertex.
 ///
 /// \param vertexIndex Integer index of the vertex to be erased.
-/// 
+///
 template<typename VISITOR>
-void 
-Graph<VISITOR>::eraseVertex(
+void
+Digraph<VISITOR>::eraseVertex(
     const std::size_t vertexIndex
 ) {
-    assert(vertexIndex < numberOfVertices()); 
+    assert(vertexIndex < numberOfVertices());
 
     // erase all edges connected to the vertex
-    while(vertices_[vertexIndex].size() != 0) {
-        eraseEdge(vertices_[vertexIndex].begin()->edge());
+    while(vertices_[vertexIndex].from_.size() != 0) {
+        eraseEdge(vertices_[vertexIndex].from_.begin()->edge());
+    }
+    while(vertices_[vertexIndex].to_.size() != 0) {
+        eraseEdge(vertices_[vertexIndex].to_.begin()->edge());
     }
 
-    if(vertexIndex == numberOfVertices()-1) { // if the last vertex is to be erased        
+    if(vertexIndex == numberOfVertices() - 1) { // if the last vertex is to be erased
         vertices_.pop_back(); // erase vertex
         visitor_.eraseVertex(vertexIndex);
     }
@@ -450,14 +383,18 @@ Graph<VISITOR>::eraseVertex(
         // collect indices of edges affected by the move
         std::size_t movingVertexIndex = numberOfVertices() - 1;
         std::set<std::size_t> affectedEdgeIndices;
-        for(Vertex::const_iterator it = vertices_[movingVertexIndex].begin();
-        it != vertices_[movingVertexIndex].end(); ++it) {
+        for(Adjacencies::const_iterator it = vertices_[movingVertexIndex].from_.begin();
+        it != vertices_[movingVertexIndex].from_.end(); ++it) {
             affectedEdgeIndices.insert(it->edge());
         }
-        
+        for(Adjacencies::const_iterator it = vertices_[movingVertexIndex].to_.begin();
+        it != vertices_[movingVertexIndex].to_.end(); ++it) {
+            affectedEdgeIndices.insert(it->edge());
+        }
+
         // for all affected edges:
         for(std::set<std::size_t>::const_iterator it = affectedEdgeIndices.begin();
-        it != affectedEdgeIndices.end(); ++it) { 
+        it != affectedEdgeIndices.end(); ++it) {
             // remove adjacencies
             eraseAdjacenciesForEdge(*it);
 
@@ -467,10 +404,6 @@ Graph<VISITOR>::eraseVertex(
                     edges_[*it][j] = vertexIndex;
                 }
             }
-            // if(!(edges_[*it].directedness()) && edges_[*it][0] > edges_[*it][1]) {
-            if(edges_[*it][0] > edges_[*it][1]) {
-                std::swap(edges_[*it][0], edges_[*it][1]);
-            }
         }
 
         // move vertex
@@ -479,7 +412,7 @@ Graph<VISITOR>::eraseVertex(
 
         // insert adjacencies for edges of moved vertex
         for(std::set<std::size_t>::const_iterator it = affectedEdgeIndices.begin();
-        it != affectedEdgeIndices.end(); ++it) { 
+        it != affectedEdgeIndices.end(); ++it) {
             insertAdjacenciesForEdge(*it);
         }
 
@@ -491,20 +424,20 @@ Graph<VISITOR>::eraseVertex(
 /// Erase an edge.
 ///
 /// \param edgeIndex Integer index of the edge to be erased.
-/// 
+///
 template<typename VISITOR>
-inline void 
-Graph<VISITOR>::eraseEdge(
+inline void
+Digraph<VISITOR>::eraseEdge(
     const std::size_t edgeIndex
 ) {
-    assert(edgeIndex < numberOfEdges()); 
+    assert(edgeIndex < numberOfEdges());
 
     eraseAdjacenciesForEdge(edgeIndex);
     if(edgeIndex == numberOfEdges() - 1) { // if the last edge is erased
         edges_.pop_back(); // delete
         visitor_.eraseEdge(edgeIndex);
     }
-    else { 
+    else {
         std::size_t movingEdgeIndex = numberOfEdges() - 1;
         eraseAdjacenciesForEdge(movingEdgeIndex);
         edges_[edgeIndex] = edges_[movingEdgeIndex]; // copy
@@ -519,60 +452,60 @@ Graph<VISITOR>::eraseEdge(
 ///
 /// \param vertex Integer index of the vertex.
 /// \return VertexIterator.
-/// 
+///
 /// \sa verticesFromVertexEnd()
 ///
 template<typename VISITOR>
-inline typename Graph<VISITOR>::VertexIterator 
-Graph<VISITOR>::verticesFromVertexBegin(
+inline typename Digraph<VISITOR>::VertexIterator
+Digraph<VISITOR>::verticesFromVertexBegin(
     const std::size_t vertex
-) const { 
-    return vertices_[vertex].begin(); 
+) const {
+    return vertices_[vertex].to_.begin();
 }
 
 /// Get an iterator to the end of the sequence of vertices reachable from a given vertex via a single edge.
 ///
 /// \param vertex Integer index of the vertex.
 /// \return VertexIterator.
-/// 
+///
 /// \sa verticesFromVertexBegin()
-/// 
+///
 template<typename VISITOR>
-inline typename Graph<VISITOR>::VertexIterator 
-Graph<VISITOR>::verticesFromVertexEnd(
+inline typename Digraph<VISITOR>::VertexIterator
+Digraph<VISITOR>::verticesFromVertexEnd(
     const std::size_t vertex
-) const { 
-    return vertices_[vertex].end(); 
+) const {
+    return vertices_[vertex].to_.end();
 }
 
 /// Get an iterator to the beginning of the sequence of vertices from which a given vertex is reachable via a single edge.
 ///
 /// \param vertex Integer index of the vertex.
 /// \return VertexIterator.
-/// 
+///
 /// \sa verticesToVertexEnd()
 ///
 template<typename VISITOR>
-inline typename Graph<VISITOR>::VertexIterator 
-Graph<VISITOR>::verticesToVertexBegin(
+inline typename Digraph<VISITOR>::VertexIterator
+Digraph<VISITOR>::verticesToVertexBegin(
     const std::size_t vertex
-) const { 
-    return vertices_[vertex].begin(); 
+) const {
+    return vertices_[vertex].from_.begin();
 }
 
 /// Get an iterator to the end of the sequence of vertices from which a given vertex is reachable via a single edge.
 ///
 /// \param vertex Integer index of the vertex.
 /// \return VertexIterator.
-/// 
+///
 /// \sa verticesToVertexBegin()
 ///
 template<typename VISITOR>
-inline typename Graph<VISITOR>::VertexIterator 
-Graph<VISITOR>::verticesToVertexEnd(
+inline typename Digraph<VISITOR>::VertexIterator
+Digraph<VISITOR>::verticesToVertexEnd(
     const std::size_t vertex
-) const { 
-    return vertices_[vertex].end(); 
+) const {
+    return vertices_[vertex].from_.end();
 }
 
 /// Get an iterator to the beginning of the sequence of edges that originate from a given vertex.
@@ -583,11 +516,11 @@ Graph<VISITOR>::verticesToVertexEnd(
 /// \sa edgesFromVertexEnd()
 ///
 template<typename VISITOR>
-inline typename Graph<VISITOR>::EdgeIterator 
-Graph<VISITOR>::edgesFromVertexBegin(
+inline typename Digraph<VISITOR>::EdgeIterator
+Digraph<VISITOR>::edgesFromVertexBegin(
     const std::size_t vertex
-) const { 
-    return vertices_[vertex].begin(); 
+) const {
+    return vertices_[vertex].to_.begin();
 }
 
 /// Get an iterator to the end of the sequence of edges that originate from a given vertex.
@@ -598,11 +531,11 @@ Graph<VISITOR>::edgesFromVertexBegin(
 /// \sa edgesFromVertexBegin()
 ///
 template<typename VISITOR>
-inline typename Graph<VISITOR>::EdgeIterator 
-Graph<VISITOR>::edgesFromVertexEnd(
+inline typename Digraph<VISITOR>::EdgeIterator
+Digraph<VISITOR>::edgesFromVertexEnd(
     const std::size_t vertex
-) const { 
-    return vertices_[vertex].end(); 
+) const {
+    return vertices_[vertex].to_.end();
 }
 
 /// Get an iterator to the beginning of the sequence of edges that are incident to a given vertex.
@@ -613,11 +546,11 @@ Graph<VISITOR>::edgesFromVertexEnd(
 /// \sa edgesToVertexEnd()
 ///
 template<typename VISITOR>
-inline typename Graph<VISITOR>::EdgeIterator 
-Graph<VISITOR>::edgesToVertexBegin(
+inline typename Digraph<VISITOR>::EdgeIterator
+Digraph<VISITOR>::edgesToVertexBegin(
     const std::size_t vertex
-) const { 
-    return vertices_[vertex].begin(); 
+) const {
+    return vertices_[vertex].from_.begin();
 }
 
 /// Get an iterator to the end of the sequence of edges that are incident to a given vertex.
@@ -628,11 +561,11 @@ Graph<VISITOR>::edgesToVertexBegin(
 /// \sa edgesToVertexBegin()
 ///
 template<typename VISITOR>
-inline typename Graph<VISITOR>::EdgeIterator 
-Graph<VISITOR>::edgesToVertexEnd(
+inline typename Digraph<VISITOR>::EdgeIterator
+Digraph<VISITOR>::edgesToVertexEnd(
     const std::size_t vertex
-) const { 
-    return vertices_[vertex].end(); 
+) const {
+    return vertices_[vertex].from_.end();
 }
 
 /// Get an iterator to the beginning of the sequence of adjacencies that originate from a given vertex.
@@ -643,11 +576,11 @@ Graph<VISITOR>::edgesToVertexEnd(
 /// \sa adjacenciesFromVertexEnd()
 ///
 template<typename VISITOR>
-inline typename Graph<VISITOR>::AdjacencyIterator 
-Graph<VISITOR>::adjacenciesFromVertexBegin(
+inline typename Digraph<VISITOR>::AdjacencyIterator
+Digraph<VISITOR>::adjacenciesFromVertexBegin(
     const std::size_t vertex
 ) const {
-    return vertices_[vertex].begin();
+    return vertices_[vertex].to_.begin();
 }
 
 /// Get an iterator to the end of the sequence of adjacencies that originate from a given vertex.
@@ -658,11 +591,11 @@ Graph<VISITOR>::adjacenciesFromVertexBegin(
 /// \sa adjacenciesFromVertexBegin()
 ///
 template<typename VISITOR>
-inline typename Graph<VISITOR>::AdjacencyIterator 
-Graph<VISITOR>::adjacenciesFromVertexEnd(
+inline typename Digraph<VISITOR>::AdjacencyIterator
+Digraph<VISITOR>::adjacenciesFromVertexEnd(
     const std::size_t vertex
 ) const {
-    return vertices_[vertex].end();
+    return vertices_[vertex].to_.end();
 }
 
 /// Get an iterator to the beginning of the sequence of adjacencies incident to a given vertex.
@@ -673,11 +606,11 @@ Graph<VISITOR>::adjacenciesFromVertexEnd(
 /// \sa adjacenciesToVertexEnd()
 ///
 template<typename VISITOR>
-inline typename Graph<VISITOR>::AdjacencyIterator 
-Graph<VISITOR>::adjacenciesToVertexBegin(
+inline typename Digraph<VISITOR>::AdjacencyIterator
+Digraph<VISITOR>::adjacenciesToVertexBegin(
     const std::size_t vertex
 ) const {
-    return vertices_[vertex].begin();
+    return vertices_[vertex].from_.begin();
 }
 
 /// Get an iterator to the end of the sequence of adjacencies incident to a given vertex.
@@ -688,11 +621,11 @@ Graph<VISITOR>::adjacenciesToVertexBegin(
 /// \sa adjacenciesToVertexBegin()
 ///
 template<typename VISITOR>
-inline typename Graph<VISITOR>::AdjacencyIterator 
-Graph<VISITOR>::adjacenciesToVertexEnd(
+inline typename Digraph<VISITOR>::AdjacencyIterator
+Digraph<VISITOR>::adjacenciesToVertexEnd(
     const std::size_t vertex
 ) const {
-    return vertices_[vertex].end();
+    return vertices_[vertex].from_.end();
 }
 
 /// Reserve memory for at least the given total number of vertices.
@@ -700,8 +633,8 @@ Graph<VISITOR>::adjacenciesToVertexEnd(
 /// \param number Total number of vertices.
 ///
 template<typename VISITOR>
-inline void 
-Graph<VISITOR>::reserveVertices(
+inline void
+Digraph<VISITOR>::reserveVertices(
     const std::size_t number
 ) {
     vertices_.reserve(number);
@@ -712,8 +645,8 @@ Graph<VISITOR>::reserveVertices(
 /// \param number Total number of edges.
 ///
 template<typename VISITOR>
-inline void 
-Graph<VISITOR>::reserveEdges(
+inline void
+Digraph<VISITOR>::reserveEdges(
     const std::size_t number
 ) {
     edges_.reserve(number);
@@ -726,11 +659,11 @@ Graph<VISITOR>::reserveEdges(
 ///
 template<typename VISITOR>
 inline const Adjacency<>&
-Graph<VISITOR>::adjacencyFromVertex(
+Digraph<VISITOR>::adjacencyFromVertex(
     const std::size_t vertex,
     const std::size_t j
 ) const {
-    return vertices_[vertex][j];
+    return vertices_[vertex].to_[j];
 }
 
 /// Get the j-th adjacency to a vertex.
@@ -740,45 +673,39 @@ Graph<VISITOR>::adjacencyFromVertex(
 ///
 template<typename VISITOR>
 inline const Adjacency<>&
-Graph<VISITOR>::adjacencyToVertex(
+Digraph<VISITOR>::adjacencyToVertex(
     const std::size_t vertex,
     const std::size_t j
 ) const {
-    return vertices_[vertex][j];
+    return vertices_[vertex].from_[j];
 }
 
 /// Search for an edge (in logarithmic time).
 ///
 /// \param vertex0 first vertex of the edge.
 /// \param vertex1 second vertex of the edge.
-/// \return if an edge from vertex0 to vertex1 exists, pair.first is true 
+/// \return if an edge from vertex0 to vertex1 exists, pair.first is true
 ///     and pair.second is the index of such an edge. if no edge from vertex0
 ///     to vertex1 exists, pair.first is false and pair.second is undefined.
 ///
 template<typename VISITOR>
 inline std::pair<bool, std::size_t>
-Graph<VISITOR>::findEdge(
+Digraph<VISITOR>::findEdge(
     const std::size_t vertex0,
     const std::size_t vertex1
 ) const {
     assert(vertex0 < numberOfVertices());
     assert(vertex1 < numberOfVertices());
 
-    std::size_t v0 = vertex0;
-    std::size_t v1 = vertex1;
-    if(numberOfEdgesFromVertex(vertex1) < numberOfEdgesFromVertex(vertex0)) {
-        v0 = vertex1;
-        v1 = vertex0;
-    }
     VertexIterator it = std::lower_bound(
-        verticesFromVertexBegin(v0),
-        verticesFromVertexEnd(v0),
-        v1
+        verticesFromVertexBegin(vertex0),
+        verticesFromVertexEnd(vertex0),
+        vertex1
     ); // binary search
-    if(it != verticesFromVertexEnd(v0) && *it == v1) {
+    if(it != verticesFromVertexEnd(vertex0) && *it == vertex1) {
         // access the corresponding edge in constant time
-        const std::size_t j = std::distance(verticesFromVertexBegin(v0), it);
-        return std::make_pair(true, edgeFromVertex(v0, j));
+        const std::size_t j = std::distance(verticesFromVertexBegin(vertex0), it);
+        return std::make_pair(true, edgeFromVertex(vertex0, j));
     }
     else {
         return std::make_pair(false, 0);
@@ -791,7 +718,7 @@ Graph<VISITOR>::findEdge(
 ///
 template<typename VISITOR>
 inline bool
-Graph<VISITOR>::multipleEdgesEnabled() const {
+Digraph<VISITOR>::multipleEdgesEnabled() const {
     return multipleEdgesEnabled_;
 }
 
@@ -803,31 +730,29 @@ Graph<VISITOR>::multipleEdgesEnabled() const {
 ///
 template<typename VISITOR>
 inline bool&
-Graph<VISITOR>::multipleEdgesEnabled() {
+Digraph<VISITOR>::multipleEdgesEnabled() {
     return multipleEdgesEnabled_;
 }
 
 template<typename VISITOR>
-inline void 
-Graph<VISITOR>::insertAdjacenciesForEdge(
+inline void
+Digraph<VISITOR>::insertAdjacenciesForEdge(
     const std::size_t edgeIndex
 ) {
     const Edge& edge = edges_[edgeIndex];
     const std::size_t vertexIndex0 = edge[0];
     const std::size_t vertexIndex1 = edge[1];
-    vertices_[vertexIndex0].insert(
+    vertices_[vertexIndex0].to_.insert(
         AdjacencyType(vertexIndex1, edgeIndex)
     );
-    if(vertexIndex1 != vertexIndex0) {
-        vertices_[vertexIndex1].insert(
-            AdjacencyType(vertexIndex0, edgeIndex)
-        );
-    }
+    vertices_[vertexIndex1].from_.insert(
+        AdjacencyType(vertexIndex0, edgeIndex)
+    );
 }
 
 template<typename VISITOR>
-inline void 
-Graph<VISITOR>::eraseAdjacenciesForEdge(
+inline void
+Digraph<VISITOR>::eraseAdjacenciesForEdge(
     const std::size_t edgeIndex
 ) {
     const Edge& edge = edges_[edgeIndex];
@@ -837,19 +762,17 @@ Graph<VISITOR>::eraseAdjacenciesForEdge(
     Vertex& vertex1 = vertices_[vertexIndex1];
 
     AdjacencyType adj(vertexIndex1, edgeIndex);
-    RandomAccessSet<AdjacencyType>::iterator it = vertex0.find(adj);
-    assert(it != vertex0.end()); 
-    vertex0.erase(it);
-    
-    if(vertexIndex1 != vertexIndex0) { // if not a self-edge
-        adj.vertex() = vertexIndex0;
-        it = vertex1.find(adj);
-        assert(it != vertex1.end()); 
-        vertex1.erase(it);
-    }
+    RandomAccessSet<AdjacencyType>::iterator it = vertex0.to_.find(adj);
+    assert(it != vertex0.to_.end());
+    vertex0.to_.erase(it);
+
+    adj.vertex() = vertexIndex0;
+    it = vertex1.from_.find(adj);
+    assert(it != vertex1.from_.end());
+    vertex1.from_.erase(it);
 }
 
 } // namespace graph
 } // namespace andres
 
-#endif // #ifndef ANDRES_GRAPH_HXX
+#endif // #ifndef ANDRES_GRAPH_DIGRAPH_HXX
