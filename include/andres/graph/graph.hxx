@@ -1,7 +1,7 @@
 /// \mainpage
 /// Graphs and Graph Algorithms in C++.
 ///
-/// Copyright (c) 2013 by Bjoern Andres, http://www.andres.sc
+/// Copyright (c) 2014 by Bjoern Andres, http://www.andres.sc
 ///
 /// This software was developed by Bjoern Andres, Duligur Ibeling,
 /// and Mark Matten.
@@ -47,7 +47,7 @@
 ///   .
 /// 
 /// \section section_license License
-/// Copyright (c) 2013 by Bjoern Andres.
+/// Copyright (c) 2014 by Bjoern Andres.
 /// 
 /// This software was developed by Bjoern Andres, Duligur Ibeling,
 /// and Mark Matten.
