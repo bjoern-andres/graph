@@ -2,6 +2,7 @@
 #ifndef ANDRES_GRAPH_DETAIL_GRAPH_HXX
 #define ANDRES_GRAPH_DETAIL_GRAPH_HXX
 
+#include <iterator>
 #include <andres/random-access-set.hxx>
 
 namespace andres {
