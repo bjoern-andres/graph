@@ -47,6 +47,7 @@ public:
         AdjacencyIterator operator--(int); // postfix
         AdjacencyIterator operator+(const difference_type) const;
         AdjacencyIterator operator-(const difference_type) const;
+        difference_type operator-(const AdjacencyIterator&) const;
 
         // comparison
         bool operator==(const AdjacencyIterator&) const;
@@ -754,6 +755,14 @@ CompleteGraph<VISITOR>::AdjacencyIterator::operator-(
     AdjacencyIterator copy = *this;
     copy -= d;
     return copy;
+}
+
+template<typename VISITOR>
+inline typename CompleteGraph<VISITOR>::AdjacencyIterator::difference_type
+CompleteGraph<VISITOR>::AdjacencyIterator::operator-(
+    const AdjacencyIterator& adjacencyIterator
+) const {
+    return adjacencyIndex_ - adjacencyIterator.adjacencyIndex_;
 }
 
 template<typename VISITOR>
