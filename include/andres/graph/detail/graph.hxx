@@ -2,6 +2,7 @@
 #ifndef ANDRES_GRAPH_DETAIL_GRAPH_HXX
 #define ANDRES_GRAPH_DETAIL_GRAPH_HXX
 
+#include <iterator>
 #include <andres/random-access-set.hxx>
 
 namespace andres {
@@ -33,8 +34,8 @@ private:
 
 public:
     typedef typename Base::iterator_category iterator_category;
-    typedef typename Base::value_type value_type;
-    typedef typename Base::difference_type difference_type;
+    typedef const std::size_t value_type;
+    typedef IteratorHelper::difference_type difference_type;
 
     // construction and assignment
     IteratorHelper();
@@ -57,8 +58,8 @@ public:
     #endif
 
     // access
-    std::size_t operator*() const;
-    std::size_t operator[](const std::size_t j) const;
+    value_type operator*() const;
+    value_type operator[](const std::size_t j) const;
 };
 
 typedef IteratorHelper<true> VertexIterator;
@@ -152,7 +153,7 @@ IteratorHelper<T>::operator=(
 }
 
 template<bool T>
-inline std::size_t
+inline typename IteratorHelper<T>::value_type
 IteratorHelper<T>::operator*() const {
     if(T) { // evaluated at compile time
         return Base::operator*().vertex();
@@ -163,7 +164,7 @@ IteratorHelper<T>::operator*() const {
 }
 
 template<bool T>
-inline std::size_t
+inline typename IteratorHelper<T>::value_type
 IteratorHelper<T>::operator[](
     const std::size_t j
 ) const {
