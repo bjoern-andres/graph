@@ -114,6 +114,23 @@ void testFindEdge() {
     { Pair p = g.findEdge(3, 3); test(p.first == false); }
 }
 
+// tests insertEdge explicitly for the complete graph K4
+void testInsertEdge() {
+    const CompleteGraph g(4);
+    { std::size_t u = g.insertEdge(0, 1); test(u == 0); }
+    { std::size_t u = g.insertEdge(0, 2); test(u == 1); }
+    { std::size_t u = g.insertEdge(0, 3); test(u == 2); }
+    { std::size_t u = g.insertEdge(1, 0); test(u == 0); }
+    { std::size_t u = g.insertEdge(1, 2); test(u == 3); }
+    { std::size_t u = g.insertEdge(1, 3); test(u == 4); }
+    { std::size_t u = g.insertEdge(2, 0); test(u == 1); }
+    { std::size_t u = g.insertEdge(2, 1); test(u == 3); }
+    { std::size_t u = g.insertEdge(2, 3); test(u == 5); }
+    { std::size_t u = g.insertEdge(3, 0); test(u == 2); }
+    { std::size_t u = g.insertEdge(3, 1); test(u == 4); }
+    { std::size_t u = g.insertEdge(3, 2); test(u == 5); }
+}
+
 // tests consistency of adjacency functions with findEdge
 void testAdjacency() {
     const CompleteGraph g(4);
@@ -507,6 +524,7 @@ void testAdjacencyIterator() {
 int main() {
     testConstructionAndNumbers(); // explicit test
     testFindEdge(); // explicit test
+    testInsertEdge(); // explicit test
     testAdjacency();
     testVertexIterator();
     testEdgeIterator();

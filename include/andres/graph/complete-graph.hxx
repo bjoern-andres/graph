@@ -147,6 +147,7 @@ public:
     std::pair<bool, std::size_t> findEdge(const std::size_t, const std::size_t) const;
     bool multipleEdgesEnabled() const;
 
+    std::size_t insertEdge(const std::size_t, const std::size_t) const;
 private:
     std::size_t edgeOfStrictlyIncreasingPairOfVertices(const std::size_t, const std::size_t) const;
 
@@ -621,6 +622,26 @@ template<typename VISITOR>
 inline bool
 CompleteGraph<VISITOR>::multipleEdgesEnabled() const {
     return false;
+}
+
+/// Returns the edge between the specified vertices.
+///
+/// \param vertexIndex0 Integer index of the first vertex in the edge.
+/// \param vertexIndex1 Integer index of the second vertex in the edge.
+/// \return Integer index of the newly inserted edge.
+/// 
+template<typename VISITOR>
+inline std::size_t
+CompleteGraph<VISITOR>::insertEdge(
+    const std::size_t vertexIndex0,
+    const std::size_t vertexIndex1
+) const {
+    assert(vertexIndex0 < numberOfVertices()); 
+    assert(vertexIndex1 < numberOfVertices()); 
+    
+    std::pair<bool, std::size_t> p = findEdge(vertexIndex0, vertexIndex1);
+    assert(p.first == true);
+    return p.second;
 }
 
 // private
