@@ -1,3 +1,5 @@
+#include <iterator>
+#include <algorithm>
 #include <stdexcept>
 
 #include "andres/graph/complete-graph.hxx"
@@ -12,6 +14,65 @@ typedef CompleteGraph::EdgeIterator EdgeIterator;
 typedef CompleteGraph::AdjacencyIterator AdjacencyIterator;
 typedef andres::graph::Adjacency<> Adjacency;
 typedef std::pair<bool, std::size_t> Pair;
+
+template<typename I>
+class IteratorTest {
+public:
+    typedef I iterator;
+    typedef typename std::iterator_traits<iterator>::value_type value_type;
+    typedef typename std::iterator_traits<iterator>::difference_type difference_type;
+    typedef typename std::iterator_traits<iterator>::pointer pointer;
+    typedef typename std::iterator_traits<iterator>::reference reference;
+    typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
+    
+    void test(iterator begin,iterator end) {
+        difference_type d = std::distance(begin,end);
+        assert(d>0);
+        iterator it0 = std::next(begin);
+        {
+            iterator it1 = begin;
+            std::advance(it1,d);
+            ::test(it1!=begin);
+            ::test(it1==end);
+        }
+        {
+            // Decrement it2 by d-1
+            iterator it1 = std::prev(end,d-1);
+            ::test(it1!=end);
+            ::test(it1==it0);
+        }
+    }
+};
+
+
+void testIteratorCompiling() {
+    typedef typename CompleteGraph::AdjacencyIterator AdjacencyIterator ;
+    typedef typename CompleteGraph::VertexIterator VertexIterator;
+    typedef typename CompleteGraph::EdgeIterator EdgeIterator;
+    
+    CompleteGraph g(4);
+    
+    std::size_t pivot = ::floor(g.numberOfVertices()/2);
+    
+    {
+        VertexIterator begin = g.verticesFromVertexBegin(pivot);
+        VertexIterator end = g.verticesFromVertexEnd(pivot);
+        IteratorTest<VertexIterator> vertexIteratorTest;
+        vertexIteratorTest.test(begin,end);
+    }
+    {
+        EdgeIterator begin = g.edgesFromVertexBegin(pivot);
+        EdgeIterator end = g.edgesFromVertexEnd(pivot);
+        IteratorTest<EdgeIterator> edgeIteratorTest;
+        edgeIteratorTest.test(begin,end);
+    }
+    {
+        AdjacencyIterator begin = g.adjacenciesFromVertexBegin(pivot);
+        AdjacencyIterator end = g.adjacenciesFromVertexEnd(pivot);
+        IteratorTest<AdjacencyIterator> adjacencyIteratorTest;
+        adjacencyIteratorTest.test(begin,end);
+    }
+}
 
 void testConstructionAndNumbers() {
     {
@@ -51,6 +112,23 @@ void testFindEdge() {
     { Pair p = g.findEdge(3, 1); test(p.first == true); test(p.second == 4); }
     { Pair p = g.findEdge(3, 2); test(p.first == true); test(p.second == 5); }
     { Pair p = g.findEdge(3, 3); test(p.first == false); }
+}
+
+// tests insertEdge explicitly for the complete graph K4
+void testInsertEdge() {
+    const CompleteGraph g(4);
+    { std::size_t u = g.insertEdge(0, 1); test(u == 0); }
+    { std::size_t u = g.insertEdge(0, 2); test(u == 1); }
+    { std::size_t u = g.insertEdge(0, 3); test(u == 2); }
+    { std::size_t u = g.insertEdge(1, 0); test(u == 0); }
+    { std::size_t u = g.insertEdge(1, 2); test(u == 3); }
+    { std::size_t u = g.insertEdge(1, 3); test(u == 4); }
+    { std::size_t u = g.insertEdge(2, 0); test(u == 1); }
+    { std::size_t u = g.insertEdge(2, 1); test(u == 3); }
+    { std::size_t u = g.insertEdge(2, 3); test(u == 5); }
+    { std::size_t u = g.insertEdge(3, 0); test(u == 2); }
+    { std::size_t u = g.insertEdge(3, 1); test(u == 4); }
+    { std::size_t u = g.insertEdge(3, 2); test(u == 5); }
 }
 
 // tests consistency of adjacency functions with findEdge
@@ -446,10 +524,12 @@ void testAdjacencyIterator() {
 int main() {
     testConstructionAndNumbers(); // explicit test
     testFindEdge(); // explicit test
+    testInsertEdge(); // explicit test
     testAdjacency();
     testVertexIterator();
     testEdgeIterator();
     testAdjacencyIterator();
-
+    testIteratorCompiling(); // Compile time tests
+    
     return 0;
 }

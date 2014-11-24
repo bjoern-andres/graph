@@ -55,6 +55,10 @@ add_test(test-graph-digraph test-graph-digraph)
 add_executable(test-graph-complete-graph src/andres/graph/unit-test/graph-complete.cxx ${headers})
 add_test(test-graph-complete-graph test-graph-complete-graph)
 
+add_executable(test-graph-grid-graph src/andres/graph/unit-test/graph-grid.cxx ${headers})
+target_compile_options(test-graph-grid-graph PUBLIC -std=c++11)
+add_test(test-graph-grid-graph test-graph-grid-graph)
+
 add_executable(test-graph-shortest-paths src/andres/graph/unit-test/shortest-paths.cxx ${headers})
 add_test(test-graph-shortest-paths test-graph-shortest-paths)
 
