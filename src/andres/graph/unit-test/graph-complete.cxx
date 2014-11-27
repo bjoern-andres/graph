@@ -25,21 +25,21 @@ public:
     typedef typename std::iterator_traits<iterator>::reference reference;
     typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
     
-    void test(iterator begin,iterator end) {
+    void operator()(iterator begin,iterator end) {
         difference_type d = std::distance(begin,end);
         assert(d>0);
         iterator it0 = std::next(begin);
         {
             iterator it1 = begin;
             std::advance(it1,d);
-            ::test(it1!=begin);
-            ::test(it1==end);
+            test(it1!=begin);
+            test(it1==end);
         }
         {
             // Decrement it2 by d-1
             iterator it1 = std::prev(end,d-1);
-            ::test(it1!=end);
-            ::test(it1==it0);
+            test(it1!=end);
+            test(it1==it0);
         }
     }
 };
@@ -58,19 +58,19 @@ void testIteratorCompiling() {
         VertexIterator begin = g.verticesFromVertexBegin(pivot);
         VertexIterator end = g.verticesFromVertexEnd(pivot);
         IteratorTest<VertexIterator> vertexIteratorTest;
-        vertexIteratorTest.test(begin,end);
+        vertexIteratorTest(begin,end);
     }
     {
         EdgeIterator begin = g.edgesFromVertexBegin(pivot);
         EdgeIterator end = g.edgesFromVertexEnd(pivot);
         IteratorTest<EdgeIterator> edgeIteratorTest;
-        edgeIteratorTest.test(begin,end);
+        edgeIteratorTest(begin,end);
     }
     {
         AdjacencyIterator begin = g.adjacenciesFromVertexBegin(pivot);
         AdjacencyIterator end = g.adjacenciesFromVertexEnd(pivot);
         IteratorTest<AdjacencyIterator> adjacencyIteratorTest;
-        adjacencyIteratorTest.test(begin,end);
+        adjacencyIteratorTest(begin,end);
     }
 }
 
