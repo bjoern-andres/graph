@@ -44,6 +44,20 @@ if(CPLEX_FOUND)
 endif()
 
 ##############################################################################
+# C++11 support
+##############################################################################
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+if(COMPILER_SUPPORTS_CXX11)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+elseif(COMPILER_SUPPORTS_CXX0X)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+else()
+    message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Some functionality will not be available.")
+endif()
+
+##############################################################################
 # targets: graph
 ##############################################################################
 add_executable(test-graph-graph src/andres/graph/unit-test/graph.cxx ${headers})
@@ -55,9 +69,10 @@ add_test(test-graph-digraph test-graph-digraph)
 add_executable(test-graph-complete-graph src/andres/graph/unit-test/graph-complete.cxx ${headers})
 add_test(test-graph-complete-graph test-graph-complete-graph)
 
-add_executable(test-graph-grid-graph src/andres/graph/unit-test/graph-grid.cxx ${headers})
-target_compile_options(test-graph-grid-graph PUBLIC -std=c++11)
-add_test(test-graph-grid-graph test-graph-grid-graph)
+if(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
+    add_executable(test-graph-grid-graph src/andres/graph/unit-test/graph-grid.cxx ${headers})
+    add_test(test-graph-grid-graph test-graph-grid-graph)
+endif(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
 
 add_executable(test-graph-shortest-paths src/andres/graph/unit-test/shortest-paths.cxx ${headers})
 add_test(test-graph-shortest-paths test-graph-shortest-paths)
