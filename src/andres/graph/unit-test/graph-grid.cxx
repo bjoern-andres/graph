@@ -607,6 +607,30 @@ void testAdjacency() {
 }
 
 template<typename G>
+void testGridVertexIteratorCoordinate(const G& g) {
+    typedef G Graph;
+    typedef typename Graph::VertexIterator VertexIterator;
+    typedef typename Graph::VertexCoordinate VertexCoordinate;
+    // operator*, operator[]
+    for(std::size_t v = 0; v < g.numberOfVertices(); ++v) {
+        // verticesFromVertex
+        {
+            // operator[]
+            for(VertexIterator it = g.verticesFromVertexBegin(v);
+                it != g.verticesFromVertexEnd(v); ++it) {
+                VertexCoordinate vCoord;
+                const std::size_t v = *it;
+                g.vertex(v,vCoord);
+                VertexCoordinate itCoord;
+                it.coordinate(itCoord);
+                test(vCoord == itCoord);
+            }
+        }
+    }
+}
+
+
+template<typename G>
 void testGridVertexIterator(const G& g, const size_t pivot) {
     typedef G Graph;
     typedef typename Graph::VertexIterator VertexIterator;
@@ -1003,6 +1027,7 @@ int main() {
             GridGraph g(VertexCoordinate( {3,2,3,2}));
             const size_t pivot = g.vertex(VertexCoordinate( {1,1,1,1}));
             testGridVertexIterator(g, pivot);
+            testGridVertexIteratorCoordinate(g);
             testGridEdgeIterator(g, pivot);
             testGridAdjacencyIterator(g, pivot);
         }

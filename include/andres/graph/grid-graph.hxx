@@ -109,7 +109,7 @@ public:
         /// towards the positive orthant.
         /// (i.e.: in specifying the pivot of an edge, an isSmaller
         /// of false is implied.)
-        VertexCoordinate pivotCoordinate_; // TODO: I noticed an inadvertently overlooked TODO: bjoern-comment intructing a name-change. In the new version it disappeared. Which name would you prefer? ( I am usually doing automatic replacements in updating the code) Recovered comment: TODO: bjoern: indent and call vertex0_
+        VertexCoordinate pivotCoordinate_;
         /// The dimension along which the edge is drawn.
         size_type dimension_;
     };
@@ -118,9 +118,9 @@ public:
     // \cond SUPPRESS_DOXYGEN
     class AdjacencyIterator
         :   public std::iterator <
-			std::random_access_iterator_tag,
-			const Adjacency
-        >  { // TODO: bjoern: wrap line and indent, also: does this define the typedefs of iterator_traits? // Yes. This seems to be the de-facto way to proceed. I had some doubts with overriding the typedefs in the derived classes, but I made a testcase and it seems fine!
+        std::random_access_iterator_tag,
+        const Adjacency
+        >  {
     public:
         typedef GridGraph<DIMENSION, size_type, Visitor> GraphType;
         typedef typename AdjacencyIterator::difference_type difference_type;
@@ -169,9 +169,8 @@ public:
         typedef GridGraph<DIMENSION, size_type, Visitor> GraphType;
         typedef AdjacencyIterator Base;
         typedef size_type value_type;
-		typedef typename VertexIterator::difference_type difference_type;
-        typedef value_type* pointer;
-        typedef value_type& reference;
+        typedef typename VertexIterator::difference_type difference_type;
+        typedef typename VertexIterator::pointer pointer;
 
         VertexIterator();
         VertexIterator(const VertexIterator&);
@@ -181,10 +180,12 @@ public:
         VertexIterator(const GraphType&, const size_type, const size_type);
 
         // access
-        value_type operator*() const;  // TODO: we can't use reference here, since we are creating data in-situ. However, it should not be a problem? Should I change the underlying interface?
+        value_type operator*() const;
         value_type operator[](const difference_type) const;
 
-        VertexCoordinate coordinate() const; // TODO: Ask: I forgot to note this last time. Review needed. I didn't test this
+        void coordinate(VertexCoordinate&) const;
+    private:
+        pointer operator->() const;
     };
 
     class EdgeIterator
@@ -193,7 +194,8 @@ public:
         typedef GridGraph<DIMENSION, size_type, Visitor> GraphType;
         typedef AdjacencyIterator Base;
         typedef size_type value_type;
-		typedef typename EdgeIterator::difference_type difference_type;
+        typedef typename EdgeIterator::difference_type difference_type;
+        typedef typename EdgeIterator::pointer pointer;
 
         EdgeIterator();
         EdgeIterator(const EdgeIterator&);
@@ -205,6 +207,8 @@ public:
         // access
         value_type operator*() const;
         value_type operator[](const difference_type) const;
+    private:
+        pointer operator->() const;
     };
     // \endcond
 
@@ -254,7 +258,6 @@ public:
 
 private:
     size_type vertexFromVertex(const VertexCoordinate&, const size_type, size_type&, bool&) const;
-//  void adjacencyFromVertex(const VertexCoordinate&,const size_type j,size_type& adjacentVertexIndex,size_type& adjacentEdgeIndex) const; // TODO: janis: I leave the names for clarity. Once reviewed, (I will) remove
     void adjacencyFromVertex(const VertexCoordinate&, const size_type, size_type&, size_type&) const;
 
     // Member variables
@@ -280,7 +283,7 @@ inline
 GridGraph<D, S, VISITOR>::GridGraph(
     const Visitor& visitor
 )
-:   GridGraph( {0, 0}, visitor) // Chain-call Constructor
+    :   GridGraph( {0, 0}, visitor) // Chain-call Constructor
 {}
 
 /// Construct a grid graph with a specified shape.
@@ -294,7 +297,7 @@ GridGraph<D, S, VISITOR>::GridGraph(
     const VertexCoordinate& shape,
     const Visitor& visitor
 )
-:   numberOfEdges_ (edgeIndexOffsets_[DIMENSION - 1]) {
+    :   numberOfEdges_ (edgeIndexOffsets_[DIMENSION - 1]) {
     assign(shape, visitor);
 }
 
@@ -327,7 +330,7 @@ GridGraph<D, S, VISITOR>::assign(
     shape_ = shape;
     visitor_ = visitor;
 
-    // Set vertex offsets for fast vertex indexing. // TODO: Ask about the locality of this.
+    // Set vertex offsets for fast vertex indexing.
     {
         size_type cumprod = 1;
         size_type i;
@@ -858,9 +861,9 @@ GridGraph<D, S, VISITOR>::insertEdge(
     const size_type vertexIndex0,
     const size_type vertexIndex1
 ) const {
-    assert(vertexIndex0 < numberOfVertices()); 
-    assert(vertexIndex1 < numberOfVertices()); 
-    
+    assert(vertexIndex0 < numberOfVertices());
+    assert(vertexIndex1 < numberOfVertices());
+
     std::pair<bool, std::size_t> p = findEdge(vertexIndex0, vertexIndex1);
     if(p.first == true) {
         return p.second;
@@ -998,7 +1001,7 @@ GridGraph<D, S, VISITOR>::vertexFromVertex(
     bool& isSmaller
 ) const {
     assert(vertex(vertexCoordinate) < numberOfVertices());
-    VertexCoordinate& modifieableVertexCoordinate = const_cast<VertexCoordinate&>(vertexCoordinate); // TODO: Ask: Is this ok to avoid copies?
+    VertexCoordinate& modifieableVertexCoordinate = const_cast<VertexCoordinate&>(vertexCoordinate);
     size_type cur_j = 0;
     for(size_type i = DIMENSION; i > 0; --i) {
         if(vertexCoordinate[i - 1] > 0) { // edge exists
@@ -1068,7 +1071,7 @@ inline GridGraph<D, S, VISITOR>::EdgeCoordinate::EdgeCoordinate(
     const size_type dimension,
     const bool isSmaller
 )
-:   pivotCoordinate_(pivotCoordinate),
+    :   pivotCoordinate_(pivotCoordinate),
         dimension_(dimension) {
     if(isSmaller) {
         assert(pivotCoordinate_[dimension] > 0);
@@ -1091,7 +1094,7 @@ inline GridGraph<D, S, VISITOR>::EdgeCoordinate::EdgeCoordinate() {
 template<std::size_t D, typename S, typename VISITOR>
 inline
 GridGraph<D, S, VISITOR>::AdjacencyIterator::AdjacencyIterator()
-:   vertex_(0),
+    :   vertex_(0),
         adjacencyIndex_(0),
         adjacency_()
 {}
@@ -1100,7 +1103,7 @@ inline
 GridGraph<D, S, VISITOR>::AdjacencyIterator::AdjacencyIterator(
     const GraphType& graph
 )
-:   graph_(&graph),
+    :   graph_(&graph),
         vertex_(0),
         adjacencyIndex_(0),
         adjacency_()
@@ -1112,7 +1115,7 @@ GridGraph<D, S, VISITOR>::AdjacencyIterator::AdjacencyIterator(
     const GraphType& graph,
     const size_type vertex
 )
-:   graph_(&graph),
+    :   graph_(&graph),
         vertex_(vertex),
         adjacencyIndex_(0),
         adjacency_() {
@@ -1126,7 +1129,7 @@ GridGraph<D, S, VISITOR>::AdjacencyIterator::AdjacencyIterator(
     const size_type vertex,
     const size_type adjacencyIndex
 )
-:   graph_(&graph),
+    :   graph_(&graph),
         vertex_(vertex),
         adjacencyIndex_(adjacencyIndex),
         adjacency_() {
@@ -1309,7 +1312,7 @@ GridGraph<D, S, VISITOR>::AdjacencyIterator::operator[](
 template<std::size_t D, typename S, typename VISITOR>
 inline
 GridGraph<D, S, VISITOR>::VertexIterator::VertexIterator()
-:   Base()
+    :   Base()
 {}
 
 template<std::size_t D, typename S, typename VISITOR>
@@ -1317,7 +1320,7 @@ inline
 GridGraph<D, S, VISITOR>::VertexIterator::VertexIterator(
     const GraphType& graph
 )
-:   Base(graph)
+    :   Base(graph)
 {}
 
 template<std::size_t D, typename S, typename VISITOR>
@@ -1326,7 +1329,7 @@ GridGraph<D, S, VISITOR>::VertexIterator::VertexIterator(
     const GraphType& graph,
     const size_type vertex
 )
-:   Base(graph, vertex)
+    :   Base(graph, vertex)
 {}
 
 template<std::size_t D, typename S, typename VISITOR>
@@ -1336,7 +1339,7 @@ GridGraph<D, S, VISITOR>::VertexIterator::VertexIterator(
     const size_type vertex,
     const size_type adjacencyIndex
 )
-:   Base(graph, vertex, adjacencyIndex)
+    :   Base(graph, vertex, adjacencyIndex)
 {}
 
 template<std::size_t D, typename S, typename VISITOR>
@@ -1344,7 +1347,7 @@ inline
 GridGraph<D, S, VISITOR>::VertexIterator::VertexIterator(
     const VertexIterator& it
 )
-:   Base(*(it.graph_), it.vertex_, it.adjacencyIndex_)
+    :   Base(*(it.graph_), it.vertex_, it.adjacencyIndex_)
 {}
 
 template<std::size_t D, typename S, typename VISITOR>
@@ -1352,7 +1355,7 @@ inline
 GridGraph<D, S, VISITOR>::VertexIterator::VertexIterator(
     const AdjacencyIterator& it
 )
-:   Base(it)
+    :   Base(it)
 {}
 
 template<std::size_t D, typename S, typename VISITOR>
@@ -1370,18 +1373,20 @@ GridGraph<D, S, VISITOR>::VertexIterator::operator[](
 }
 
 template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::VertexCoordinate
-GridGraph<D, S, VISITOR>::VertexIterator::coordinate() const {
+inline void
+GridGraph<D, S, VISITOR>::VertexIterator::coordinate(
+    VertexCoordinate& vertexCoordinate
+) const {
     const size_type opposite = Base::graph_->vertexFromVertex(Base::vertex_, Base::adjacencyIndex_);
-    return Base::graph_->vertex(opposite);
+    Base::graph_->vertex(opposite, vertexCoordinate);
 }
 
 // implementation of EdgeIterator
 
-template<std::size_t D, typename S, typename VISITOR> // TODO: Ask: check how this can instantiate the Graph. Shouldn't the default constructor be deleted?
+template<std::size_t D, typename S, typename VISITOR>
 inline
 GridGraph<D, S, VISITOR>::EdgeIterator::EdgeIterator()
-:   Base()
+    :   Base()
 {}
 
 template<std::size_t D, typename S, typename VISITOR>
@@ -1389,7 +1394,7 @@ inline
 GridGraph<D, S, VISITOR>::EdgeIterator::EdgeIterator(
     const GraphType& graph
 )
-:   Base(graph)
+    :   Base(graph)
 {}
 
 template<std::size_t D, typename S, typename VISITOR>
@@ -1398,7 +1403,7 @@ GridGraph<D, S, VISITOR>::EdgeIterator::EdgeIterator(
     const GraphType& graph,
     const size_type vertex
 )
-:   Base(graph, vertex)
+    :   Base(graph, vertex)
 {}
 
 template<std::size_t D, typename S, typename VISITOR>
@@ -1408,7 +1413,7 @@ GridGraph<D, S, VISITOR>::EdgeIterator::EdgeIterator(
     const size_type vertex,
     const size_type adjacencyIndex
 )
-:   Base(graph, vertex, adjacencyIndex)
+    :   Base(graph, vertex, adjacencyIndex)
 {}
 
 template<std::size_t D, typename S, typename VISITOR>
@@ -1416,7 +1421,7 @@ inline
 GridGraph<D, S, VISITOR>::EdgeIterator::EdgeIterator(
     const EdgeIterator& it
 )
-:   Base(*(it.graph_), it.vertex_, it.adjacencyIndex_)
+    :   Base(*(it.graph_), it.vertex_, it.adjacencyIndex_)
 {}
 
 template<std::size_t D, typename S, typename VISITOR>
@@ -1424,7 +1429,7 @@ inline
 GridGraph<D, S, VISITOR>::EdgeIterator::EdgeIterator(
     const AdjacencyIterator& it
 )
-:   Base(it)
+    :   Base(it)
 {}
 
 template<std::size_t D, typename S, typename VISITOR>
