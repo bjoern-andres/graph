@@ -36,6 +36,7 @@ public:
     typedef typename Base::iterator_category iterator_category;
     typedef typename Base::value_type value_type;
     typedef typename Base::difference_type difference_type;
+    typedef typename Base::pointer pointer;
 
     // construction and assignment
     IteratorHelper();
@@ -58,8 +59,10 @@ public:
     #endif
 
     // access
-    std::size_t operator*() const;
-    std::size_t operator[](const std::size_t j) const;
+    value_type operator*() const;
+    value_type operator[](const std::size_t j) const;
+private:
+    pointer operator->() const;
 };
 
 typedef IteratorHelper<true> VertexIterator;
