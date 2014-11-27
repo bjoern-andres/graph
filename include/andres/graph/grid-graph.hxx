@@ -657,11 +657,10 @@ GridGraph<D, S, VISITOR>::edgeFromVertex(
     const size_type j
 ) const {
     assert(j < numberOfEdgesFromVertex(vertex));
-    size_type direction;
-    bool isSmaller;
-
     VertexCoordinate vertexCoordinate;
     this->vertex(vertex, vertexCoordinate);
+    size_type direction;
+    bool isSmaller;
     vertexFromVertex(vertexCoordinate, j, direction, isSmaller);
     if(isSmaller) {
         VertexCoordinate pivotVertexCoordinate = vertexCoordinate;
