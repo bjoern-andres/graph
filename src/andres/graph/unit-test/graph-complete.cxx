@@ -1,6 +1,8 @@
 #include <iterator>
 #include <algorithm>
 #include <stdexcept>
+#include <iterator>
+#include <type_traits>
 
 #include "andres/graph/complete-graph.hxx"
 
@@ -24,6 +26,9 @@ public:
     typedef typename std::iterator_traits<iterator>::pointer pointer;
     typedef typename std::iterator_traits<iterator>::reference reference;
     typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
+    
+    static_assert(std::is_same<pointer,value_type*>::value,"Iterator pointer type mismatch.");
+    static_assert(std::is_same<reference,value_type&>::value,"Iterator pointer type mismatch.");
     
     void operator()(iterator begin,iterator end) {
         difference_type d = std::distance(begin,end);

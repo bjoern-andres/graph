@@ -74,10 +74,11 @@ public:
     public:
         typedef CompleteGraph<Visitor> GraphType;
         typedef AdjacencyIterator Base;
-        typedef typename VertexIterator::iterator_category iterator_category;
-        typedef typename std::size_t value_type;
-        typedef typename VertexIterator::difference_type difference_type;
-        typedef typename VertexIterator::pointer pointer;
+        typedef typename Base::iterator_category iterator_category;
+        typedef typename Base::difference_type difference_type;
+        typedef const std::size_t value_type;
+        typedef value_type* pointer;
+        typedef value_type& reference;
 
         VertexIterator();
         VertexIterator(const VertexIterator&);
@@ -99,9 +100,10 @@ public:
         typedef CompleteGraph<Visitor> GraphType;
         typedef AdjacencyIterator Base;
         typedef typename Base::iterator_category iterator_category;
-        typedef typename std::size_t value_type;
-        typedef typename EdgeIterator::difference_type difference_type;
-        typedef typename EdgeIterator::pointer pointer;
+        typedef typename Base::difference_type difference_type;
+        typedef const std::size_t value_type;
+        typedef value_type* pointer;
+        typedef value_type& reference;
 
         EdgeIterator();
         EdgeIterator(const EdgeIterator&);

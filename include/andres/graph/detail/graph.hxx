@@ -34,9 +34,10 @@ private:
 
 public:
     typedef typename Base::iterator_category iterator_category;
-    typedef typename Base::value_type value_type;
     typedef typename Base::difference_type difference_type;
-    typedef typename Base::pointer pointer;
+    typedef const std::size_t value_type;
+    typedef value_type* pointer;
+    typedef value_type& reference;
 
     // construction and assignment
     IteratorHelper();
@@ -156,7 +157,7 @@ IteratorHelper<T>::operator=(
 }
 
 template<bool T>
-inline std::size_t
+inline typename IteratorHelper<T>::value_type
 IteratorHelper<T>::operator*() const {
     if(T) { // evaluated at compile time
         return Base::operator*().vertex();
@@ -167,7 +168,7 @@ IteratorHelper<T>::operator*() const {
 }
 
 template<bool T>
-inline std::size_t
+inline typename IteratorHelper<T>::value_type
 IteratorHelper<T>::operator[](
     const std::size_t j
 ) const {
