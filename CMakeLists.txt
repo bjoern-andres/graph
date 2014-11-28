@@ -27,7 +27,7 @@ endif()
 ##############################################################################
 # Gurobi
 ##############################################################################
-find_package(GUROBI)
+#find_package(GUROBI)
 if(GUROBI_FOUND)
     include_directories(${GUROBI_INCLUDE_DIR})
 endif()

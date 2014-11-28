@@ -22,63 +22,40 @@ namespace graph {
 /// This graph references the vertices and edges using linearly increasing
 /// indices in the range
 /// 0 to |V|-1 and 0 to |E|-1 respectively.
-/// Specifically for the grid graph accessing of the unerlying structure
-/// can be ahieved:
-///  - The vertices can be specified in two ways:
+/// More specifically,
+///  - the vertices can be specified in two ways:
 ///     -# Using a linearly increasing integer of type GridGraph::size_type
 ///        in the range 0 to \b numberOfVertices().\n
 ///        These indices refer to the vertices on the grid in a
-///        smallest-dimension-first fashion: firstly all the vertices of
-///        the first dimension are enumerated, in increasing order, then
-///        along the second dimension and so on.
+///        smallest-dimension-first fashion.\n
+///        For example in a 2-dimensional GridGraph with the first dimension
+///        referring to columns and the second to rows, the vertex indices
+///        are enumerated row by row and in ascending column index order.
 ///     -# Using a GridGraph::VertexCoordinate, effectively an \b std::array
 ///        which contains the coordinates of the vertex in the grid, starting
 ///        with the first dimension.
-///     For example, in a 2-Dimensional graph with shape 5x6, the origin
-///     and the 10th vertex are:
-///     \code
-///        typedef andres::graph::GridGraph<size_t,2> GridGraph;
-///        typedef typename GridGraph::VertexCoordinate VertexCoordinate;
-///        GridGraph gridGraph({6,5});
-///        VertexCoordinate originCoordinate({0,0});
-///        size_t originIndex(0);
-///        VertexCoordinate tenthCoordinate({3,1});
-///        size_t tenthIndex(9);
-///        test(originIndex == gridGraph.vertex(originCoordinate)); // OK
-///        test(tenthIndex == gridGraph.vertex(tenthCoordinate)); // OK
-///     \endcode
-///     To convert between the two formats consult GridGraph::vertex().
 ///  - The edges can be specified in two ways:
 ///     -# Using a linearly increasing integer of type GridGraph::size_type
-///        in the range 0 to \b numberOfVertices().\n
+///        in the range 0 to \b numberOfEdges().\n
 ///        These indices refer to the edges on the grid in a
 ///        smallest-dimension-first fashion: firstly all the edges than run
-///        along the first dimension (i.e.: those that
-///        whose endpoints are vertices whose coordinates differ by 1 only
-///        on the first dimension). Consequently enumerated are those along
-///        the second dimension and so on.
+///        along the first dimension (i.e.: those whose endpoints have
+///        coordinates that differ by 1 only on the first dimension).\n
+///        Consequently those along the second dimension are enumerated and
+///        so on.\n
+///        For example in a 2-dimensional GridGraph with the first dimension
+///        referring to \e W columns and the second to \e H rows, firstly the
+///        (\e W - 1)\e H horizontal edges are enumerated row by row and in
+///        ascending column index order; then enumerated are the
+///        \e W(\e H - 1) vertical edges in the same order.
 ///     -# By specifying the coordinates of the smallest of the two endpoints
 ///        and the unique dimension along which the coordinates of the
-///        endpoints have a unit difference.
-///        These numbers are packed in an GridGraph::EdgeVertex \c struct. In
-///        this documentation the vertex with the sallest coordinates is
-///        referred to as the \e pivot of the edge.
-///     For example, in a 2-Dimensional graph with shape 5x6
-///     \code
-///        typedef andres::graph::GridGraph<size_t,2> GridGraph;
-///        typedef typename GridGraph::VertexCoordinate VertexCoordinate;
-///        // Second edge
-///        typedef typename GridGraph::EdgeCoordinate EdgeCoordinate;
-///        typedef typename GridGraph::VertexCoordinate VertexCoordinate;
-///        GridGraph gridGraph({6,5});
-///        EdgeCoordinate secondEdgeCoordinate({1,0},0);
-///        size_t secondEdgeIndex(1);
-///        test(secondEdgeIndex == gridGraph.edge(secondEdgeCoordinate)); // OK
-///        // edge uv joining the vertices u=(4,3) and v=(4,4)
-///        EdgeCoordinate uvEdgeCoordinate({4,3},1); size_t uvEdgeIndex(47);
-///        // test(uvEdgeIndex == gridGraph.edge(uvEdgeCoordinate)); /// OK
-/// \endcode To convert between the two formats consult GridGraph::edge().
-/// \par Adjacency Indexing The adjacent elements for each vertex (be it
+///        endpoints have a unit difference.\n
+///        This information is packed in an GridGraph::EdgeVertex \c struct.
+///        The vertex with the smallest coordinates is henceforth referred to
+///        as the \e pivot of the edge.
+/// \par Adjacency Indexing
+///     The adjacent elements for each vertex (be it
 ///     Vertices, Edges or Adjacencies) are guaranteed to be enumerated in
 ///     strictly increasing order.
 ///
@@ -122,10 +99,8 @@ public:
                 const AdjacencyType
             >  {
     public:
+        
         typedef GridGraph<DIMENSION, size_type, Visitor> GraphType;
-        typedef typename AdjacencyIterator::difference_type difference_type;
-        typedef typename AdjacencyIterator::pointer pointer;
-        typedef typename AdjacencyIterator::reference reference;
 
         AdjacencyIterator();
         AdjacencyIterator(const GraphType&);
@@ -164,7 +139,7 @@ public:
     };
 
     class VertexIterator
-            :       public AdjacencyIterator {
+            :   public AdjacencyIterator {
     public:
         typedef GridGraph<DIMENSION, size_type, Visitor> GraphType;
         typedef AdjacencyIterator Base;
@@ -190,7 +165,7 @@ public:
     };
 
     class EdgeIterator
-            :       public AdjacencyIterator {
+        :          public AdjacencyIterator {
     public:
         typedef GridGraph<DIMENSION, size_type, Visitor> GraphType;
         typedef AdjacencyIterator Base;
@@ -699,10 +674,10 @@ GridGraph<D, S, VISITOR>::vertexFromVertex(
     const size_type j
 ) const {
     assert(j < numberOfEdgesToVertex(vertex));
-    size_type direction;
-    bool isSmaller;
     VertexCoordinate vertexCoordinate;
     this->vertex(vertex, vertexCoordinate);
+    size_type direction;
+    bool isSmaller;
     return vertexFromVertex(vertexCoordinate, j, direction, isSmaller);
 }
 
