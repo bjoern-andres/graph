@@ -18,12 +18,13 @@ template<typename VISITOR = IdleGraphVisitor<std::size_t> >
 class CompleteGraph {
 public:
     typedef VISITOR Visitor;
-
+    typedef Adjacency<> AdjacencyType;
+    
     // \cond SUPPRESS_DOXYGEN
     class AdjacencyIterator
     :   public std::iterator <
             std::random_access_iterator_tag,
-            const Adjacency<>
+            const AdjacencyType
         > {
     public:
         typedef CompleteGraph<Visitor> GraphType;
@@ -66,7 +67,7 @@ public:
         const GraphType* graph_;
         std::size_t vertex_;
         std::size_t adjacencyIndex_;
-        Adjacency<> adjacency_;
+        AdjacencyType adjacency_;
     };
 
     class VertexIterator
@@ -150,8 +151,8 @@ public:
     std::size_t edgeToVertex(const std::size_t, const std::size_t) const;
     std::size_t vertexFromVertex(const std::size_t, const std::size_t) const;
     std::size_t vertexToVertex(const std::size_t, const std::size_t) const;
-    Adjacency<> adjacencyFromVertex(const std::size_t, const std::size_t) const;
-    Adjacency<> adjacencyToVertex(const std::size_t, const std::size_t) const;
+    AdjacencyType adjacencyFromVertex(const std::size_t, const std::size_t) const;
+    AdjacencyType adjacencyToVertex(const std::size_t, const std::size_t) const;
     std::pair<bool, std::size_t> findEdge(const std::size_t, const std::size_t) const;
     bool multipleEdgesEnabled() const;
 
@@ -556,7 +557,7 @@ CompleteGraph<VISITOR>::vertexToVertex(
 /// \param j Number of the adjacency.
 ///
 template<typename VISITOR>
-inline Adjacency<>
+inline typename CompleteGraph<VISITOR>::AdjacencyType
 CompleteGraph<VISITOR>::adjacencyFromVertex(
     const std::size_t vertex,
     const std::size_t j
@@ -565,12 +566,12 @@ CompleteGraph<VISITOR>::adjacencyFromVertex(
     if(j < vertex) {
         const std::size_t vertexAdjacent = j;
         const std::size_t edgeAdjacent = edgeOfStrictlyIncreasingPairOfVertices(vertexAdjacent, vertex);
-        return Adjacency<>(vertexAdjacent, edgeAdjacent);
+        return AdjacencyType(vertexAdjacent, edgeAdjacent);
     }
     else {
         const std::size_t vertexAdjacent = j + 1;
         const std::size_t edgeAdjacent = edgeOfStrictlyIncreasingPairOfVertices(vertex, vertexAdjacent);
-        return Adjacency<>(vertexAdjacent, edgeAdjacent);
+        return AdjacencyType(vertexAdjacent, edgeAdjacent);
     }
 }
 
@@ -580,7 +581,7 @@ CompleteGraph<VISITOR>::adjacencyFromVertex(
 /// \param j Number of the adjacency.
 ///
 template<typename VISITOR>
-inline Adjacency<>
+inline typename CompleteGraph<VISITOR>::AdjacencyType
 CompleteGraph<VISITOR>::adjacencyToVertex(
     const std::size_t vertex,
     const std::size_t j

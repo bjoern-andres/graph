@@ -30,6 +30,8 @@ public:
     typedef detail::VertexIterator VertexIterator;
     typedef detail::EdgeIterator EdgeIterator;
     typedef detail::Adjacencies::const_iterator AdjacencyIterator;
+    
+    typedef typename AdjacencyIterator::value_type AdjacencyType;
 
     // construction
     Graph(const Visitor& = Visitor());
@@ -63,8 +65,8 @@ public:
     std::size_t edgeToVertex(const std::size_t, const std::size_t) const;
     std::size_t vertexFromVertex(const std::size_t, const std::size_t) const;
     std::size_t vertexToVertex(const std::size_t, const std::size_t) const;
-    const Adjacency<>& adjacencyFromVertex(const std::size_t, const std::size_t) const;
-    const Adjacency<>& adjacencyToVertex(const std::size_t, const std::size_t) const;
+    const AdjacencyType& adjacencyFromVertex(const std::size_t, const std::size_t) const;
+    const AdjacencyType& adjacencyToVertex(const std::size_t, const std::size_t) const;
     std::pair<bool, std::size_t> findEdge(const std::size_t, const std::size_t) const;
     bool multipleEdgesEnabled() const;
 
@@ -77,7 +79,6 @@ public:
     bool& multipleEdgesEnabled();
 
 private:
-    typedef Adjacency<> AdjacencyType;
     typedef detail::Adjacencies Vertex;
     typedef detail::Edge<false> Edge;
 
@@ -649,7 +650,7 @@ Graph<VISITOR>::reserveEdges(
 /// \param j Number of the adjacency.
 ///
 template<typename VISITOR>
-inline const Adjacency<>&
+inline const typename Graph<VISITOR>::AdjacencyType&
 Graph<VISITOR>::adjacencyFromVertex(
     const std::size_t vertex,
     const std::size_t j
@@ -663,7 +664,7 @@ Graph<VISITOR>::adjacencyFromVertex(
 /// \param j Number of the adjacency.
 ///
 template<typename VISITOR>
-inline const Adjacency<>&
+inline const typename Graph<VISITOR>::AdjacencyType&
 Graph<VISITOR>::adjacencyToVertex(
     const std::size_t vertex,
     const std::size_t j
