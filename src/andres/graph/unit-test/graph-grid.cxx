@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <vector>
 #include <iterator>
+#include <type_traits>
 
 #include "andres/graph/grid-graph.hxx"
 #include "andres/graph/graph.hxx"
@@ -193,6 +194,9 @@ public:
     typedef typename std::iterator_traits<iterator>::reference reference;
     typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
 
+    static_assert(std::is_same<pointer,value_type*>::value,"Iterator pointer type mismatch.");
+    static_assert(std::is_same<reference,value_type&>::value,"Iterator pointer type mismatch.");
+    
     void operator()(iterator begin,iterator end) {
         difference_type d = std::distance(begin,end);
         assert(d>0);
@@ -219,7 +223,7 @@ void testIteratorCompile(G& g, size_t pivot) {
     typedef typename GridGraph::AdjacencyIterator AdjacencyIterator ;
     typedef typename GridGraph::VertexIterator VertexIterator;
     typedef typename GridGraph::EdgeIterator EdgeIterator;
-
+    
     {
         VertexIterator begin = g.verticesFromVertexBegin(pivot);
         VertexIterator end = g.verticesFromVertexEnd(pivot);
@@ -374,7 +378,7 @@ template<typename G>
 void testFindEdgeND(const std::vector<size_t>& shape) {
     typedef G GridGraph;
     typedef typename GridGraph::VertexCoordinate VertexCoordinate;
-    typedef typename GridGraph::Adjacency Adjacency;
+    typedef typename GridGraph::AdjacencyType AdjacencyType;
 
     GridGraph gg;
     {
@@ -393,7 +397,7 @@ void testFindEdgeND(const std::vector<size_t>& shape) {
             std::fill(adjacentEdges.begin(),adjacentEdges.end(),INVALID_EDGE);
             size_t numAdjacentVertices = g.numberOfEdgesFromVertex(s);
             for(size_t i=0; i<numAdjacentVertices; ++i) {
-                Adjacency adjacency = g.adjacencyFromVertex(s,i);
+                AdjacencyType adjacency = g.adjacencyFromVertex(s,i);
                 adjacentEdges[adjacency.vertex()] = adjacency.edge();
             }
         }
@@ -426,7 +430,7 @@ void testFindEdgeND(const std::vector<size_t>& shape) {
 template<typename G>
 void testAdjacencyND(std::vector<size_t> shape) {
     typedef G GridGraph;
-    typedef typename GridGraph::Adjacency Adjacency;
+    typedef typename GridGraph::AdjacencyType AdjacencyType;
 
     GridGraph gg;
     {
@@ -438,8 +442,8 @@ void testAdjacencyND(std::vector<size_t> shape) {
     createCorrectGridND(shape,g);
 
     for(std::size_t v = 0; v < g.numberOfVertices(); ++v) {
-        std::vector<Adjacency> correct;
-        std::vector<Adjacency> testing;
+        std::vector<AdjacencyType> correct;
+        std::vector<AdjacencyType> testing;
         correct.insert(correct.begin(),g.adjacenciesFromVertexBegin(v),g.adjacenciesFromVertexEnd(v));
         testing.insert(testing.begin(),gg.adjacenciesFromVertexBegin(v),gg.adjacenciesFromVertexEnd(v));
         // Test endpoints
@@ -460,7 +464,7 @@ void testAdjacencyND(std::vector<size_t> shape) {
         {
             size_t i;
             for(i=0; i<gg.numberOfEdgesFromVertex(v); ++i) {
-                Adjacency a = gg.adjacencyFromVertex(v,i);
+                AdjacencyType a = gg.adjacencyFromVertex(v,i);
                 test( testing[i] == a );
             }
             test(i == testing.size());
@@ -564,7 +568,7 @@ void testConstructionAndNumbers() {
 // tests consistency of adjacency functions with findEdge
 void testAdjacency() {
     typedef andres::graph::GridGraph<2> GridGraph;
-    typedef GridGraph::Adjacency Adjacency;
+    typedef GridGraph::AdjacencyType AdjacencyType;
     typedef typename GridGraph::VertexCoordinate VertexCoordinate;
 
     const size_t w = 10;
@@ -576,8 +580,8 @@ void testAdjacency() {
     createCorrectGrid(w,h,g);
 
     for(std::size_t v = 0; v < g.numberOfVertices(); ++v) {
-        std::vector<Adjacency> correct;
-        std::vector<Adjacency> testing;
+        std::vector<AdjacencyType> correct;
+        std::vector<AdjacencyType> testing;
         correct.insert(correct.begin(),g.adjacenciesFromVertexBegin(v),g.adjacenciesFromVertexEnd(v));
         testing.insert(testing.begin(),gg.adjacenciesFromVertexBegin(v),gg.adjacenciesFromVertexEnd(v));
         {
@@ -594,7 +598,7 @@ void testAdjacency() {
         {
             size_t i;
             for(i=0; i<gg.numberOfEdgesFromVertex(v); ++i) {
-                Adjacency a = gg.adjacencyFromVertex(v,i);
+                AdjacencyType a = gg.adjacencyFromVertex(v,i);
                 test( testing[i] == a );
             }
             test(i == testing.size());
@@ -869,7 +873,7 @@ template<typename G>
 void testGridAdjacencyIterator(const G& g, const size_t pivot) {
     typedef G GridGraph;
     typedef typename GridGraph::AdjacencyIterator AdjacencyIterator;
-    typedef typename GridGraph::Adjacency Adjacency;
+    typedef typename GridGraph::AdjacencyType AdjacencyType;
     // operator*, operator[]
     for(std::size_t v = 0; v < g.numberOfVertices(); ++v) {
         // adjacencyFromVertex
@@ -924,7 +928,7 @@ void testGridAdjacencyIterator(const G& g, const size_t pivot) {
 
     // increment and decrement operators (consistency with operator==, operator!=)
     {
-        std::vector<Adjacency> neighbours;
+        std::vector<AdjacencyType> neighbours;
         neighbours.insert(neighbours.begin(),g.adjacenciesFromVertexBegin(pivot),g.adjacenciesFromVertexEnd(pivot));
         {
             AdjacencyIterator it = g.adjacenciesFromVertexBegin(pivot);

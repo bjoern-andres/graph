@@ -91,7 +91,7 @@ class GridGraph {
 public:
     typedef S size_type;
     typedef VISITOR Visitor;
-    typedef andres::graph::Adjacency<size_type> Adjacency;
+    typedef andres::graph::Adjacency<size_type> AdjacencyType;
 
     static const size_type DIMENSION = static_cast<size_type> (D);
 
@@ -118,9 +118,9 @@ public:
     // \cond SUPPRESS_DOXYGEN
     class AdjacencyIterator
         :   public std::iterator <
-        std::random_access_iterator_tag,
-        const Adjacency
-        >  {
+                std::random_access_iterator_tag,
+                const AdjacencyType
+            >  {
     public:
         typedef GridGraph<DIMENSION, size_type, Visitor> GraphType;
         typedef typename AdjacencyIterator::difference_type difference_type;
@@ -160,7 +160,7 @@ public:
         const GraphType* graph_;
         size_type vertex_;
         size_type adjacencyIndex_;
-        Adjacency adjacency_;
+        AdjacencyType adjacency_;
     };
 
     class VertexIterator
@@ -168,9 +168,10 @@ public:
     public:
         typedef GridGraph<DIMENSION, size_type, Visitor> GraphType;
         typedef AdjacencyIterator Base;
-        typedef size_type value_type;
-        typedef typename VertexIterator::difference_type difference_type;
-        typedef typename VertexIterator::pointer pointer;
+        typedef const size_type value_type;
+        typedef typename Base::difference_type difference_type;
+        typedef value_type* pointer;
+        typedef value_type& reference;
 
         VertexIterator();
         VertexIterator(const VertexIterator&);
@@ -193,9 +194,10 @@ public:
     public:
         typedef GridGraph<DIMENSION, size_type, Visitor> GraphType;
         typedef AdjacencyIterator Base;
-        typedef size_type value_type;
-        typedef typename EdgeIterator::difference_type difference_type;
-        typedef typename EdgeIterator::pointer pointer;
+        typedef const size_type value_type;
+        typedef typename Base::difference_type difference_type;
+        typedef value_type* pointer;
+        typedef value_type& reference;
 
         EdgeIterator();
         EdgeIterator(const EdgeIterator&);
@@ -217,8 +219,6 @@ public:
     GridGraph(const VertexCoordinate&, const Visitor& = Visitor());
     void assign(const Visitor& = Visitor());
     void assign(const VertexCoordinate&, const Visitor& = Visitor());
-
-    size_type shape(const size_type) const;
 
     // iterator access (compatible with Digraph)
     VertexIterator verticesFromVertexBegin(const size_type) const;
@@ -244,12 +244,14 @@ public:
     size_type edgeToVertex(const size_type, const size_type) const;
     size_type vertexFromVertex(const size_type, const size_type) const;
     size_type vertexToVertex(const size_type, const size_type) const;
-    Adjacency adjacencyFromVertex(const size_type, const size_type) const;
-    Adjacency adjacencyToVertex(const size_type, const size_type) const;
+    AdjacencyType adjacencyFromVertex(const size_type, const size_type) const;
+    AdjacencyType adjacencyToVertex(const size_type, const size_type) const;
     std::pair<bool, size_type> findEdge(const size_type, const size_type) const;
     bool multipleEdgesEnabled() const;
 
     size_type insertEdge(const size_type, const size_type) const;
+
+    size_type shape(const size_type) const;
 
     size_type vertex(const VertexCoordinate&) const;
     void vertex(const size_type, VertexCoordinate&) const;
@@ -358,18 +360,6 @@ GridGraph<D, S, VISITOR>::assign(
             }
         }
     }
-}
-
-/// Get the size of a specific dimension of the grid graph.
-/// \param dimension the index of the dimension index to retrieve.
-/// \return the size of the specified dimension.
-/// \see mapIndexToCoordinate mapVertexCoordinateToIndex
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::size_type
-GridGraph<D, S, VISITOR>::shape(
-    const size_type dimension
-) const {
-    return shape_[dimension];
 }
 
 /// Get an iterator to the beginning of the sequence of vertices reachable
@@ -741,7 +731,7 @@ GridGraph<D, S, VISITOR>::vertexToVertex(
 /// \param vertex Vertex.
 /// \param j Number of the adjacency.
 template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::Adjacency
+inline typename GridGraph<D, S, VISITOR>::AdjacencyType
 GridGraph<D, S, VISITOR>::adjacencyFromVertex(
     const size_type vertex,
     const size_type j
@@ -757,7 +747,7 @@ GridGraph<D, S, VISITOR>::adjacencyFromVertex(
 
         adjacencyFromVertex(vertexCoordinate, j, adjacentVertexIndex, adjacentEdgeIndex);
     }
-    return Adjacency(adjacentVertexIndex, adjacentEdgeIndex);
+    return AdjacencyType(adjacentVertexIndex, adjacentEdgeIndex);
 }
 
 
@@ -767,7 +757,7 @@ GridGraph<D, S, VISITOR>::adjacencyFromVertex(
 /// \param j Number of the adjacency.
 ///
 template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::Adjacency
+inline typename GridGraph<D, S, VISITOR>::AdjacencyType
 GridGraph<D, S, VISITOR>::adjacencyToVertex(
     const size_type vertex,
     const size_type j
@@ -890,6 +880,18 @@ GridGraph<D, S, VISITOR>::vertex(
         vertexIndex = vertexIndex / shape_[i];
     }
     vertexCoordinate[i] = vertexIndex;
+}
+
+/// Get the size of a specific dimension of the grid graph.
+/// \param dimension the index of the dimension index to retrieve.
+/// \return the size of the specified dimension.
+/// \see mapIndexToCoordinate mapVertexCoordinateToIndex
+template<std::size_t D, typename S, typename VISITOR>
+inline typename GridGraph<D, S, VISITOR>::size_type
+GridGraph<D, S, VISITOR>::shape(
+    const size_type dimension
+) const {
+    return shape_[dimension];
 }
 
 /// Retrieve the specified vertex of the graph.
@@ -1277,7 +1279,7 @@ GridGraph<D, S, VISITOR>::AdjacencyIterator::operator>=(
 // objects handled in the class, the AdjacencyIterator is limited to only
 // one adjacency object per iterator instance.
 // This should be sufficient for most normal usage scenarios, and is supported
-// by the very lightweight copying of the Adjacency object itself.
+// by the very lightweight copying of the AdjacencyType object itself.
 // Note, however, that if you store a reference to the pointed object,
 // then advance the iterator and subsequently dereference it again,
 // the new reference will refer to the very same same adjacency object,
