@@ -101,6 +101,13 @@ public:
     public:
         
         typedef GridGraph<DIMENSION, size_type, Visitor> GraphType;
+        typedef std::iterator <
+                std::random_access_iterator_tag,
+                const AdjacencyType
+            > Base;
+        typedef typename Base::difference_type difference_type;
+        typedef typename Base::pointer pointer;
+        typedef typename Base::reference reference;
 
         AdjacencyIterator();
         AdjacencyIterator(const GraphType&);
