@@ -28,11 +28,15 @@ public:
         > {
     public:
         typedef CompleteGraph<Visitor> GraphType;
-        typedef typename AdjacencyIterator::iterator_category iterator_category;
-        typedef typename AdjacencyIterator::value_type value_type;
-        typedef typename AdjacencyIterator::difference_type difference_type;
-        typedef typename AdjacencyIterator::pointer pointer;
-        typedef typename AdjacencyIterator::reference reference;
+        typedef std::iterator <
+                std::random_access_iterator_tag,
+                const AdjacencyType
+            > Base;
+        typedef typename Base::iterator_category iterator_category;
+        typedef typename Base::value_type value_type;
+        typedef typename Base::difference_type difference_type;
+        typedef typename Base::pointer pointer;
+        typedef typename Base::reference reference;
 
         AdjacencyIterator();
         AdjacencyIterator(const GraphType&);
