@@ -18,14 +18,25 @@ template<typename VISITOR = IdleGraphVisitor<std::size_t> >
 class CompleteGraph {
 public:
     typedef VISITOR Visitor;
-
+    typedef Adjacency<> AdjacencyType;
+    
     // \cond SUPPRESS_DOXYGEN
-    class AdjacencyIterator {
+    class AdjacencyIterator
+    :   public std::iterator <
+            std::random_access_iterator_tag,
+            const AdjacencyType
+        > {
     public:
         typedef CompleteGraph<Visitor> GraphType;
-        typedef typename std::random_access_iterator_tag iterator_category;
-        typedef Adjacency<> value_type;
-        typedef typename std::ptrdiff_t difference_type;
+        typedef std::iterator <
+                std::random_access_iterator_tag,
+                const AdjacencyType
+            > Base;
+        typedef typename Base::iterator_category iterator_category;
+        typedef typename Base::value_type value_type;
+        typedef typename Base::difference_type difference_type;
+        typedef typename Base::pointer pointer;
+        typedef typename Base::reference reference;
 
         AdjacencyIterator();
         AdjacencyIterator(const GraphType&);
@@ -41,6 +52,7 @@ public:
         AdjacencyIterator operator--(int); // postfix
         AdjacencyIterator operator+(const difference_type) const;
         AdjacencyIterator operator-(const difference_type) const;
+        difference_type operator-(const AdjacencyIterator&) const;
 
         // comparison
         bool operator==(const AdjacencyIterator&) const;
@@ -51,15 +63,15 @@ public:
         bool operator>=(const AdjacencyIterator&) const;
 
         // access
-        const Adjacency<>& operator*();
-        const Adjacency<>* operator->();
-        const Adjacency<>& operator[](const std::size_t);
+        reference operator*();
+        pointer operator->();
+        reference operator[](const std::size_t);
 
     protected:
         const GraphType* graph_;
         std::size_t vertex_;
         std::size_t adjacencyIndex_;
-        Adjacency<> adjacency_;
+        AdjacencyType adjacency_;
     };
 
     class VertexIterator
@@ -68,8 +80,10 @@ public:
         typedef CompleteGraph<Visitor> GraphType;
         typedef AdjacencyIterator Base;
         typedef typename Base::iterator_category iterator_category;
-        typedef typename Base::value_type value_type;
         typedef typename Base::difference_type difference_type;
+        typedef const std::size_t value_type;
+        typedef value_type* pointer;
+        typedef value_type& reference;
 
         VertexIterator();
         VertexIterator(const VertexIterator&);
@@ -79,8 +93,10 @@ public:
         VertexIterator(const GraphType&, const std::size_t, const std::size_t);
 
         // access
-        std::size_t operator*() const;
-        std::size_t operator[](const std::size_t) const;
+        value_type operator*() const;
+        value_type operator[](const std::size_t) const;
+    private:
+        pointer operator->() const;
     };
 
     class EdgeIterator
@@ -89,8 +105,10 @@ public:
         typedef CompleteGraph<Visitor> GraphType;
         typedef AdjacencyIterator Base;
         typedef typename Base::iterator_category iterator_category;
-        typedef typename Base::value_type value_type;
         typedef typename Base::difference_type difference_type;
+        typedef const std::size_t value_type;
+        typedef value_type* pointer;
+        typedef value_type& reference;
 
         EdgeIterator();
         EdgeIterator(const EdgeIterator&);
@@ -100,8 +118,10 @@ public:
         EdgeIterator(const GraphType&, const std::size_t, const std::size_t);
 
         // access
-        std::size_t operator*() const;
-        std::size_t operator[](const std::size_t) const;
+        value_type operator*() const;
+        value_type operator[](const std::size_t) const;
+    private:
+        pointer operator->() const;
     };
     // \endcond
 
@@ -135,8 +155,8 @@ public:
     std::size_t edgeToVertex(const std::size_t, const std::size_t) const;
     std::size_t vertexFromVertex(const std::size_t, const std::size_t) const;
     std::size_t vertexToVertex(const std::size_t, const std::size_t) const;
-    Adjacency<> adjacencyFromVertex(const std::size_t, const std::size_t) const;
-    Adjacency<> adjacencyToVertex(const std::size_t, const std::size_t) const;
+    AdjacencyType adjacencyFromVertex(const std::size_t, const std::size_t) const;
+    AdjacencyType adjacencyToVertex(const std::size_t, const std::size_t) const;
     std::pair<bool, std::size_t> findEdge(const std::size_t, const std::size_t) const;
     bool multipleEdgesEnabled() const;
 
@@ -541,7 +561,7 @@ CompleteGraph<VISITOR>::vertexToVertex(
 /// \param j Number of the adjacency.
 ///
 template<typename VISITOR>
-inline Adjacency<>
+inline typename CompleteGraph<VISITOR>::AdjacencyType
 CompleteGraph<VISITOR>::adjacencyFromVertex(
     const std::size_t vertex,
     const std::size_t j
@@ -550,12 +570,12 @@ CompleteGraph<VISITOR>::adjacencyFromVertex(
     if(j < vertex) {
         const std::size_t vertexAdjacent = j;
         const std::size_t edgeAdjacent = edgeOfStrictlyIncreasingPairOfVertices(vertexAdjacent, vertex);
-        return Adjacency<>(vertexAdjacent, edgeAdjacent);
+        return AdjacencyType(vertexAdjacent, edgeAdjacent);
     }
     else {
         const std::size_t vertexAdjacent = j + 1;
         const std::size_t edgeAdjacent = edgeOfStrictlyIncreasingPairOfVertices(vertex, vertexAdjacent);
-        return Adjacency<>(vertexAdjacent, edgeAdjacent);
+        return AdjacencyType(vertexAdjacent, edgeAdjacent);
     }
 }
 
@@ -565,7 +585,7 @@ CompleteGraph<VISITOR>::adjacencyFromVertex(
 /// \param j Number of the adjacency.
 ///
 template<typename VISITOR>
-inline Adjacency<>
+inline typename CompleteGraph<VISITOR>::AdjacencyType
 CompleteGraph<VISITOR>::adjacencyToVertex(
     const std::size_t vertex,
     const std::size_t j
@@ -751,6 +771,14 @@ CompleteGraph<VISITOR>::AdjacencyIterator::operator-(
 }
 
 template<typename VISITOR>
+inline typename CompleteGraph<VISITOR>::AdjacencyIterator::difference_type
+CompleteGraph<VISITOR>::AdjacencyIterator::operator-(
+    const AdjacencyIterator& adjacencyIterator
+) const {
+    return adjacencyIndex_ - adjacencyIterator.adjacencyIndex_;
+}
+
+template<typename VISITOR>
 inline bool
 CompleteGraph<VISITOR>::AdjacencyIterator::operator==(
     const AdjacencyIterator& other
@@ -812,21 +840,21 @@ CompleteGraph<VISITOR>::AdjacencyIterator::operator>=(
 }
 
 template<typename VISITOR>
-inline const Adjacency<>&
+inline typename CompleteGraph<VISITOR>::AdjacencyIterator::reference
 CompleteGraph<VISITOR>::AdjacencyIterator::operator*() {
     adjacency_ = graph_->adjacencyFromVertex(vertex_, adjacencyIndex_);
     return adjacency_;
 }
 
 template<typename VISITOR>
-inline const Adjacency<>*
+inline typename CompleteGraph<VISITOR>::AdjacencyIterator::pointer
 CompleteGraph<VISITOR>::AdjacencyIterator::operator->() {
     adjacency_ = graph_->adjacencyFromVertex(vertex_, adjacencyIndex_);
     return &adjacency_;
 }
 
 template<typename VISITOR>
-inline const Adjacency<>&
+inline typename CompleteGraph<VISITOR>::AdjacencyIterator::reference
 CompleteGraph<VISITOR>::AdjacencyIterator::operator[](
     const std::size_t j
 ) {
@@ -886,13 +914,13 @@ CompleteGraph<VISITOR>::VertexIterator::VertexIterator(
 {}
 
 template<typename VISITOR>
-inline std::size_t
+inline typename CompleteGraph<VISITOR>::VertexIterator::value_type
 CompleteGraph<VISITOR>::VertexIterator::operator*() const {
     return Base::graph_->vertexFromVertex(Base::vertex_, Base::adjacencyIndex_);
 }
 
 template<typename VISITOR>
-inline std::size_t
+inline typename CompleteGraph<VISITOR>::VertexIterator::value_type
 CompleteGraph<VISITOR>::VertexIterator::operator[](
     const std::size_t j
 ) const {
@@ -951,13 +979,13 @@ CompleteGraph<VISITOR>::EdgeIterator::EdgeIterator(
 {}
 
 template<typename VISITOR>
-inline std::size_t
+inline typename CompleteGraph<VISITOR>::EdgeIterator::value_type
 CompleteGraph<VISITOR>::EdgeIterator::operator*() const {
     return Base::graph_->edgeFromVertex(Base::vertex_, Base::adjacencyIndex_);
 }
 
 template<typename VISITOR>
-inline std::size_t
+inline typename CompleteGraph<VISITOR>::EdgeIterator::value_type
 CompleteGraph<VISITOR>::EdgeIterator::operator[](
     const std::size_t j
 ) const {

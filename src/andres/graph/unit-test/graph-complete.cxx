@@ -1,4 +1,8 @@
+#include <iterator>
+#include <algorithm>
 #include <stdexcept>
+#include <iterator>
+#include <type_traits>
 
 #include "andres/graph/complete-graph.hxx"
 
@@ -12,6 +16,68 @@ typedef CompleteGraph::EdgeIterator EdgeIterator;
 typedef CompleteGraph::AdjacencyIterator AdjacencyIterator;
 typedef andres::graph::Adjacency<> Adjacency;
 typedef std::pair<bool, std::size_t> Pair;
+
+template<typename I>
+class IteratorTest {
+public:
+    typedef I iterator;
+    typedef typename std::iterator_traits<iterator>::value_type value_type;
+    typedef typename std::iterator_traits<iterator>::difference_type difference_type;
+    typedef typename std::iterator_traits<iterator>::pointer pointer;
+    typedef typename std::iterator_traits<iterator>::reference reference;
+    typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
+    
+    static_assert(std::is_same<pointer,value_type*>::value,"Iterator pointer type mismatch.");
+    static_assert(std::is_same<reference,value_type&>::value,"Iterator pointer type mismatch.");
+    
+    void operator()(iterator begin,iterator end) {
+        difference_type d = std::distance(begin,end);
+        assert(d>0);
+        iterator it0 = std::next(begin);
+        {
+            iterator it1 = begin;
+            std::advance(it1,d);
+            test(it1!=begin);
+            test(it1==end);
+        }
+        {
+            // Decrement it2 by d-1
+            iterator it1 = std::prev(end,d-1);
+            test(it1!=end);
+            test(it1==it0);
+        }
+    }
+};
+
+
+void testIteratorCompiling() {
+    typedef typename CompleteGraph::AdjacencyIterator AdjacencyIterator ;
+    typedef typename CompleteGraph::VertexIterator VertexIterator;
+    typedef typename CompleteGraph::EdgeIterator EdgeIterator;
+    
+    CompleteGraph g(4);
+    
+    std::size_t pivot = ::floor(g.numberOfVertices()/2);
+    
+    {
+        VertexIterator begin = g.verticesFromVertexBegin(pivot);
+        VertexIterator end = g.verticesFromVertexEnd(pivot);
+        IteratorTest<VertexIterator> vertexIteratorTest;
+        vertexIteratorTest(begin,end);
+    }
+    {
+        EdgeIterator begin = g.edgesFromVertexBegin(pivot);
+        EdgeIterator end = g.edgesFromVertexEnd(pivot);
+        IteratorTest<EdgeIterator> edgeIteratorTest;
+        edgeIteratorTest(begin,end);
+    }
+    {
+        AdjacencyIterator begin = g.adjacenciesFromVertexBegin(pivot);
+        AdjacencyIterator end = g.adjacenciesFromVertexEnd(pivot);
+        IteratorTest<AdjacencyIterator> adjacencyIteratorTest;
+        adjacencyIteratorTest(begin,end);
+    }
+}
 
 void testConstructionAndNumbers() {
     {
@@ -450,6 +516,7 @@ int main() {
     testVertexIterator();
     testEdgeIterator();
     testAdjacencyIterator();
-
+    testIteratorCompiling(); // Compile time tests
+    
     return 0;
 }
