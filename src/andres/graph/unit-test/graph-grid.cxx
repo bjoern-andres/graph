@@ -502,36 +502,34 @@ void fillEdgeEndpointVector(size_t w, size_t h, std::vector<VertexPair>& vertexP
 // 2D Tests
 
 void testConstructionAndNumbers() {
-    typedef andres::graph::GridGraph<2> GridGraph;
-    typedef typename GridGraph::VertexCoordinate VertexCoordinate;
+    typedef andres::graph::GridGraph<2> GridGraphType;
+    typedef GridGraphType::VertexCoordinate VertexCoordinate;
+    typedef GridGraphType::EdgeCoordinate EdgeCoordinate;
 
     // Documentation examples
     {
-        typedef andres::graph::GridGraph<2> GridGraph;
-        typedef typename GridGraph::VertexCoordinate VertexCoordinate;
-        GridGraph gridGraph( {6,5});
-        VertexCoordinate originCoordinate( {0,0});
+        GridGraphType gridGraph({{6,5}});
+        VertexCoordinate originCoordinate({{0,0}});
         size_t originIndex(0);
-        VertexCoordinate tenthCoordinate( {3,1});
+        VertexCoordinate tenthCoordinate({{3,1}});
         size_t tenthIndex(9);
         test(originIndex == gridGraph.vertex(originCoordinate));
         test(tenthIndex == gridGraph.vertex(tenthCoordinate));
     }
     {
         // Second edge
-        typedef typename GridGraph::EdgeCoordinate EdgeCoordinate;
-        GridGraph gridGraph( {6,5});
-        EdgeCoordinate secondEdgeCoordinate( {1,0},0);
+        GridGraphType gridGraph({{6,5}});
+        EdgeCoordinate secondEdgeCoordinate({{1,0}}, 0);
         size_t secondEdgeIndex(1);
         test(secondEdgeIndex == gridGraph.edge(secondEdgeCoordinate));
         // edge uv joining the vertices u=(4,3) and v=(4,4) (i.e. along the second dimension)
-        EdgeCoordinate uvEdgeCoordinate( {4,3},1);
+        EdgeCoordinate uvEdgeCoordinate({{4,3}}, 1);
         size_t uvEdgeIndex(47); //
         test(uvEdgeIndex == gridGraph.edge(uvEdgeCoordinate));
     }
 
     {
-        const GridGraph g;
+        const GridGraphType g;
         test(!g.multipleEdgesEnabled());
         test(g.numberOfVertices() == 0);
         test(g.numberOfEdges() == 0);
@@ -539,7 +537,7 @@ void testConstructionAndNumbers() {
 
     for(std::size_t w = 1; w < 20; ++w) {
         for (std::size_t h=1; h< 20 ; ++h) {
-            GridGraph g(VertexCoordinate( {{h,w}}));
+            GridGraphType g(VertexCoordinate( {{h,w}}));
             const std::size_t numEdges = (h-1)*w + (w-1)*h;
             test(!g.multipleEdgesEnabled());
             test(g.numberOfVertices() == w*h);
@@ -574,9 +572,7 @@ void testAdjacency() {
     const size_t w = 10;
     const size_t h = 6;
     Graph g;
-    const GridGraph gg(VertexCoordinate( {
-        h,w
-    }));
+    const GridGraph gg(VertexCoordinate({{h,w}}));
     createCorrectGrid(w,h,g);
 
     for(std::size_t v = 0; v < g.numberOfVertices(); ++v) {
@@ -1016,8 +1012,8 @@ int main() {
         typedef andres::graph::GridGraph<4> GridGraph;
         typedef typename GridGraph::VertexCoordinate VertexCoordinate;
         {
-            GridGraph g( {6,4,3,5});
-            const size_t pivot = g.vertex(VertexCoordinate( {1,2,2,1}));
+            GridGraph g({{6,4,3,5}});
+            const size_t pivot = g.vertex(VertexCoordinate({{1,2,2,1}}));
             testIteratorCompile(g, pivot);
         }
         {
@@ -1028,8 +1024,8 @@ int main() {
             testOrientationsND<GridGraph>(shape);
         }
         {
-            GridGraph g(VertexCoordinate( {3,2,3,2}));
-            const size_t pivot = g.vertex(VertexCoordinate( {1,1,1,1}));
+            GridGraph g(VertexCoordinate({{3,2,3,2}}));
+            const size_t pivot = g.vertex(VertexCoordinate({{1,1,1,1}}));
             testGridVertexIterator(g, pivot);
             testGridVertexIteratorCoordinate(g);
             testGridEdgeIterator(g, pivot);

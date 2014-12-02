@@ -267,7 +267,7 @@ inline
 GridGraph<D, S, VISITOR>::GridGraph(
     const Visitor& visitor
 )
-    :   GridGraph( {0, 0}, visitor) // Chain-call Constructor
+:   GridGraph({{0, 0}}, visitor) // Chain-call Constructor
 {}
 
 /// Construct a grid graph with a specified shape.
