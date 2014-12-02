@@ -29,8 +29,7 @@ public:
     typedef VISITOR Visitor;
     typedef detail::VertexIterator VertexIterator;
     typedef detail::EdgeIterator EdgeIterator;
-    typedef detail::Adjacencies::const_iterator AdjacencyIterator;
-    
+    typedef detail::Adjacencies::const_iterator AdjacencyIterator;    
     typedef typename AdjacencyIterator::value_type AdjacencyType;
 
     // construction
