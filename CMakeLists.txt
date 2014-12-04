@@ -86,6 +86,14 @@ add_test(test-graph-components test-graph-components)
 add_executable(test-graph-max-flow src/andres/graph/unit-test/max-flow.cxx ${headers})
 add_test(test-graph-max-flow test-graph-max-flow)
 
+if(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
+    add_executable(test-graph-cut-vertices src/andres/graph/unit-test/cut-vertices.cxx ${headers})
+    add_test(test-graph-cut-vertices test-graph-cut-vertices)
+
+    add_executable(test-graph-bridges src/andres/graph/unit-test/bridges.cxx ${headers})
+    add_test(test-graph-bridges test-graph-bridges)
+endif(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
+
 if(CPLEX_FOUND)
     add_executable(test-graph-multicut-cplex src/andres/graph/unit-test/multicut-cplex.cxx ${headers})
     target_link_libraries(test-graph-multicut-cplex ${CPLEX_LIBRARIES})
