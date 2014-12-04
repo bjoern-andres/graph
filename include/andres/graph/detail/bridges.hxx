@@ -34,7 +34,10 @@ void find_bridges(const GRAPH& graph, const SUBGRAPH& subgraph_mask, std::size_t
             auto to = *buffer.next_out_arc_[v];
 
             if (buffer.min_successor_depth_[to] > buffer.depth_[v])
-                buffer.is_bridge_[*(graph.edgesFromVertexBegin(v) + (buffer.next_out_arc_[v] - graph.verticesFromVertexBegin(v)))] = 1;
+            {
+                typename GRAPH::EdgeIterator e = graph.edgesFromVertexBegin(v) + (buffer.next_out_arc_[v] - graph.verticesFromVertexBegin(v));
+                buffer.is_bridge_[*e] = 1;
+            }
 
             buffer.min_successor_depth_[v] = std::min(buffer.min_successor_depth_[v], buffer.min_successor_depth_[to]);
             ++buffer.next_out_arc_[v];
@@ -42,9 +45,11 @@ void find_bridges(const GRAPH& graph, const SUBGRAPH& subgraph_mask, std::size_t
 
         while (buffer.next_out_arc_[v] != graph.verticesFromVertexEnd(v))
         {
+            typename GRAPH::EdgeIterator e = graph.edgesFromVertexBegin(v) + (buffer.next_out_arc_[v] - graph.verticesFromVertexBegin(v));
+
             if (
                 !subgraph_mask.vertex(*buffer.next_out_arc_[v]) ||
-                !subgraph_mask.edge(*(graph.edgesFromVertexBegin(v) + (buffer.next_out_arc_[v] - graph.verticesFromVertexBegin(v))))
+                !subgraph_mask.edge(*e)
                 )
             {
                 ++buffer.next_out_arc_[v];
@@ -65,7 +70,7 @@ void find_bridges(const GRAPH& graph, const SUBGRAPH& subgraph_mask, std::size_t
                 S.push(to);
                 buffer.parent_[to] = v;
                 buffer.depth_[to] = buffer.depth_[v] + 1;
-                buffer.is_bridge_[*(graph.edgesFromVertexBegin(v) + (buffer.next_out_arc_[v] - graph.verticesFromVertexBegin(v)))] = 0;
+                buffer.is_bridge_[*e] = 0;
                 break;
             }
         }

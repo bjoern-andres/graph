@@ -77,31 +77,31 @@ void testCompleteGraph()
     test(br.isBridge(graph.findEdge(2, 4).second) == false);
     test(br.isBridge(graph.findEdge(3, 4).second) == false);
 
-    // struct mask
-    // {
-    //     bool vertex(std::size_t i) const
-    //     {
-    //         return true;
-    //     }
+    struct mask
+    {
+        bool vertex(std::size_t i) const
+        {
+            return true;
+        }
 
-    //     bool edge(std::size_t i) const
-    //     {
-    //         return !(i == 1 || i == 2 || i == 3);
-    //     }
-    // };
+        bool edge(std::size_t i) const
+        {
+            return !(i == 1 || i == 2 || i == 3);
+        }
+    };
 
-    // br.run(mask());
+    br.run(mask());
 
-    // test(br.isBridge(graph.findEdge(0, 1).second) == true);
-    // test(br.isBridge(graph.findEdge(0, 2).second) == false);
-    // test(br.isBridge(graph.findEdge(0, 3).second) == false);
-    // test(br.isBridge(graph.findEdge(0, 4).second) == false);
-    // test(br.isBridge(graph.findEdge(1, 2).second) == false);
-    // test(br.isBridge(graph.findEdge(1, 3).second) == false);
-    // test(br.isBridge(graph.findEdge(1, 4).second) == false);
-    // test(br.isBridge(graph.findEdge(2, 3).second) == false);
-    // test(br.isBridge(graph.findEdge(2, 4).second) == false);
-    // test(br.isBridge(graph.findEdge(3, 4).second) == false);
+    test(br.isBridge(graph.findEdge(0, 1).second) == true);
+    test(br.isBridge(graph.findEdge(0, 2).second) == false);
+    test(br.isBridge(graph.findEdge(0, 3).second) == false);
+    test(br.isBridge(graph.findEdge(0, 4).second) == false);
+    test(br.isBridge(graph.findEdge(1, 2).second) == false);
+    test(br.isBridge(graph.findEdge(1, 3).second) == false);
+    test(br.isBridge(graph.findEdge(1, 4).second) == false);
+    test(br.isBridge(graph.findEdge(2, 3).second) == false);
+    test(br.isBridge(graph.findEdge(2, 4).second) == false);
+    test(br.isBridge(graph.findEdge(3, 4).second) == false);
 }
 
 int main()

@@ -43,9 +43,11 @@ void find_cut_vertices(const GRAPH& graph, const SUBGRAPH& subgraph_mask, std::s
 
         while (buffer.next_out_arc_[v] != graph.verticesFromVertexEnd(v))
         {
+            typename GRAPH::EdgeIterator e = graph.edgesFromVertexBegin(v) + (buffer.next_out_arc_[v] - graph.verticesFromVertexBegin(v));
+
             if (
                 !subgraph_mask.vertex(*buffer.next_out_arc_[v]) ||
-                !subgraph_mask.edge(*(graph.edgesFromVertexBegin(v) + (buffer.next_out_arc_[v] - graph.verticesFromVertexBegin(v))))
+                !subgraph_mask.edge(*e)
                 )
             {
                 ++buffer.next_out_arc_[v];

@@ -73,26 +73,29 @@ void testCompleteGraph()
     test(cv.isCutVertex(3) == false);
     test(cv.isCutVertex(4) == false);
 
-    // struct mask
-    // {
-    //     bool vertex(std::size_t i) const
-    //     {
-    //         return true;
-    //     }
+    struct mask
+    {
+        bool vertex(std::size_t i) const
+        {
+            return true;
+        }
 
-    //     bool edge(std::size_t i) const
-    //     {
-    //         return !(i == 1 || i == 2 || i == 3 || i == 5 || i == 6);
-    //     }
-    // };
+        bool edge(std::size_t i) const
+        {
+            return !(i == 1 || i == 2 || i == 3 || i == 5 || i == 6);
+        }
+    };
 
-    // cv.run(mask());
+    std::cout << graph.findEdge(1, 3).second << std::endl;
+    std::cout << graph.findEdge(1, 4).second << std::endl;
 
-    // test(cv.isCutVertex(0) == false);
-    // test(cv.isCutVertex(1) == true);
-    // test(cv.isCutVertex(2) == false);
-    // test(cv.isCutVertex(3) == false);
-    // test(cv.isCutVertex(4) == false);
+    cv.run(mask());
+
+    test(cv.isCutVertex(0) == false);
+    test(cv.isCutVertex(1) == true);
+    test(cv.isCutVertex(2) == true);
+    test(cv.isCutVertex(3) == false);
+    test(cv.isCutVertex(4) == false);
 }
 
 int main()
