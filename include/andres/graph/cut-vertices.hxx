@@ -4,22 +4,25 @@
 
 #include <stack>
 #include <vector>
-#include "andres/graph/complete-graph.hxx"
 #include "andres/graph/subgraph.hxx"
-#include "andres/graph/detail/cut-vertices.hxx"
 
 
 namespace andres {
 namespace graph {
 
+// Hopcroft-Tarjan Algorithm to find cut vertices in an undirected graph
+// 
+// Hopcroft J. and Tarjan R. (1973). Efficient algorithms for graph manipulation
+// Communications of the ACM 16 (6): 372–378
+// 
 template<class GRAPH>
-struct CutVerticesBuffers {
+struct CutVerticesBuffers
+{
     typedef GRAPH GraphType;
 
     CutVerticesBuffers(const GraphType&);
 
     std::vector<std::size_t> depth_;
-    std::vector<char> is_cut_vertex_;
     std::vector<std::size_t> min_successor_depth_;
     std::vector<typename GraphType::VertexIterator> next_out_arc_;
     std::vector<int> parent_;
@@ -27,62 +30,56 @@ struct CutVerticesBuffers {
 };
 
 template<typename GRAPH>
-class CutVertices
-{
-public:
-    typedef GRAPH GraphType;
-    typedef CutVerticesBuffers<GraphType> CutVerticesBuffersType;
+inline void
+findCutVertices(
+    const GRAPH& graph,
+    std::vector<char>& isCutVertex
+);
 
-    
-    CutVertices(const GraphType&);
-    CutVertices(const GraphType&, CutVerticesBuffersType&);
-    ~CutVertices();
-    
+template<typename GRAPH>
+inline void
+findCutVertices(
+    const GRAPH& graph,
+    std::vector<char>& isCutVertex,
+    CutVerticesBuffers<GRAPH>& buffer
+);
 
-    bool isCutVertex(std::size_t) const;
-    
-    void run();
+template<typename GRAPH, typename SUBGRAPH>
+inline void
+findCutVertices(
+    const GRAPH& graph,
+    const SUBGRAPH& subgraph_mask,
+    std::vector<char>& isCutVertex
+);
 
-    template<typename SUBGRAPH_MASK>
-    void run(const SUBGRAPH_MASK&);
+template<typename GRAPH, typename SUBGRAPH>
+inline void
+findCutVertices(
+    const GRAPH& graph,
+    const SUBGRAPH& subgraph_mask,
+    std::vector<char>& isCutVertex,
+    CutVerticesBuffers<GRAPH>& buffer
+);
 
-    template<typename SUBGRAPH_MASK>
-    void run(const SUBGRAPH_MASK&, std::size_t);
+template<typename GRAPH, typename SUBGRAPH>
+inline void
+findCutVertices(
+    const GRAPH& graph,
+    const SUBGRAPH& subgraph_mask,
+    std::size_t starting_vertex,
+    std::vector<char>& isCutVertex
+);
 
-private:
-    CutVerticesBuffersType* buffer_;
-    bool delete_buffer_;
-    const GraphType& graph_;
-};
+template<typename GRAPH, typename SUBGRAPH>
+inline void
+findCutVertices(
+    const GRAPH& graph,
+    const SUBGRAPH& subgraph_mask,
+    std::size_t starting_vertex,
+    std::vector<char>& isCutVertex,
+    CutVerticesBuffers<GRAPH>& buffer
+);
 
-template<typename GraphVisitor>
-class CutVertices<CompleteGraph<GraphVisitor>>
-{
-public:
-    typedef CompleteGraph<GraphVisitor> GraphType;
-    typedef CutVerticesBuffers<GraphType> CutVerticesBuffersType;
-
-    
-    CutVertices(const GraphType&);
-    CutVertices(const GraphType&, CutVerticesBuffersType&);
-    ~CutVertices();
-    
-
-    bool isCutVertex(std::size_t) const;
-    
-    void run();
-
-    template<typename SUBGRAPH_MASK>
-    void run(const SUBGRAPH_MASK&);
-
-    template<typename SUBGRAPH_MASK>
-    void run(const SUBGRAPH_MASK&, std::size_t);
-
-private:
-    CutVerticesBuffersType* buffer_;
-    bool delete_buffer_;
-    const GraphType& graph_;
-};
 
 
 
@@ -90,141 +87,157 @@ private:
 template<typename GRAPH>
 CutVerticesBuffers<GRAPH>::CutVerticesBuffers(const GraphType& graph) :
     depth_(graph.numberOfVertices()),
-    is_cut_vertex_(graph.numberOfVertices()),
     min_successor_depth_(graph.numberOfVertices()),
     next_out_arc_(graph.numberOfVertices()),
     parent_(graph.numberOfVertices()),
     visited_(graph.numberOfVertices())
 {}
 
-
-
-
-
 template<typename GRAPH>
-inline
-CutVertices<GRAPH>::CutVertices(const GraphType& graph) :
-    buffer_(new CutVerticesBuffersType(graph)),
-    delete_buffer_(true),
-    graph_(graph)
-{}
-
-template<typename GRAPH>
-inline
-CutVertices<GRAPH>::CutVertices(const GraphType& graph, CutVerticesBuffersType& buffer) :  
-    buffer_(&buffer),
-    delete_buffer_(false),
-    graph_(graph)
-{}
-
-template<typename GRAPH>
-inline
-CutVertices<GRAPH>::~CutVertices()
+inline void
+findCutVertices(
+    const GRAPH& graph,
+    std::vector<char>& isCutVertex
+)
 {
-    if(delete_buffer_)
-        delete buffer_;
+    auto buffer = CutVerticesBuffers<GRAPH>(graph);
+    findCutVertices(graph, DefaultSubgraphMask<>(), isCutVertex, buffer);
 }
 
 template<typename GRAPH>
-inline
-bool CutVertices<GRAPH>::isCutVertex(std::size_t vertex_index) const
+inline void
+findCutVertices(
+    const GRAPH& graph,
+    std::vector<char>& isCutVertex,
+    CutVerticesBuffers<GRAPH>& buffer
+)
 {
-    return static_cast<bool>(buffer_->is_cut_vertex_[vertex_index]);
+    findCutVertices(graph, DefaultSubgraphMask<>(), isCutVertex, buffer);
 }
 
-template<typename GRAPH>
-inline
-void CutVertices<GRAPH>::run()
+template<typename GRAPH, typename SUBGRAPH>
+inline void
+findCutVertices(
+    const GRAPH& graph,
+    const SUBGRAPH& subgraph_mask,
+    std::vector<char>& isCutVertex
+)
 {
-    run(DefaultSubgraphMask<>());
+    auto buffer = CutVerticesBuffers<GRAPH>(graph);
+    findCutVertices(graph, subgraph_mask, isCutVertex, buffer);
 }
 
-template<typename GRAPH>
-template<typename SUBGRAPH_MASK>
-inline
-void CutVertices<GRAPH>::run(const SUBGRAPH_MASK& subgraph_mask)
+template<typename GRAPH, typename SUBGRAPH>
+inline void
+findCutVertices(
+    const GRAPH& graph,
+    const SUBGRAPH& subgraph_mask,
+    std::vector<char>& isCutVertex,
+    CutVerticesBuffers<GRAPH>& buffer
+)
 {
-    std::fill(buffer_->parent_.begin(), buffer_->parent_.end(), -2);
+    std::fill(buffer.parent_.begin(), buffer.parent_.end(), -2);
 
-    for (std::size_t i = 0; i < graph_.numberOfVertices(); ++i)
-        if (buffer_->parent_[i] == -2 && subgraph_mask.vertex(i))
-            run(subgraph_mask, i);
+    for (std::size_t i = 0; i < graph.numberOfVertices(); ++i)
+        if (buffer.parent_[i] == -2 && subgraph_mask.vertex(i))
+            findCutVertices(graph, subgraph_mask, i, isCutVertex, buffer);
 }
 
-template<typename GRAPH>
-template<typename SUBGRAPH_MASK>
-inline
-void CutVertices<GRAPH>::run(const SUBGRAPH_MASK& subgraph_mask, std::size_t starting_vertex)
+template<typename GRAPH, typename SUBGRAPH>
+inline void
+findCutVertices(
+    const GRAPH& graph,
+    const SUBGRAPH& subgraph_mask,
+    std::size_t starting_vertex,
+    std::vector<char>& isCutVertex
+)
 {
-    detail::find_cut_vertices(graph_, subgraph_mask, starting_vertex, *buffer_);
+    auto buffer = CutVerticesBuffers<GRAPH>(graph);
+    findCutVertices(graph, subgraph_mask, starting_vertex, isCutVertex, buffer);
 }
 
-
-
-
-
-
-
-template<typename GraphVisitor>
-inline
-CutVertices<CompleteGraph<GraphVisitor>>::CutVertices(const GraphType& graph) :
-    buffer_(new CutVerticesBuffersType(graph)),
-    delete_buffer_(true),
-    graph_(graph)
-{}
-
-template<typename GraphVisitor>
-inline
-CutVertices<CompleteGraph<GraphVisitor>>::CutVertices(const GraphType& graph, CutVerticesBuffersType& buffer) :  
-    buffer_(&buffer),
-    delete_buffer_(false),
-    graph_(graph)
-{}
-
-template<typename GraphVisitor>
-inline
-CutVertices<CompleteGraph<GraphVisitor>>::~CutVertices()
+template<typename GRAPH, typename SUBGRAPH>
+inline void
+findCutVertices(
+    const GRAPH& graph,
+    const SUBGRAPH& subgraph_mask,
+    std::size_t starting_vertex,
+    std::vector<char>& isCutVertex,
+    CutVerticesBuffers<GRAPH>& buffer
+)
 {
-    if(delete_buffer_)
-        delete buffer_;
+    std::fill(buffer.visited_.begin(), buffer.visited_.end(), 0);
+
+    std::stack<std::size_t> S;
+
+    S.push(starting_vertex);
+    buffer.depth_[starting_vertex] = 0;
+    buffer.parent_[starting_vertex] = -1;
+
+    while (!S.empty())
+    {
+        auto v = S.top();
+        S.pop();
+
+        if (!buffer.visited_[v])
+        {
+            buffer.visited_[v] = 1;
+            isCutVertex[v] = 0;
+            buffer.next_out_arc_[v] = graph.verticesFromVertexBegin(v);
+            buffer.min_successor_depth_[v] = buffer.depth_[v];
+        }
+        else
+        {
+            auto to = *buffer.next_out_arc_[v];
+
+            if (buffer.min_successor_depth_[to] >= buffer.depth_[v] && v != starting_vertex)
+                isCutVertex[v] = 1;
+
+            buffer.min_successor_depth_[v] = std::min(buffer.min_successor_depth_[v], buffer.min_successor_depth_[to]);
+            ++buffer.next_out_arc_[v];
+        }
+
+        while (buffer.next_out_arc_[v] != graph.verticesFromVertexEnd(v))
+        {
+            typename GRAPH::EdgeIterator e = graph.edgesFromVertexBegin(v) + (buffer.next_out_arc_[v] - graph.verticesFromVertexBegin(v));
+
+            if (
+                !subgraph_mask.vertex(*buffer.next_out_arc_[v]) ||
+                !subgraph_mask.edge(*e)
+                )
+            {
+                ++buffer.next_out_arc_[v];
+                continue;
+            }
+
+            auto to = *buffer.next_out_arc_[v];
+            if (buffer.visited_[to])
+            {
+                if(buffer.parent_[v] != to)
+                    buffer.min_successor_depth_[v] = std::min(buffer.min_successor_depth_[v], buffer.depth_[to]);
+
+                ++buffer.next_out_arc_[v];
+            }
+            else
+            {
+                S.push(v);
+                S.push(to);
+                buffer.parent_[to] = v;
+                buffer.depth_[to] = buffer.depth_[v] + 1;
+                break;
+            }
+        }
+    }
+
+    std::size_t root_child_count = 0;
+    for (auto to = graph.verticesFromVertexBegin(starting_vertex); to != graph.verticesFromVertexEnd(starting_vertex); ++to)
+        if(buffer.parent_[*to] == starting_vertex)
+            ++root_child_count;
+        
+    if(root_child_count >= 2)
+        isCutVertex[starting_vertex] = 1;
 }
 
-template<typename GraphVisitor>
-inline
-bool CutVertices<CompleteGraph<GraphVisitor>>::isCutVertex(std::size_t vertex_index) const
-{
-    return static_cast<bool>(buffer_->is_cut_vertex_[vertex_index]);
-}
-
-template<typename GraphVisitor>
-inline
-void CutVertices<CompleteGraph<GraphVisitor>>::run()
-{
-    std::fill(buffer_->is_cut_vertex_.begin(), buffer_->is_cut_vertex_.end(), 0);
-}
-
-template<typename GraphVisitor>
-template<typename SUBGRAPH_MASK>
-inline
-void CutVertices<CompleteGraph<GraphVisitor>>::run(const SUBGRAPH_MASK& subgraph_mask)
-{
-    std::fill(buffer_->parent_.begin(), buffer_->parent_.end(), -2);
-
-    for (std::size_t i = 0; i < graph_.numberOfVertices(); ++i)
-        if (buffer_->parent_[i] == -2 && subgraph_mask.vertex(i))
-            run(subgraph_mask, i);
-}
-
-template<typename GraphVisitor>
-template<typename SUBGRAPH_MASK>
-inline
-void CutVertices<CompleteGraph<GraphVisitor>>::run(const SUBGRAPH_MASK& subgraph_mask, std::size_t starting_vertex)
-{
-    detail::find_cut_vertices(graph_, subgraph_mask, starting_vertex, *buffer_);
-}
-
-
 }
 }
-
 #endif

@@ -23,17 +23,17 @@ void test()
     graph.insertEdge(4, 6);
     graph.insertEdge(5, 6);
 
-    CutVertices<decltype(graph)> cv(graph);
-    cv.run();
+    std::vector<char> isCutVertex(graph.numberOfVertices());
+    findCutVertices(graph, isCutVertex);
 
-    test(cv.isCutVertex(0) == true);
-    test(cv.isCutVertex(1) == true);
-    test(cv.isCutVertex(2) == true);
-    test(cv.isCutVertex(3) == false);
-    test(cv.isCutVertex(4) == false);
-    test(cv.isCutVertex(5) == false);
-    test(cv.isCutVertex(6) == false);
-    test(cv.isCutVertex(7) == false);
+    test(isCutVertex[0] == true);
+    test(isCutVertex[1] == true);
+    test(isCutVertex[2] == true);
+    test(isCutVertex[3] == false);
+    test(isCutVertex[4] == false);
+    test(isCutVertex[5] == false);
+    test(isCutVertex[6] == false);
+    test(isCutVertex[7] == false);
 
 
     struct mask
@@ -49,29 +49,29 @@ void test()
         }
     };
 
-    cv.run(mask());
+    findCutVertices(graph, mask(), isCutVertex);
 
-    test(cv.isCutVertex(0) == true);
-    test(cv.isCutVertex(1) == true);
-    test(cv.isCutVertex(2) == false);
-    test(cv.isCutVertex(3) == false);
-    test(cv.isCutVertex(4) == false);
-    test(cv.isCutVertex(5) == false);
-    test(cv.isCutVertex(6) == false);
+    test(isCutVertex[0] == true);
+    test(isCutVertex[1] == true);
+    test(isCutVertex[2] == false);
+    test(isCutVertex[3] == false);
+    test(isCutVertex[4] == false);
+    test(isCutVertex[5] == false);
+    test(isCutVertex[6] == false);
 }
 
 void testCompleteGraph()
 {
     CompleteGraph<> graph(5);
 
-    CutVertices<decltype(graph)> cv(graph);
-    cv.run();
+    std::vector<char> isCutVertex(graph.numberOfVertices());
+    findCutVertices(graph, isCutVertex);
 
-    test(cv.isCutVertex(0) == false);
-    test(cv.isCutVertex(1) == false);
-    test(cv.isCutVertex(2) == false);
-    test(cv.isCutVertex(3) == false);
-    test(cv.isCutVertex(4) == false);
+    test(isCutVertex[0] == false);
+    test(isCutVertex[1] == false);
+    test(isCutVertex[2] == false);
+    test(isCutVertex[3] == false);
+    test(isCutVertex[4] == false);
 
     struct mask
     {
@@ -86,16 +86,13 @@ void testCompleteGraph()
         }
     };
 
-    std::cout << graph.findEdge(1, 3).second << std::endl;
-    std::cout << graph.findEdge(1, 4).second << std::endl;
+    findCutVertices(graph, mask(), isCutVertex);
 
-    cv.run(mask());
-
-    test(cv.isCutVertex(0) == false);
-    test(cv.isCutVertex(1) == true);
-    test(cv.isCutVertex(2) == true);
-    test(cv.isCutVertex(3) == false);
-    test(cv.isCutVertex(4) == false);
+    test(isCutVertex[0] == false);
+    test(isCutVertex[1] == true);
+    test(isCutVertex[2] == true);
+    test(isCutVertex[3] == false);
+    test(isCutVertex[4] == false);
 }
 
 int main()

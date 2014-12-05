@@ -23,16 +23,16 @@ void test()
     graph.insertEdge(4, 6); // 5
     graph.insertEdge(5, 6); // 6
 
-    Bridges<decltype(graph)> br(graph);
-    br.run();
+    std::vector<char> isBridge(graph.numberOfEdges());
+    findBridges(graph, isBridge);
 
-    test(br.isBridge(0) == true);
-    test(br.isBridge(1) == true);
-    test(br.isBridge(2) == true);
-    test(br.isBridge(3) == false);
-    test(br.isBridge(4) == false);
-    test(br.isBridge(5) == false);
-    test(br.isBridge(6) == false);
+    test(isBridge[0] == true);
+    test(isBridge[1] == true);
+    test(isBridge[2] == true);
+    test(isBridge[3] == false);
+    test(isBridge[4] == false);
+    test(isBridge[5] == false);
+    test(isBridge[6] == false);
 
 
     struct mask
@@ -48,34 +48,34 @@ void test()
         }
     };
     
-    br.run(mask());
+    findBridges(graph, mask(), isBridge);
 
-    test(br.isBridge(0) == true);
-    test(br.isBridge(1) == true);
-    test(br.isBridge(2) == true);
-    test(br.isBridge(3) == false);
-    test(br.isBridge(4) == true);
-    test(br.isBridge(5) == true);
-    test(br.isBridge(6) == true);
+    test(isBridge[0] == true);
+    test(isBridge[1] == true);
+    test(isBridge[2] == true);
+    test(isBridge[3] == false);
+    test(isBridge[4] == true);
+    test(isBridge[5] == true);
+    test(isBridge[6] == true);
 }
 
 void testCompleteGraph()
 {
     CompleteGraph<> graph(5);
 
-    Bridges<decltype(graph)> br(graph);
-    br.run();
+    std::vector<char> isBridge(graph.numberOfEdges());
+    findBridges(graph, isBridge);
 
-    test(br.isBridge(graph.findEdge(0, 1).second) == false);
-    test(br.isBridge(graph.findEdge(0, 2).second) == false);
-    test(br.isBridge(graph.findEdge(0, 3).second) == false);
-    test(br.isBridge(graph.findEdge(0, 4).second) == false);
-    test(br.isBridge(graph.findEdge(1, 2).second) == false);
-    test(br.isBridge(graph.findEdge(1, 3).second) == false);
-    test(br.isBridge(graph.findEdge(1, 4).second) == false);
-    test(br.isBridge(graph.findEdge(2, 3).second) == false);
-    test(br.isBridge(graph.findEdge(2, 4).second) == false);
-    test(br.isBridge(graph.findEdge(3, 4).second) == false);
+    test(isBridge[graph.findEdge(0, 1).second] == false);
+    test(isBridge[graph.findEdge(0, 2).second] == false);
+    test(isBridge[graph.findEdge(0, 3).second] == false);
+    test(isBridge[graph.findEdge(0, 4).second] == false);
+    test(isBridge[graph.findEdge(1, 2).second] == false);
+    test(isBridge[graph.findEdge(1, 3).second] == false);
+    test(isBridge[graph.findEdge(1, 4).second] == false);
+    test(isBridge[graph.findEdge(2, 3).second] == false);
+    test(isBridge[graph.findEdge(2, 4).second] == false);
+    test(isBridge[graph.findEdge(3, 4).second] == false);
 
     struct mask
     {
@@ -90,18 +90,18 @@ void testCompleteGraph()
         }
     };
 
-    br.run(mask());
+    findBridges(graph, mask(), isBridge);
 
-    test(br.isBridge(graph.findEdge(0, 1).second) == true);
-    test(br.isBridge(graph.findEdge(0, 2).second) == false);
-    test(br.isBridge(graph.findEdge(0, 3).second) == false);
-    test(br.isBridge(graph.findEdge(0, 4).second) == false);
-    test(br.isBridge(graph.findEdge(1, 2).second) == false);
-    test(br.isBridge(graph.findEdge(1, 3).second) == false);
-    test(br.isBridge(graph.findEdge(1, 4).second) == false);
-    test(br.isBridge(graph.findEdge(2, 3).second) == false);
-    test(br.isBridge(graph.findEdge(2, 4).second) == false);
-    test(br.isBridge(graph.findEdge(3, 4).second) == false);
+    test(isBridge[graph.findEdge(0, 1).second] == true);
+    test(isBridge[graph.findEdge(0, 2).second] == false);
+    test(isBridge[graph.findEdge(0, 3).second] == false);
+    test(isBridge[graph.findEdge(0, 4).second] == false);
+    test(isBridge[graph.findEdge(1, 2).second] == false);
+    test(isBridge[graph.findEdge(1, 3).second] == false);
+    test(isBridge[graph.findEdge(1, 4).second] == false);
+    test(isBridge[graph.findEdge(2, 3).second] == false);
+    test(isBridge[graph.findEdge(2, 4).second] == false);
+    test(isBridge[graph.findEdge(3, 4).second] == false);
 }
 
 int main()
