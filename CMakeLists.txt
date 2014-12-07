@@ -5,6 +5,7 @@ include_directories(include)
 file(GLOB headers
     include/andres/*.hxx
     include/andres/graph/*.hxx
+    include/andres/graph/hdf5/*.hxx
     include/andres/graph/detail/*.hxx
     include/andres/ilp/*.hxx
 )
@@ -23,6 +24,11 @@ if(OPENMP_FOUND)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
+
+##############################################################################
+# HDF5
+##############################################################################
+find_package(HDF5 1.8.0)
 
 ##############################################################################
 # Gurobi
@@ -102,6 +108,13 @@ if(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
     add_executable(test-graph-minimum-spanning-tree src/andres/graph/unit-test/minimum-spanning-tree.cxx ${headers})
     add_test(test-graph-minimum-spanning-tree test-graph-minimum-spanning-tree)
 endif(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
+
+if(HDF5_FOUND)
+    include_directories(PUBLIC ${HDF5_INCLUDE_DIRS})
+    add_executable(test-hdf src/andres/graph/unit-test/hdf-io.cxx ${headers})
+    target_link_libraries(test-hdf ${HDF5_LIBRARIES})
+    add_test(test-hdf test-hdf)
+endif()
 
 if(CPLEX_FOUND)
     add_executable(test-graph-multicut-cplex src/andres/graph/unit-test/multicut-cplex.cxx ${headers})
