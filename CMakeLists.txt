@@ -92,6 +92,9 @@ if(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
 
     add_executable(test-graph-bridges src/andres/graph/unit-test/bridges.cxx ${headers})
     add_test(test-graph-bridges test-graph-bridges)
+
+    add_executable(test-graph-minimum-spanning-tree src/andres/graph/unit-test/minimum-spanning-tree.cxx ${headers})
+    add_test(test-graph-minimum-spanning-tree test-graph-minimum-spanning-tree)
 endif(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
 
 if(CPLEX_FOUND)
