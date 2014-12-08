@@ -3,7 +3,6 @@
 #include "andres/graph/graph.hxx"
 #include "andres/graph/minimum-spanning-tree.hxx"
 
-
 inline void test(bool pred)
 { 
     if(!pred)
@@ -12,10 +11,9 @@ inline void test(bool pred)
 
 using namespace andres::graph;
 
-void testMulticut()
-{
-    // a simple weighted graph in which an optimal multicut is non-trivial
 
+void testMST()
+{
     Graph<> graph;
     graph.insertVertices(6);
     graph.insertEdge(0, 1); // 0
@@ -58,7 +56,7 @@ void testMulticut()
     test(mst_value == 0);
 }
 
-void testMulticutCompleteGraph()
+void testMSTCompleteGraph()
 {
     CompleteGraph<> graph(5);
     
@@ -99,7 +97,11 @@ void testMulticutCompleteGraph()
 
 int main()
 {
-    testMulticut();
+    f();
+
+    testMST();
+
+    testMSTCompleteGraph();
 
     return 0;
 }
