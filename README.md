@@ -14,7 +14,7 @@ Vertices and edges are always indexed by contiguous integers.
 This indexing simplifies the implementation of algorithms for static graphs.
 In dynamic settings where vertices and edges are removed from a graph,
 indices of vertices and edges can change.
-These changes can be followed, if necessary, by means of a visitor.
+These changes can be followed, if necessary, via callbacks.
 Subgraphs are defined by subgraph masks.
 
 
