@@ -3,13 +3,13 @@ Graphs and Graph Algorithms in C++
 
 Copyright (c) 2014 by Bjoern Andres, http://www.andres.sc/graph
 
-This software was developed by Bjoern Andres, Duligur Ibeling, and Mark Matten.
+This software was developed by Bjoern Andres, Duligur Ibeling, Giannis Kalofolias, Evgeny Levinkov and Mark Matten.
 Enquiries shall be directed to bjoern@andres.sc.
 
 Synopsis
 ------------
 
-This set of header files implements directed and undirected graphs as adjacency lists with constant-time access.
+This set of header files implements directed and undirected graphs as adjacency lists with constant-time random access to neighboring vertices and incident edges.
 Vertices and edges are always indexed by contiguous integers.
 This indexing simplifies the implementation of algorithms for static graphs.
 In dynamic settings where vertices and edges are removed from a graph,
@@ -21,12 +21,18 @@ Subgraphs are defined by subgraph masks.
 Features
 ------------
 
-- Directed and undirected graphs implemented as adjacency lists with constant-time access
-- Access to vertices and edges by contiguous integer indices
-- Access to neighboring vertices and incident edges by STL-compliant random access iterators
+- Graphs and Digraphs, implemented as adjacency lists
+- Constant-time random access to (neighboring) vertices and (incident) edges 
+   - by contiguous integer indices
+   - by STL-compliant random access iterators
 - Insertion and removal of vertices and edges
-- Multiple edges, which are disabled by default, can be enabled
-- Visitors that follow changes of vertex and edge indices
+- Multiple edges between the same pair of vertices (disabled by default)
+- Callbacks for following changes of integer indices of vertices and edges
+- Graph classes
+   - Digraph
+   - Graph
+   - Complete graph
+   - n-dimensional grid graph
 - Graph algorithms
    - Connected components
       * by breadth-first search 
@@ -34,22 +40,28 @@ Features
    - Shortest paths in weighted and unweighted graphs, as sequences of edges or vertices
       * Single source shortest path (SSSP)
       * Single pair shortest path (SPSP)
-   - Maximum s-t-flow
+   - Cut-vertices and cut-edges (bridges)
+   - Minimum spanning trees and minimum spanning forests
+      * Prim's algorithm
+      * Dynamic Programming
+   - Maximum st-flow
       * Push-Relabel Algorithm with FIFO vertex selection rule
       * Edmonds-Karp Algorithm
    - Minimum Cost Multicut 
-      * by interger programming, using Cplex or Gurobi
+      * by integer programming, using Cplex or Gurobi
    - Set Partition
       * by a specialization of Minimum Cost Multicut for complete graphs
 
 
-Contributors
+Developers
 ------------
 
+- Bjoern Andres, bjoern@andres.sc
 - Duligur Ibeling, duligur@gmail.com
-   - Edmonds-Karp Algorithm for computing maximum s-t-flow
+- Giannis Kalofolias, kalofolias@mpi-inf.mpg.de
+- Evgeny Levinkov, levinkov@mpi-inf.mpg.de
 - Mark Matten, markmatten@gmail.com
-   - Push-Relabel Algorithm with FIFO vertex selection rule for computing maximum s-t-flow
+
 
 License
 ------------
