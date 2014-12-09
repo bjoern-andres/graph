@@ -4,17 +4,11 @@
 
 #include <stack>
 #include <vector>
-#include "andres/graph/subgraph.hxx"
-
+#include "subgraph.hxx"
 
 namespace andres {
 namespace graph {
 
-// Hopcroft-Tarjan Algorithm to find cut vertices in an undirected graph
-// 
-// Hopcroft J. and Tarjan R. (1973). Efficient algorithms for graph manipulation
-// Communications of the ACM 16 (6): 372–378
-// 
 template<class GRAPH>
 struct CutVerticesBuffers
 {
@@ -29,60 +23,56 @@ struct CutVerticesBuffers
     std::vector<char> visited_;
 };
 
-template<typename GRAPH>
+template<typename GRAPH, typename ARRAY>
 inline void
 findCutVertices(
-    const GRAPH& graph,
-    std::vector<char>& isCutVertex
+    const GRAPH&,
+    ARRAY&
 );
 
-template<typename GRAPH>
+template<typename GRAPH, typename ARRAY>
 inline void
 findCutVertices(
-    const GRAPH& graph,
-    std::vector<char>& isCutVertex,
-    CutVerticesBuffers<GRAPH>& buffer
+    const GRAPH&,
+    ARRAY&,
+    CutVerticesBuffers<GRAPH>&
 );
 
-template<typename GRAPH, typename SUBGRAPH>
+template<typename GRAPH, typename SUBGRAPH, typename ARRAY>
 inline void
 findCutVertices(
-    const GRAPH& graph,
-    const SUBGRAPH& subgraph_mask,
-    std::vector<char>& isCutVertex
+    const GRAPH&,
+    const SUBGRAPH&,
+    ARRAY&
 );
 
-template<typename GRAPH, typename SUBGRAPH>
+template<typename GRAPH, typename SUBGRAPH, typename ARRAY>
 inline void
 findCutVertices(
-    const GRAPH& graph,
-    const SUBGRAPH& subgraph_mask,
-    std::vector<char>& isCutVertex,
-    CutVerticesBuffers<GRAPH>& buffer
+    const GRAPH&,
+    const SUBGRAPH&,
+    ARRAY&,
+    CutVerticesBuffers<GRAPH>&
 );
 
-template<typename GRAPH, typename SUBGRAPH>
+template<typename GRAPH, typename SUBGRAPH, typename ARRAY>
 inline void
 findCutVertices(
-    const GRAPH& graph,
-    const SUBGRAPH& subgraph_mask,
-    std::size_t starting_vertex,
-    std::vector<char>& isCutVertex
+    const GRAPH&,
+    const SUBGRAPH&,
+    std::size_t,
+    ARRAY&
 );
 
-template<typename GRAPH, typename SUBGRAPH>
+template<typename GRAPH, typename SUBGRAPH, typename ARRAY>
 inline void
 findCutVertices(
-    const GRAPH& graph,
-    const SUBGRAPH& subgraph_mask,
-    std::size_t starting_vertex,
-    std::vector<char>& isCutVertex,
-    CutVerticesBuffers<GRAPH>& buffer
+    const GRAPH&,
+    const SUBGRAPH&,
+    std::size_t,
+    ARRAY&,
+    CutVerticesBuffers<GRAPH>&
 );
-
-
-
-
 
 template<typename GRAPH>
 CutVerticesBuffers<GRAPH>::CutVerticesBuffers(const GraphType& graph) :
@@ -93,46 +83,90 @@ CutVerticesBuffers<GRAPH>::CutVerticesBuffers(const GraphType& graph) :
     visited_(graph.numberOfVertices())
 {}
 
-template<typename GRAPH>
+/// \brief Find, by Hopcroft-Tarjan algorithm, cut vertices (articulation points) in an undirected graph.
+///
+/// Hopcroft J. and Tarjan R. (1973). Efficient algorithms for graph manipulation.
+/// Communications of the ACM 16 (6): 372–378.
+///
+/// Runtime complexity O(|E| + |V|).
+/// 
+/// \param graph An undirected graph.
+/// \param is_cut_vertex Array storing 1 for each vertex-index if it is a cut vertex, or 0 otherwise.
+///
+template<typename GRAPH, typename ARRAY>
 inline void
 findCutVertices(
     const GRAPH& graph,
-    std::vector<char>& isCutVertex
+    ARRAY& is_cut_vertex
 )
 {
     auto buffer = CutVerticesBuffers<GRAPH>(graph);
-    findCutVertices(graph, DefaultSubgraphMask<>(), isCutVertex, buffer);
+    findCutVertices(graph, DefaultSubgraphMask<>(), is_cut_vertex, buffer);
 }
 
-template<typename GRAPH>
+/// \brief Find, by Hopcroft-Tarjan algorithm, cut vertices (articulation points) in an undirected graph.
+///
+/// Hopcroft J. and Tarjan R. (1973). Efficient algorithms for graph manipulation.
+/// Communications of the ACM 16 (6): 372–378.
+///
+/// Runtime complexity O(|E| + |V|).
+/// 
+/// \param graph An undirected graph.
+/// \param is_cut_vertex Array storing 1 for each vertex-index if it is a cut vertex, or 0 otherwise.
+/// \param buffer A pre-allocated buffer object.
+///
+template<typename GRAPH, typename ARRAY>
 inline void
 findCutVertices(
     const GRAPH& graph,
-    std::vector<char>& isCutVertex,
+    ARRAY& is_cut_vertex,
     CutVerticesBuffers<GRAPH>& buffer
 )
 {
-    findCutVertices(graph, DefaultSubgraphMask<>(), isCutVertex, buffer);
+    findCutVertices(graph, DefaultSubgraphMask<>(), is_cut_vertex, buffer);
 }
 
-template<typename GRAPH, typename SUBGRAPH>
+/// \brief Find, by Hopcroft-Tarjan algorithm, cut vertices (articulation points) in a subgraph of an undirected graph.
+///
+/// Hopcroft J. and Tarjan R. (1973). Efficient algorithms for graph manipulation.
+/// Communications of the ACM 16 (6): 372–378.
+///
+/// Runtime complexity O(|E| + |V|).
+/// 
+/// \param graph An undirected graph.
+/// \param subgraph_mask Mask defining the subgraph.
+/// \param is_cut_vertex Array storing 1 for each vertex-index if it is a cut vertex, or 0 otherwise.
+///
+template<typename GRAPH, typename SUBGRAPH, typename ARRAY>
 inline void
 findCutVertices(
     const GRAPH& graph,
     const SUBGRAPH& subgraph_mask,
-    std::vector<char>& isCutVertex
+    ARRAY& is_cut_vertex
 )
 {
     auto buffer = CutVerticesBuffers<GRAPH>(graph);
-    findCutVertices(graph, subgraph_mask, isCutVertex, buffer);
+    findCutVertices(graph, subgraph_mask, is_cut_vertex, buffer);
 }
 
-template<typename GRAPH, typename SUBGRAPH>
+/// \brief Find, by Hopcroft-Tarjan algorithm, cut vertices (articulation points) in a subgraph of an undirected graph.
+///
+/// Hopcroft J. and Tarjan R. (1973). Efficient algorithms for graph manipulation.
+/// Communications of the ACM 16 (6): 372–378.
+///
+/// Runtime complexity O(|E| + |V|).
+/// 
+/// \param graph An undirected graph.
+/// \param subgraph_mask Mask defining the subgraph.
+/// \param is_cut_vertex Array storing 1 for each vertex-index if it is a cut vertex, or 0 otherwise.
+/// \param buffer A pre-allocated buffer object.
+///
+template<typename GRAPH, typename SUBGRAPH, typename ARRAY>
 inline void
 findCutVertices(
     const GRAPH& graph,
     const SUBGRAPH& subgraph_mask,
-    std::vector<char>& isCutVertex,
+    ARRAY& is_cut_vertex,
     CutVerticesBuffers<GRAPH>& buffer
 )
 {
@@ -140,29 +174,54 @@ findCutVertices(
 
     for (std::size_t i = 0; i < graph.numberOfVertices(); ++i)
         if (buffer.parent_[i] == -2 && subgraph_mask.vertex(i))
-            findCutVertices(graph, subgraph_mask, i, isCutVertex, buffer);
+            findCutVertices(graph, subgraph_mask, i, is_cut_vertex, buffer);
 }
 
-template<typename GRAPH, typename SUBGRAPH>
+/// \brief Find, by Hopcroft-Tarjan algorithm, cut vertices (articulation points) in a subgraph of an undirected graph containing a vertex.
+///
+/// Hopcroft J. and Tarjan R. (1973). Efficient algorithms for graph manipulation.
+/// Communications of the ACM 16 (6): 372–378.
+///
+/// Runtime complexity O(|E| + |V|).
+/// 
+/// \param graph An undirected graph.
+/// \param subgraph_mask Mask defining the subgraph.
+/// \param starting_vertex A vertex inside the subgraph.
+/// \param is_cut_vertex Array storing 1 for each vertex-index if it is a cut vertex, or 0 otherwise.
+///
+template<typename GRAPH, typename SUBGRAPH, typename ARRAY>
 inline void
 findCutVertices(
     const GRAPH& graph,
     const SUBGRAPH& subgraph_mask,
     std::size_t starting_vertex,
-    std::vector<char>& isCutVertex
+    ARRAY& is_cut_vertex
 )
 {
     auto buffer = CutVerticesBuffers<GRAPH>(graph);
-    findCutVertices(graph, subgraph_mask, starting_vertex, isCutVertex, buffer);
+    findCutVertices(graph, subgraph_mask, starting_vertex, is_cut_vertex, buffer);
 }
 
-template<typename GRAPH, typename SUBGRAPH>
+/// \brief Find, by Hopcroft-Tarjan algorithm, cut vertices (articulation points) in a subgraph of an undirected graph containing a vertex.
+///
+/// Hopcroft J. and Tarjan R. (1973). Efficient algorithms for graph manipulation.
+/// Communications of the ACM 16 (6): 372–378.
+///
+/// Runtime complexity O(|E| + |V|).
+/// 
+/// \param graph An undirected graph.
+/// \param subgraph_mask Mask defining the subgraph.
+/// \param starting_vertex A vertex inside the subgraph.
+/// \param is_cut_vertex Array storing 1 for each vertex-index if it is a cut vertex, or 0 otherwise.
+/// \param buffer A pre-allocated buffer object.
+///
+template<typename GRAPH, typename SUBGRAPH, typename ARRAY>
 inline void
 findCutVertices(
     const GRAPH& graph,
     const SUBGRAPH& subgraph_mask,
     std::size_t starting_vertex,
-    std::vector<char>& isCutVertex,
+    ARRAY& is_cut_vertex,
     CutVerticesBuffers<GRAPH>& buffer
 )
 {
@@ -182,7 +241,7 @@ findCutVertices(
         if (!buffer.visited_[v])
         {
             buffer.visited_[v] = 1;
-            isCutVertex[v] = 0;
+            is_cut_vertex[v] = 0;
             buffer.next_out_arc_[v] = graph.verticesFromVertexBegin(v);
             buffer.min_successor_depth_[v] = buffer.depth_[v];
         }
@@ -191,7 +250,7 @@ findCutVertices(
             auto to = *buffer.next_out_arc_[v];
 
             if (buffer.min_successor_depth_[to] >= buffer.depth_[v] && v != starting_vertex)
-                isCutVertex[v] = 1;
+                is_cut_vertex[v] = 1;
 
             buffer.min_successor_depth_[v] = std::min(buffer.min_successor_depth_[v], buffer.min_successor_depth_[to]);
             ++buffer.next_out_arc_[v];
@@ -235,7 +294,7 @@ findCutVertices(
             ++root_child_count;
         
     if(root_child_count >= 2)
-        isCutVertex[starting_vertex] = 1;
+        is_cut_vertex[starting_vertex] = 1;
 }
 
 }
