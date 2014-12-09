@@ -34,24 +34,20 @@ void testMST()
     weights[6] = 5;
 
     std::vector<std::size_t> pred(graph.numberOfVertices());
-    auto mst_value = findMSTSparseGraph(graph, weights, pred);
+    auto mst_value = findMSTPrim(graph, weights, pred);
 
     test(mst_value == -25);
 
     struct mask
     {
         constexpr bool vertex(std::size_t i) const
-        {
-            return true;
-        }
+            { return true; }
 
         bool edge(std::size_t i) const
-        {
-            return !(i == 1);
-        }
+            { return !(i == 1); }
     };
 
-    mst_value = findMSTSparseGraph(graph, weights, mask(), pred);
+    mst_value = findMSTPrim(graph, weights, mask(), pred);
 
     test(mst_value == 0);
 }
@@ -73,32 +69,26 @@ void testMSTCompleteGraph()
     weights[graph.findEdge(3, 4).second] = 10;
 
     std::vector<std::size_t> pred(graph.numberOfVertices());
-    auto mst_value = findMSTDenseGraph(graph, weights, pred);
+    auto mst_value = findMSTDynamicProgramming(graph, weights, pred);
 
     test(mst_value == -4);
 
     struct mask
     {
         constexpr bool vertex(std::size_t i) const
-        {
-            return true;
-        }
+            { return true; }
 
         bool edge(std::size_t i) const
-        {
-            return !(i == 5);
-        }
+            { return !(i == 5); }
     };
 
-    mst_value = findMSTDenseGraph(graph, weights, mask(), pred);
+    mst_value = findMSTDynamicProgramming(graph, weights, mask(), pred);
 
     test(mst_value == 1);
 }
 
 int main()
 {
-    f();
-
     testMST();
 
     testMSTCompleteGraph();

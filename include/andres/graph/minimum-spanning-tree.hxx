@@ -5,77 +5,156 @@
 #include <queue>
 #include <stdexcept>
 #include <vector>
-#include "subgraph.hxx"
-#include "detail/do_nothing_functor.hxx"
 
+#include "andres/functional.hxx"
+#include "subgraph.hxx"
 
 namespace andres {
 namespace graph {
 
-// Prim's algorithm to find a minimum spanning tree (forest) in an undirected graph
-// 
-// Robert C. Prim. (1957). Shortest connection networks and some generalizations
-// Bell System Technical Journal, 36, pp. 1389–1401
-// 
-// Algorithm for sparse graphs has O(|E|log|V|) running time
-// 
-// A dynamic programming version for dense graphs has O(|V|^2) running time
-//
-template<typename GRAPH, typename ECA, typename PRED, typename FUNC = detail::do_nothing<typename ECA::value_type>>
-inline 
-typename ECA::value_type findMSTSparseGraph(const GRAPH& graph, const ECA& edge_weights, PRED& predecessor, const FUNC& f = FUNC());
+template<typename GRAPH, typename ECA, typename PRED, typename FUNC = Identity<typename ECA::value_type>>
+inline typename ECA::value_type 
+findMSTPrim(
+    const GRAPH&, 
+    const ECA&, 
+    PRED&, 
+    const FUNC& = FUNC()
+);
 
-template<typename GRAPH, typename ECA, typename SUBGRAPH, typename PRED, typename FUNC = detail::do_nothing<typename ECA::value_type>>
-inline
-typename ECA::value_type findMSTSparseGraph(const GRAPH& graph, const ECA& edge_weights, const SUBGRAPH& subgraph_mask, PRED& predecessor, const FUNC& f = FUNC());
+template<typename GRAPH, typename ECA, typename SUBGRAPH, typename PRED, typename FUNC = Identity<typename ECA::value_type>>
+inline typename ECA::value_type 
+findMSTPrim(
+    const GRAPH&, 
+    const ECA&, 
+    const SUBGRAPH&, 
+    PRED&, 
+    const FUNC& = FUNC()
+);
 
-template<typename GRAPH, typename ECA, typename SUBGRAPH, typename PRED, typename FUNC = detail::do_nothing<typename ECA::value_type>>
-inline
-typename ECA::value_type findMSTSparseGraph(const GRAPH& graph, const ECA& edge_weights, const SUBGRAPH& subgraph_mask, std::size_t starting_vertex, PRED& predecessor, const FUNC& f = FUNC());
+template<typename GRAPH, typename ECA, typename SUBGRAPH, typename PRED, typename FUNC = Identity<typename ECA::value_type>>
+inline typename ECA::value_type 
+findMSTPrim(
+    const GRAPH&, 
+    const ECA&, 
+    const SUBGRAPH&, 
+    std::size_t, 
+    PRED&, 
+    const FUNC& = FUNC()
+);
 
-template<typename GRAPH, typename ECA, typename PRED, typename FUNC = detail::do_nothing<typename ECA::value_type>>
-inline 
-typename ECA::value_type findMSTDenseGraph(const GRAPH& graph, const ECA& edge_weights, PRED& predecessor, const FUNC& f = FUNC());
+template<typename GRAPH, typename ECA, typename PRED, typename FUNC = Identity<typename ECA::value_type>>
+inline typename ECA::value_type 
+findMSTDynamicProgramming(
+    const GRAPH&, 
+    const ECA&, 
+    PRED&, 
+    const FUNC& = FUNC()
+);
 
-template<typename GRAPH, typename ECA, typename SUBGRAPH, typename PRED, typename FUNC = detail::do_nothing<typename ECA::value_type>>
-inline
-typename ECA::value_type findMSTDenseGraph(const GRAPH& graph, const ECA& edge_weights, const SUBGRAPH& subgraph_mask, PRED& predecessor, const FUNC& f = FUNC());
+template<typename GRAPH, typename ECA, typename SUBGRAPH, typename PRED, typename FUNC = Identity<typename ECA::value_type>>
+inline typename ECA::value_type 
+findMSTDynamicProgramming(
+    const GRAPH&, 
+    const ECA&, 
+    const SUBGRAPH&, 
+    PRED&, 
+    const FUNC& = FUNC()
+);
 
-template<typename GRAPH, typename ECA, typename SUBGRAPH, typename PRED, typename FUNC = detail::do_nothing<typename ECA::value_type>>
-inline
-typename ECA::value_type findMSTDenseGraph(const GRAPH& graph, const ECA& edge_weights, const SUBGRAPH& subgraph_mask, std::size_t starting_vertex, PRED& predecessor, const FUNC& f = FUNC());
+template<typename GRAPH, typename ECA, typename SUBGRAPH, typename PRED, typename FUNC = Identity<typename ECA::value_type>>
+inline typename ECA::value_type 
+findMSTDynamicProgramming(
+    const GRAPH&, 
+    const ECA&, 
+    const SUBGRAPH&, 
+    std::size_t, 
+    PRED&, 
+    const FUNC& = FUNC()
+);
 
-
-
-
-
-
+/// \brief Find, by Prim's algorithm, the minimum spanning forest of an undirected graph.
+///
+/// Robert C. Prim. (1957). Shortest connection networks and some generalizations.
+/// Bell System Technical Journal, 36, pp. 1389–1401.
+///
+/// Runtime complexity O(|E|log|V|).
+/// 
+/// \param graph An undirected graph.
+/// \param edge_weights Edge weights.
+/// \param predecessor Vector storing, for each vertex, the index of the edge connecting this vertex to the MST, or graph.numberOfEdges(), for the root of the MST.
+/// \param f Functor transforming edge weights.
+///
 template<typename GRAPH, typename ECA, typename PRED, typename FUNC>
-inline 
-typename ECA::value_type findMSTSparseGraph(const GRAPH& graph, const ECA& edge_weights, PRED& predecessor, const FUNC& f)
+inline typename ECA::value_type 
+findMSTPrim(
+    const GRAPH& graph, 
+    const ECA& edge_weights, 
+    PRED& predecessor, 
+    const FUNC& f
+) 
 {
-    return findMSTSparseGraph(graph, edge_weights, DefaultSubgraphMask<>(), predecessor, f);
+    return findMSTPrim(graph, edge_weights, DefaultSubgraphMask<>(), predecessor, f);
 }
 
+/// \brief Find, by Prim's algorithm, the minimum spanning forest of a subgraph of an undirected graph.
+///
+/// Robert C. Prim. (1957). Shortest connection networks and some generalizations.
+/// Bell System Technical Journal, 36, pp. 1389–1401.
+///
+/// Runtime complexity O(|E|log|V|).
+///
+/// \param graph An undirected graph.
+/// \param edge_weights Edge weights.
+/// \param subgraph_mask Mask defining the subgraph.
+/// \param predecessor Vector storing, for each vertex, the index of the edge connecting this vertex to the MST, or graph.numberOfEdges(), for the root of the MST.
+/// \param f Functor transforming edge weights.
+///
 template<typename GRAPH, typename ECA, typename SUBGRAPH, typename PRED, typename FUNC>
-inline
-typename ECA::value_type findMSTSparseGraph(const GRAPH& graph, const ECA& edge_weights, const SUBGRAPH& subgraph_mask, PRED& predecessor, const FUNC& f)
+inline typename ECA::value_type 
+findMSTPrim(
+    const GRAPH& graph, 
+    const ECA& edge_weights, 
+    const SUBGRAPH& subgraph_mask, 
+    PRED& predecessor, 
+    const FUNC& f
+) 
 {
     typedef typename ECA::value_type value_type;
 
-    std::fill(predecessor.begin(), predecessor.end(), graph.numberOfEdges());
+    std::fill(std::begin(predecessor), std::end(predecessor), graph.numberOfEdges());
 
     value_type mst_value = value_type();
     for (std::size_t i = 0; i < graph.numberOfVertices(); ++i)
         if (predecessor[i] == graph.numberOfEdges() && subgraph_mask.vertex(i))
-            mst_value += findMSTSparseGraph(graph, edge_weights, subgraph_mask, i, predecessor, f);
+            mst_value += findMSTPrim(graph, edge_weights, subgraph_mask, i, predecessor, f);
 
     return mst_value;
 }
 
+/// \brief Find, by Prim's algorithm, the MST of the component of a subgraph of an undirected graph containing a (root) vertex.
+///
+/// Robert C. Prim. (1957). Shortest connection networks and some generalizations.
+/// Bell System Technical Journal, 36, pp. 1389–1401.
+///
+/// Runtime complexity O(|E|log|V|).
+///
+/// \param graph An undirected graph.
+/// \param edge_weights Edge weights.
+/// \param subgraph_mask Mask defining the subgraph.
+/// \param starting_vertex Root vertex of the MST. 
+/// \param predecessor Vector storing, for each vertex, the index of the edge connecting this vertex to the MST, or graph.numberOfEdges(), for the root of the MST.
+/// \param f Functor transforming edge weights.
+///
 template<typename GRAPH, typename ECA, typename SUBGRAPH, typename PRED, typename FUNC>
-inline
-typename ECA::value_type findMSTSparseGraph(const GRAPH& graph, const ECA& edge_weights, const SUBGRAPH& subgraph_mask, std::size_t starting_vertex, PRED& predecessor, const FUNC& f)
+inline typename ECA::value_type 
+findMSTPrim(
+    const GRAPH& graph, 
+    const ECA& edge_weights, 
+    const SUBGRAPH& subgraph_mask, 
+    std::size_t starting_vertex, 
+    PRED& predecessor, 
+    const FUNC& f
+)
 {
     typedef typename ECA::value_type value_type;
 
@@ -134,36 +213,80 @@ typename ECA::value_type findMSTSparseGraph(const GRAPH& graph, const ECA& edge_
     return mst_value;
 }
 
-
-
-
-
+/// \brief Find, by dynamic programming, the minimum spanning forest of an undirected graph.
+///
+/// Runtime complexity O(|V|^2).
+///
+/// \param graph An undirected graph.
+/// \param edge_weights Edge weights.
+/// \param predecessor Vector storing, for each vertex, the index of the edge connecting this vertex to the MST, or graph.numberOfEdges(), for the root of the MST.
+/// \param f Functor transforming edge weights.
+///
 template<typename GRAPH, typename ECA, typename PRED, typename FUNC>
-inline 
-typename ECA::value_type findMSTDenseGraph(const GRAPH& graph, const ECA& edge_weights, PRED& predecessor, const FUNC& f)
+inline typename ECA::value_type 
+findMSTDynamicProgramming(
+    const GRAPH& graph, 
+    const ECA& edge_weights, 
+    PRED& predecessor, 
+    const FUNC& f
+)
 {
-    return findMSTDenseGraph(graph, edge_weights, DefaultSubgraphMask<>(), predecessor, f);
+    return findMSTDynamicProgramming(graph, edge_weights, DefaultSubgraphMask<>(), predecessor, f);
 }
 
+/// \brief Find, by Prim's algorithm, the minimum spanning forest of a subgraph of an undirected graph.
+///
+/// Runtime complexity O(|V|^2).
+///
+/// \param graph An undirected graph.
+/// \param edge_weights Edge weights.
+/// \param subgraph_mask Mask defining the subgraph.
+/// \param predecessor Vector storing, for each vertex, the index of the edge connecting this vertex to the MST, or graph.numberOfEdges(), for the root of the MST.
+/// \param f Functor transforming edge weights.
+///
 template<typename GRAPH, typename ECA, typename SUBGRAPH, typename PRED, typename FUNC>
-inline
-typename ECA::value_type findMSTDenseGraph(const GRAPH& graph, const ECA& edge_weights, const SUBGRAPH& subgraph_mask, PRED& predecessor, const FUNC& f)
+inline typename ECA::value_type 
+findMSTDynamicProgramming(
+    const GRAPH& graph, 
+    const ECA& edge_weights, 
+    const SUBGRAPH& subgraph_mask, 
+    PRED& predecessor, 
+    const FUNC& f
+)
 {
     typedef typename ECA::value_type value_type;
 
-    std::fill(predecessor.begin(), predecessor.end(), graph.numberOfEdges());
+    std::fill(std::begin(predecessor), std::end(predecessor), graph.numberOfEdges());
 
     value_type mst_value = value_type();
     for (std::size_t i = 0; i < graph.numberOfVertices(); ++i)
         if (predecessor[i] == graph.numberOfEdges() && subgraph_mask.vertex(i))
-            mst_value += findMSTDenseGraph(graph, edge_weights, subgraph_mask, i, predecessor, f);
+            mst_value += findMSTDynamicProgramming(graph, edge_weights, subgraph_mask, i, predecessor, f);
 
     return mst_value;
 }
 
+/// \brief Find, by dynamic programming, the MST of the component of a subgraph of an undirected graph containing a (root) vertex.
+///
+/// Runtime complexity O(|V|^2).
+///
+/// \param graph An undirected graph.
+/// \param edge_weights Edge weights.
+/// \param subgraph_mask Mask defining the subgraph.
+/// \param starting_vertex Root vertex of the MST. 
+/// \param predecessor Vector storing, for each vertex, the index of the edge connecting this vertex to the MST, or graph.numberOfEdges(), for the root of the MST.
+/// \param f Functor transforming edge weights.
+///
 template<typename GRAPH, typename ECA, typename SUBGRAPH, typename PRED, typename FUNC>
-inline
-typename ECA::value_type findMSTDenseGraph(const GRAPH& graph, const ECA& edge_weights, const SUBGRAPH& subgraph_mask, std::size_t starting_vertex, PRED& predecessor, const FUNC& f)
+inline typename ECA::value_type 
+findMSTDynamicProgramming(
+    const GRAPH& graph, 
+    const ECA& edge_weights, 
+    const SUBGRAPH& subgraph_mask, 
+    std::size_t starting_vertex, 
+    PRED& predecessor, 
+    const FUNC& f
+)
 {
     typedef typename ECA::value_type value_type;
 
@@ -209,6 +332,8 @@ typename ECA::value_type findMSTDenseGraph(const GRAPH& graph, const ECA& edge_w
     return mst_value;
 }
 
-}
-}
+} // namespace graph
+} // namespace andres
+
 #endif
+
