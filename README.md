@@ -2,6 +2,7 @@ Graphs and Graph Algorithms in C++
 ============
 
 Copyright (c) 2014 by Bjoern Andres <bjoern@andres.sc> 
+
 http://www.andres.sc/graph
 
 
