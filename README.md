@@ -1,10 +1,19 @@
 Graphs and Graph Algorithms in C++
 ============
 
-Copyright (c) 2014 by Bjoern Andres, http://www.andres.sc/graph
+Copyright (c) 2014 by Bjoern Andres <bjoern@andres.sc> 
+http://www.andres.sc/graph
 
-This software was developed by Bjoern Andres, Duligur Ibeling, Giannis Kalofolias, Evgeny Levinkov and Mark Matten.
-Enquiries shall be directed to bjoern@andres.sc.
+
+Developers
+------------
+
+- Bjoern Andres, bjoern@andres.sc
+- Duligur Ibeling, duligur@gmail.com
+- Giannis Kalofolias, kalofolias@mpi-inf.mpg.de
+- Evgeny Levinkov, levinkov@mpi-inf.mpg.de
+- Mark Matten, markmatten@gmail.com
+
 
 Synopsis
 ------------
@@ -53,16 +62,6 @@ Features
       * by integer programming, using Cplex or Gurobi
    - Set Partition
       * by a specialization of Minimum Cost Multicut for complete graphs
-
-
-Developers
-------------
-
-- Bjoern Andres, bjoern@andres.sc
-- Duligur Ibeling, duligur@gmail.com
-- Giannis Kalofolias, kalofolias@mpi-inf.mpg.de
-- Evgeny Levinkov, levinkov@mpi-inf.mpg.de
-- Mark Matten, markmatten@gmail.com
 
 
 References
