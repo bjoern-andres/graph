@@ -19,7 +19,7 @@
 /// The public API.
 namespace andres {
 
-/// Graphs and Algorithms that Operate on Graphs.
+/// Graphs and graph algorithms.
 namespace graph {
 
 /// Undirected graph, implemented as an adjacency list.
