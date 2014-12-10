@@ -34,18 +34,20 @@ Features
    - Complete graph
    - n-dimensional grid graph
 - Graph algorithms
-   - Connected components
+   - 1-connected components
       * by breadth-first search 
       * by disjoint sets
+   - 2-connected components
+      * cut-vertices/articulation vertices (Hopcroft-Tarjan Algorithm)
+      * cut-edges/bridges (Tarjan's algorithm)
    - Shortest paths in weighted and unweighted graphs, as sequences of edges or vertices
       * Single source shortest path (SSSP)
       * Single pair shortest path (SPSP)
-   - Cut-vertices and cut-edges (bridges)
    - Minimum spanning trees and minimum spanning forests
       * Prim's algorithm
       * Dynamic Programming
    - Maximum st-flow
-      * Push-Relabel Algorithm with FIFO vertex selection rule
+      * Goldberg-Tarjan Algorithm/Push-Relabel Algorithm with FIFO vertex selection rule
       * Edmonds-Karp Algorithm
    - Minimum Cost Multicut 
       * by integer programming, using Cplex or Gurobi
@@ -62,6 +64,15 @@ Developers
 - Evgeny Levinkov, levinkov@mpi-inf.mpg.de
 - Mark Matten, markmatten@gmail.com
 
+
+References
+------------
+
+- R. E. Tarjan. A note on finding the bridges of a graph. Information Processing Letters 2(6):160-161. 1974
+- J. Hopcroft and R. E. Tarjan. Efficient algorithms for graph manipulation. Communications of the ACM 16(6):372-378. 1973
+- R. C. Prim. Shortest connection networks and some generalizations. Bell System Technical Journal 36:1389-1401. 1957
+- A. V. Goldberg and R. E. Tarjan. A new approach to the maximum-flow problem. Journal of the ACM 35(4):921-940. 1988
+- J. Edmonds and R. M. Karp. Theoretical improvements in algorithmic efficiency for network flow problems. Journal of the ACM 19(2):248-264. 1972
 
 License
 ------------

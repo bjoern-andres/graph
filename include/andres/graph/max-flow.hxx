@@ -19,6 +19,11 @@ namespace graph {
 ///
 /// With FIFO vertex selection rule.
 ///
+/// Reference:
+/// A. V. Goldberg and R. E. Tarjan. 
+/// A new approach to the maximum-flow problem. 
+/// Journal of the ACM 35(4):921-940. 1988
+///
 template<class GRAPH, class FLOW>
 class MaxFlowPushRelabel {
 public:
@@ -446,6 +451,11 @@ MaxFlowPushRelabel<GRAPH, FLOW>::gapRelabel(
 
 /// Edmonds-Karp Algorithm for computing the maximum s-t-flow of a Digraph.
 ///
+/// Reference:
+/// J. Edmonds and R. M. Karp. Theoretical improvements in algorithmic 
+/// efficiency for network flow problems. Journal of the ACM 
+/// 19(2):248-264. 1972
+/// 
 template<class GRAPH, class FLOW>
 class MaxFlowEdmondsKarp {
 public:

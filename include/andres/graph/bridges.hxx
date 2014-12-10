@@ -86,7 +86,7 @@ BridgesBuffers<GRAPH>::BridgesBuffers(const GraphType& graph) :
 /// \brief Find, by Tarjan's algorithm, bridges (cut edges) in an undirected graph.
 ///
 /// Tarjan, R. (1974). A note on finding the bridges of a graph.
-/// Information Processing Letters 2 (6): 160–161.
+/// Information Processing Letters 2(6):160-161.
 ///
 /// Runtime complexity O(|E| + |V|).
 /// 
@@ -107,7 +107,7 @@ findBridges(
 /// \brief Find, by Tarjan's algorithm, bridges (cut edges) in an undirected graph.
 ///
 /// Tarjan, R. (1974). A note on finding the bridges of a graph.
-/// Information Processing Letters 2 (6): 160–161.
+/// Information Processing Letters 2(6):160-161.
 ///
 /// Runtime complexity O(|E| + |V|).
 /// 
@@ -129,7 +129,7 @@ findBridges(
 /// \brief Find, by Tarjan's algorithm, bridges (cut edges) in a subgraph of an undirected graph.
 ///
 /// Tarjan, R. (1974). A note on finding the bridges of a graph.
-/// Information Processing Letters 2 (6): 160–161.
+/// Information Processing Letters 2(6):160-161.
 ///
 /// Runtime complexity O(|E| + |V|).
 /// 
@@ -152,7 +152,7 @@ findBridges(
 /// \brief Find, by Tarjan's algorithm, bridges (cut edges) in a subgraph of an undirected graph.
 ///
 /// Tarjan, R. (1974). A note on finding the bridges of a graph.
-/// Information Processing Letters 2 (6): 160–161.
+/// Information Processing Letters 2(6):160-161.
 ///
 /// Runtime complexity O(|E| + |V|).
 /// 
@@ -180,7 +180,7 @@ findBridges(
 /// \brief Find, by Tarjan's algorithm, bridges (cut edges) in a subgraph of an undirected graph containing a vertex.
 ///
 /// Tarjan, R. (1974). A note on finding the bridges of a graph.
-/// Information Processing Letters 2 (6): 160–161.
+/// Information Processing Letters 2(6):160-161.
 ///
 /// Runtime complexity O(|E| + |V|).
 /// 
@@ -205,7 +205,7 @@ findBridges(
 /// \brief Find, by Tarjan's algorithm, bridges (cut edges) in a subgraph of an undirected graph containing a vertex.
 ///
 /// Tarjan, R. (1974). A note on finding the bridges of a graph.
-/// Information Processing Letters 2 (6): 160–161.
+/// Information Processing Letters 2(6):160-161.
 ///
 /// Runtime complexity O(|E| + |V|).
 /// 

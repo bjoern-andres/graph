@@ -86,7 +86,7 @@ CutVerticesBuffers<GRAPH>::CutVerticesBuffers(const GraphType& graph) :
 /// \brief Find, by Hopcroft-Tarjan algorithm, cut vertices (articulation points) in an undirected graph.
 ///
 /// Hopcroft J. and Tarjan R. (1973). Efficient algorithms for graph manipulation.
-/// Communications of the ACM 16 (6): 372–378.
+/// Communications of the ACM 16(6):372-378.
 ///
 /// Runtime complexity O(|E| + |V|).
 /// 
@@ -107,7 +107,7 @@ findCutVertices(
 /// \brief Find, by Hopcroft-Tarjan algorithm, cut vertices (articulation points) in an undirected graph.
 ///
 /// Hopcroft J. and Tarjan R. (1973). Efficient algorithms for graph manipulation.
-/// Communications of the ACM 16 (6): 372–378.
+/// Communications of the ACM 16(6):372-378.
 ///
 /// Runtime complexity O(|E| + |V|).
 /// 
@@ -129,7 +129,7 @@ findCutVertices(
 /// \brief Find, by Hopcroft-Tarjan algorithm, cut vertices (articulation points) in a subgraph of an undirected graph.
 ///
 /// Hopcroft J. and Tarjan R. (1973). Efficient algorithms for graph manipulation.
-/// Communications of the ACM 16 (6): 372–378.
+/// Communications of the ACM 16(6):372-378.
 ///
 /// Runtime complexity O(|E| + |V|).
 /// 
@@ -152,7 +152,7 @@ findCutVertices(
 /// \brief Find, by Hopcroft-Tarjan algorithm, cut vertices (articulation points) in a subgraph of an undirected graph.
 ///
 /// Hopcroft J. and Tarjan R. (1973). Efficient algorithms for graph manipulation.
-/// Communications of the ACM 16 (6): 372–378.
+/// Communications of the ACM 16(6):372-378.
 ///
 /// Runtime complexity O(|E| + |V|).
 /// 
@@ -180,7 +180,7 @@ findCutVertices(
 /// \brief Find, by Hopcroft-Tarjan algorithm, cut vertices (articulation points) in a subgraph of an undirected graph containing a vertex.
 ///
 /// Hopcroft J. and Tarjan R. (1973). Efficient algorithms for graph manipulation.
-/// Communications of the ACM 16 (6): 372–378.
+/// Communications of the ACM 16(6):372-378.
 ///
 /// Runtime complexity O(|E| + |V|).
 /// 
@@ -205,7 +205,7 @@ findCutVertices(
 /// \brief Find, by Hopcroft-Tarjan algorithm, cut vertices (articulation points) in a subgraph of an undirected graph containing a vertex.
 ///
 /// Hopcroft J. and Tarjan R. (1973). Efficient algorithms for graph manipulation.
-/// Communications of the ACM 16 (6): 372–378.
+/// Communications of the ACM 16(6):372-378.
 ///
 /// Runtime complexity O(|E| + |V|).
 /// 

@@ -75,7 +75,7 @@ findMSTDynamicProgramming(
 /// \brief Find, by Prim's algorithm, the minimum spanning forest of an undirected graph.
 ///
 /// Robert C. Prim. (1957). Shortest connection networks and some generalizations.
-/// Bell System Technical Journal, 36, pp. 1389–1401.
+/// Bell System Technical Journal, 36:1389-1401.
 ///
 /// Runtime complexity O(|E|log|V|).
 /// 
@@ -99,7 +99,7 @@ findMSTPrim(
 /// \brief Find, by Prim's algorithm, the minimum spanning forest of a subgraph of an undirected graph.
 ///
 /// Robert C. Prim. (1957). Shortest connection networks and some generalizations.
-/// Bell System Technical Journal, 36, pp. 1389–1401.
+/// Bell System Technical Journal, 36:1389-1401.
 ///
 /// Runtime complexity O(|E|log|V|).
 ///
@@ -134,7 +134,7 @@ findMSTPrim(
 /// \brief Find, by Prim's algorithm, the MST of the component of a subgraph of an undirected graph containing a (root) vertex.
 ///
 /// Robert C. Prim. (1957). Shortest connection networks and some generalizations.
-/// Bell System Technical Journal, 36, pp. 1389–1401.
+/// Bell System Technical Journal, 36:1389-1401.
 ///
 /// Runtime complexity O(|E|log|V|).
 ///
