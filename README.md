@@ -68,11 +68,13 @@ Developers
 References
 ------------
 
+- S. Chopra and M. R. Rao. The partition problem. Mathematical Programming 59(1-3):87-115. 1993
+- A. V. Goldberg and R. E. Tarjan. A new approach to the maximum-flow problem. Journal of the ACM 35(4):921-940. 1988
 - R. E. Tarjan. A note on finding the bridges of a graph. Information Processing Letters 2(6):160-161. 1974
 - J. Hopcroft and R. E. Tarjan. Efficient algorithms for graph manipulation. Communications of the ACM 16(6):372-378. 1973
-- R. C. Prim. Shortest connection networks and some generalizations. Bell System Technical Journal 36:1389-1401. 1957
-- A. V. Goldberg and R. E. Tarjan. A new approach to the maximum-flow problem. Journal of the ACM 35(4):921-940. 1988
 - J. Edmonds and R. M. Karp. Theoretical improvements in algorithmic efficiency for network flow problems. Journal of the ACM 19(2):248-264. 1972
+- R. C. Prim. Shortest connection networks and some generalizations. Bell System Technical Journal 36:1389-1401. 1957
+
 
 License
 ------------
