@@ -74,6 +74,12 @@ if(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
     add_test(test-graph-grid-graph test-graph-grid-graph)
 endif(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
 
+add_executable(test-graph-dfs src/andres/graph/unit-test/dfs.cxx ${headers})
+add_test(test-graph-dfs test-graph-dfs)
+
+add_executable(test-graph-bfs src/andres/graph/unit-test/bfs.cxx ${headers})
+add_test(test-graph-bfs test-graph-bfs)
+
 add_executable(test-graph-shortest-paths src/andres/graph/unit-test/shortest-paths.cxx ${headers})
 add_test(test-graph-shortest-paths test-graph-shortest-paths)
 
