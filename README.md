@@ -44,6 +44,9 @@ Features
    - Complete graph
    - n-dimensional grid graph
 - Graph algorithms
+   - search and traversal, implemented generically, with callbacks
+      * depth first search (DFS)
+      * breadth first search (BFS)
    - 1-connected components
       * by breadth-first search 
       * by disjoint sets
