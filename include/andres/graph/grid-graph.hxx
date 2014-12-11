@@ -16,57 +16,11 @@ namespace andres {
 
 namespace graph {
 
-/// \class GridGraph
-/// n-dimensional grid graph.
-/// \par Element Indexing
-/// This graph references the vertices and edges using linearly increasing
-/// indices in the range
-/// 0 to |V|-1 and 0 to |E|-1 respectively.
-/// More specifically,
-///  - the vertices can be specified in two ways:
-///     -# Using a linearly increasing integer of type GridGraph::size_type
-///        in the range 0 to \b numberOfVertices().\n
-///        These indices refer to the vertices on the grid in a
-///        smallest-dimension-first fashion.\n
-///        For example in a 2-dimensional GridGraph with the first dimension
-///        referring to columns and the second to rows, the vertex indices
-///        are enumerated row by row and in ascending column index order.
-///     -# Using a GridGraph::VertexCoordinate, effectively an \b std::array
-///        which contains the coordinates of the vertex in the grid, starting
-///        with the first dimension.
-///  - The edges can be specified in two ways:
-///     -# Using a linearly increasing integer of type GridGraph::size_type
-///        in the range 0 to \b numberOfEdges().\n
-///        These indices refer to the edges on the grid in a
-///        smallest-dimension-first fashion: firstly all the edges than run
-///        along the first dimension (i.e.: those whose endpoints have
-///        coordinates that differ by 1 only on the first dimension).\n
-///        Consequently those along the second dimension are enumerated and
-///        so on.\n
-///        For example in a 2-dimensional GridGraph with the first dimension
-///        referring to \e W columns and the second to \e H rows, firstly the
-///        (\e W - 1)\e H horizontal edges are enumerated row by row and in
-///        ascending column index order; then enumerated are the
-///        \e W(\e H - 1) vertical edges in the same order.
-///     -# By specifying the coordinates of the smallest of the two endpoints
-///        and the unique dimension along which the coordinates of the
-///        endpoints have a unit difference.\n
-///        This information is packed in an GridGraph::EdgeVertex \c struct.
-///        The vertex with the smallest coordinates is henceforth referred to
-///        as the \e pivot of the edge.
-/// \par Adjacency Indexing
-///     The adjacent elements for each vertex (be it
-///     Vertices, Edges or Adjacencies) are guaranteed to be enumerated in
-///     strictly increasing order.
-///
-template <
-std::size_t D = 2,
-    typename S = std::size_t,
-    typename VISITOR = IdleGraphVisitor<S>
-    >
+/// D-dimensional grid graph.
+template <unsigned char D = 2, class VISITOR = IdleGraphVisitor<std::size_t> >
 class GridGraph {
 public:
-    typedef S size_type;
+    typedef std::size_t size_type;
     typedef VISITOR Visitor;
     typedef andres::graph::Adjacency<size_type> AdjacencyType;
 
@@ -98,9 +52,8 @@ public:
                 std::random_access_iterator_tag,
                 const AdjacencyType
             >  {
-    public:
-        
-        typedef GridGraph<DIMENSION, size_type, Visitor> GraphType;
+    public:        
+        typedef GridGraph<DIMENSION, Visitor> GraphType;
         typedef std::iterator <
                 std::random_access_iterator_tag,
                 const AdjacencyType
@@ -148,7 +101,7 @@ public:
     class VertexIterator
             :   public AdjacencyIterator {
     public:
-        typedef GridGraph<DIMENSION, size_type, Visitor> GraphType;
+        typedef GridGraph<DIMENSION, Visitor> GraphType;
         typedef AdjacencyIterator Base;
         typedef const size_type value_type;
         typedef typename Base::difference_type difference_type;
@@ -174,7 +127,7 @@ public:
     class EdgeIterator
         :          public AdjacencyIterator {
     public:
-        typedef GridGraph<DIMENSION, size_type, Visitor> GraphType;
+        typedef GridGraph<DIMENSION, Visitor> GraphType;
         typedef AdjacencyIterator Base;
         typedef const size_type value_type;
         typedef typename Base::difference_type difference_type;
@@ -262,9 +215,9 @@ private:
 /// defaulting to \c andres::graph::IdgeGraphVisitor.
 /// \param visitor Visitor to follow changes of integer indices of vertices
 /// and edges.
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline
-GridGraph<D, S, VISITOR>::GridGraph(
+GridGraph<D, VISITOR>::GridGraph(
     const Visitor& visitor
 )
 :   GridGraph({{0, 0}}, visitor) // Chain-call Constructor
@@ -275,9 +228,9 @@ GridGraph<D, S, VISITOR>::GridGraph(
 /// \param shape the shape of the Grid Graph as an std::array.
 /// \param visitor Visitor to follow changes of integer indices of vertices
 /// and edges.
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline
-GridGraph<D, S, VISITOR>::GridGraph(
+GridGraph<D, VISITOR>::GridGraph(
     const VertexCoordinate& shape,
     const Visitor& visitor
 )
@@ -290,9 +243,9 @@ GridGraph<D, S, VISITOR>::GridGraph(
 /// \param visitor Visitor to follow changes of integer indices of vertices
 /// and edges.
 ///
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline void
-GridGraph<D, S, VISITOR>::assign(
+GridGraph<D, VISITOR>::assign(
     const Visitor& visitor
 ) {
     VertexCoordinate shape;
@@ -305,9 +258,9 @@ GridGraph<D, S, VISITOR>::assign(
 /// \param shape the shape of the grid graph
 /// \param visitor Visitor to follow changes of integer indices of vertices
 /// and edges.
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline void
-GridGraph<D, S, VISITOR>::assign(
+GridGraph<D, VISITOR>::assign(
     const VertexCoordinate& shape,
     const Visitor& visitor
 ) {
@@ -352,9 +305,9 @@ GridGraph<D, S, VISITOR>::assign(
 ///
 /// \sa verticesFromVertexEnd()
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::VertexIterator
-GridGraph<D, S, VISITOR>::verticesFromVertexBegin(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::VertexIterator
+GridGraph<D, VISITOR>::verticesFromVertexBegin(
     const size_type vertex
 ) const {
     return VertexIterator(*this, vertex, 0);
@@ -368,9 +321,9 @@ GridGraph<D, S, VISITOR>::verticesFromVertexBegin(
 ///
 /// \sa verticesFromVertexBegin()
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::VertexIterator
-GridGraph<D, S, VISITOR>::verticesFromVertexEnd(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::VertexIterator
+GridGraph<D, VISITOR>::verticesFromVertexEnd(
     const size_type vertex
 ) const {
     return VertexIterator(*this, vertex, numberOfEdgesFromVertex(vertex));
@@ -384,9 +337,9 @@ GridGraph<D, S, VISITOR>::verticesFromVertexEnd(
 ///
 /// \sa verticesToVertexEnd()
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::VertexIterator
-GridGraph<D, S, VISITOR>::verticesToVertexBegin(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::VertexIterator
+GridGraph<D, VISITOR>::verticesToVertexBegin(
     const size_type vertex
 ) const {
     return VertexIterator(*this, vertex, 0);
@@ -400,9 +353,9 @@ GridGraph<D, S, VISITOR>::verticesToVertexBegin(
 ///
 /// \sa verticesToVertexBegin()
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::VertexIterator
-GridGraph<D, S, VISITOR>::verticesToVertexEnd(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::VertexIterator
+GridGraph<D, VISITOR>::verticesToVertexEnd(
     const size_type vertex
 ) const {
     return VertexIterator(*this, vertex, numberOfEdgesFromVertex(vertex));
@@ -416,9 +369,9 @@ GridGraph<D, S, VISITOR>::verticesToVertexEnd(
 ///
 /// \sa edgesFromVertexEnd()
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::EdgeIterator
-GridGraph<D, S, VISITOR>::edgesFromVertexBegin(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::EdgeIterator
+GridGraph<D, VISITOR>::edgesFromVertexBegin(
     const size_type vertex
 ) const {
     return EdgeIterator(*this, vertex, 0);
@@ -432,9 +385,9 @@ GridGraph<D, S, VISITOR>::edgesFromVertexBegin(
 ///
 /// \sa edgesFromVertexBegin()
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::EdgeIterator
-GridGraph<D, S, VISITOR>::edgesFromVertexEnd(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::EdgeIterator
+GridGraph<D, VISITOR>::edgesFromVertexEnd(
     const size_type vertex
 ) const {
     return EdgeIterator(*this, vertex, numberOfEdgesFromVertex(vertex));
@@ -448,9 +401,9 @@ GridGraph<D, S, VISITOR>::edgesFromVertexEnd(
 ///
 /// \sa edgesToVertexEnd()
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::EdgeIterator
-GridGraph<D, S, VISITOR>::edgesToVertexBegin(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::EdgeIterator
+GridGraph<D, VISITOR>::edgesToVertexBegin(
     const size_type vertex
 ) const {
     return EdgeIterator(*this, vertex, 0);
@@ -464,9 +417,9 @@ GridGraph<D, S, VISITOR>::edgesToVertexBegin(
 ///
 /// \sa edgesToVertexBegin()
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::EdgeIterator
-GridGraph<D, S, VISITOR>::edgesToVertexEnd(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::EdgeIterator
+GridGraph<D, VISITOR>::edgesToVertexEnd(
     const size_type vertex
 ) const {
     return EdgeIterator(*this, vertex, numberOfEdgesFromVertex(vertex));
@@ -480,9 +433,9 @@ GridGraph<D, S, VISITOR>::edgesToVertexEnd(
 ///
 /// \sa adjacenciesFromVertexEnd()
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::AdjacencyIterator
-GridGraph<D, S, VISITOR>::adjacenciesFromVertexBegin(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::AdjacencyIterator
+GridGraph<D, VISITOR>::adjacenciesFromVertexBegin(
     const size_type vertex
 ) const {
     return AdjacencyIterator(*this, vertex, 0);
@@ -496,9 +449,9 @@ GridGraph<D, S, VISITOR>::adjacenciesFromVertexBegin(
 ///
 /// \sa adjacenciesFromVertexBegin()
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::AdjacencyIterator
-GridGraph<D, S, VISITOR>::adjacenciesFromVertexEnd(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::AdjacencyIterator
+GridGraph<D, VISITOR>::adjacenciesFromVertexEnd(
     const size_type vertex
 ) const {
     return AdjacencyIterator(*this, vertex, numberOfEdgesFromVertex(vertex));
@@ -512,9 +465,9 @@ GridGraph<D, S, VISITOR>::adjacenciesFromVertexEnd(
 ///
 /// \sa adjacenciesToVertexEnd()
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::AdjacencyIterator
-GridGraph<D, S, VISITOR>::adjacenciesToVertexBegin(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::AdjacencyIterator
+GridGraph<D, VISITOR>::adjacenciesToVertexBegin(
     const size_type vertex
 ) const {
     return AdjacencyIterator(*this, vertex, 0);
@@ -528,9 +481,9 @@ GridGraph<D, S, VISITOR>::adjacenciesToVertexBegin(
 ///
 /// \sa adjacenciesToVertexBegin()
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::AdjacencyIterator
-GridGraph<D, S, VISITOR>::adjacenciesToVertexEnd(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::AdjacencyIterator
+GridGraph<D, VISITOR>::adjacenciesToVertexEnd(
     const size_type vertex
 ) const {
     return AdjacencyIterator(*this, vertex, numberOfEdgesFromVertex(vertex));
@@ -538,17 +491,17 @@ GridGraph<D, S, VISITOR>::adjacenciesToVertexEnd(
 
 /// Get the number of vertices.
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::size_type
-GridGraph<D, S, VISITOR>::numberOfVertices() const {
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::size_type
+GridGraph<D, VISITOR>::numberOfVertices() const {
     return numberOfVertices_;
 }
 
 /// Get the number of edges.
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::size_type
-GridGraph<D, S, VISITOR>::numberOfEdges() const {
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::size_type
+GridGraph<D, VISITOR>::numberOfEdges() const {
     return numberOfEdges_;
 }
 
@@ -558,9 +511,9 @@ GridGraph<D, S, VISITOR>::numberOfEdges() const {
 ///
 /// \sa edgeFromVertex()
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::size_type
-GridGraph<D, S, VISITOR>::numberOfEdgesFromVertex(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::size_type
+GridGraph<D, VISITOR>::numberOfEdgesFromVertex(
     const size_type vertex
 ) const {
     assert(vertex < numberOfVertices());
@@ -585,9 +538,9 @@ GridGraph<D, S, VISITOR>::numberOfEdgesFromVertex(
 ///
 /// \sa edgeToVertex()
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::size_type
-GridGraph<D, S, VISITOR>::numberOfEdgesToVertex(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::size_type
+GridGraph<D, VISITOR>::numberOfEdgesToVertex(
     const size_type vertex
 ) const {
     return numberOfEdgesFromVertex(vertex);
@@ -598,9 +551,9 @@ GridGraph<D, S, VISITOR>::numberOfEdgesToVertex(
 /// \param edge Integer index of an edge.
 /// \param j Number of the vertex in the edge; either 0 or 1.
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::size_type
-GridGraph<D, S, VISITOR>::vertexOfEdge(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::size_type
+GridGraph<D, VISITOR>::vertexOfEdge(
     const size_type edge,
     const size_type j
 ) const {
@@ -625,9 +578,9 @@ GridGraph<D, S, VISITOR>::vertexOfEdge(
 ///
 /// \sa numberOfEdgesFromVertex()exFi
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::size_type
-GridGraph<D, S, VISITOR>::edgeFromVertex(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::size_type
+GridGraph<D, VISITOR>::edgeFromVertex(
     const size_type vertex,
     const size_type j
 ) const {
@@ -655,9 +608,9 @@ GridGraph<D, S, VISITOR>::edgeFromVertex(
 ///
 /// \sa numberOfEdgesToVertex()
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::size_type
-GridGraph<D, S, VISITOR>::edgeToVertex(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::size_type
+GridGraph<D, VISITOR>::edgeToVertex(
     const size_type vertex,
     const size_type j
 ) const {
@@ -674,9 +627,9 @@ GridGraph<D, S, VISITOR>::edgeToVertex(
 ///
 /// \sa numberOfEdgesFromVertex()
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::size_type
-GridGraph<D, S, VISITOR>::vertexFromVertex(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::size_type
+GridGraph<D, VISITOR>::vertexFromVertex(
     const size_type vertex,
     const size_type j
 ) const {
@@ -698,9 +651,9 @@ GridGraph<D, S, VISITOR>::vertexFromVertex(
 ///
 /// \sa numberOfEdgesFromVertex()
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::size_type
-GridGraph<D, S, VISITOR>::vertexToVertex(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::size_type
+GridGraph<D, VISITOR>::vertexToVertex(
     const size_type vertex,
     const size_type j
 ) const {
@@ -712,9 +665,9 @@ GridGraph<D, S, VISITOR>::vertexToVertex(
 ///
 /// \param vertex Vertex.
 /// \param j Number of the adjacency.
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::AdjacencyType
-GridGraph<D, S, VISITOR>::adjacencyFromVertex(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::AdjacencyType
+GridGraph<D, VISITOR>::adjacencyFromVertex(
     const size_type vertex,
     const size_type j
 ) const {
@@ -738,9 +691,9 @@ GridGraph<D, S, VISITOR>::adjacencyFromVertex(
 /// \param vertex Vertex.
 /// \param j Number of the adjacency.
 ///
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::AdjacencyType
-GridGraph<D, S, VISITOR>::adjacencyToVertex(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::AdjacencyType
+GridGraph<D, VISITOR>::adjacencyToVertex(
     const size_type vertex,
     const size_type j
 ) const {
@@ -756,9 +709,9 @@ GridGraph<D, S, VISITOR>::adjacencyToVertex(
 /// and \c pair.second is the index of such an edge. If no edge from \b
 /// vertex0 to \b vertex1 exists, \c pair.first is \c false
 /// and \c pair.second is undefined.
-template<std::size_t D, typename S, typename VISITOR>
-inline std::pair<bool, typename GridGraph<D, S, VISITOR>::size_type>
-GridGraph<D, S, VISITOR>::findEdge(
+template<unsigned char D, class VISITOR>
+inline std::pair<bool, typename GridGraph<D, VISITOR>::size_type>
+GridGraph<D, VISITOR>::findEdge(
     const size_type vertex0,
     const size_type vertex1
 ) const {
@@ -815,9 +768,9 @@ GridGraph<D, S, VISITOR>::findEdge(
 ///
 /// \return false
 ///
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline bool
-GridGraph<D, S, VISITOR>::multipleEdgesEnabled() const {
+GridGraph<D, VISITOR>::multipleEdgesEnabled() const {
     return false;
 }
 
@@ -827,9 +780,9 @@ GridGraph<D, S, VISITOR>::multipleEdgesEnabled() const {
 /// \param vertexIndex1 Integer index of the second vertex in the edge.
 /// \return Integer index of the newly inserted edge.
 /// \throw runtime_error If the edge does not exist.
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::size_type
-GridGraph<D, S, VISITOR>::insertEdge(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::size_type
+GridGraph<D, VISITOR>::insertEdge(
     const size_type vertexIndex0,
     const size_type vertexIndex1
 ) const {
@@ -849,9 +802,9 @@ GridGraph<D, S, VISITOR>::insertEdge(
 /// \param[out] vertexCoordinate The coordinates of the vertex.
 /// \warning For the sake of performance this function does not validate
 /// its inputs.
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 void
-GridGraph<D, S, VISITOR>::vertex(
+GridGraph<D, VISITOR>::vertex(
     size_type vertexIndex,
     VertexCoordinate& vertexCoordinate
 ) const {
@@ -868,9 +821,9 @@ GridGraph<D, S, VISITOR>::vertex(
 /// \param dimension the index of the dimension index to retrieve.
 /// \return the size of the specified dimension.
 /// \see mapIndexToCoordinate mapVertexCoordinateToIndex
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::size_type
-GridGraph<D, S, VISITOR>::shape(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::size_type
+GridGraph<D, VISITOR>::shape(
     const size_type dimension
 ) const {
     return shape_[dimension];
@@ -881,9 +834,9 @@ GridGraph<D, S, VISITOR>::shape(
 /// \return The integer index of the specified vertex.
 /// \warning For the sake of performance this function does not validate
 /// its inputs.
-template<std::size_t D, typename S, typename VISITOR>
-typename GridGraph<D, S, VISITOR>::size_type
-GridGraph<D, S, VISITOR>::vertex(
+template<unsigned char D, class VISITOR>
+typename GridGraph<D, VISITOR>::size_type
+GridGraph<D, VISITOR>::vertex(
     const VertexCoordinate& vertexCoordinate
 ) const {
     size_type index = vertexCoordinate[DIMENSION - 1];
@@ -900,9 +853,9 @@ GridGraph<D, S, VISITOR>::vertex(
 /// \warning For the sake of performance this function does not validate
 /// its inputs.
 /// \sa hasEdge()
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::size_type
-GridGraph<D, S, VISITOR>::edge(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::size_type
+GridGraph<D, VISITOR>::edge(
     const EdgeCoordinate& edgeCoordinate
 ) const {
     assert(edgeCoordinate.dimension_ < DIMENSION);
@@ -932,9 +885,9 @@ GridGraph<D, S, VISITOR>::edge(
 /// \warning For the sake of performance this function does not validate
 /// its inputs.
 /// \sa GridGraph::bool
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline void
-GridGraph<D, S, VISITOR>::edge(
+GridGraph<D, VISITOR>::edge(
     size_type edgeIndex,
     EdgeCoordinate& edgeCoordinate
 ) const {
@@ -976,9 +929,9 @@ GridGraph<D, S, VISITOR>::edge(
 /// \warning For the sake of performance this function does not validate
 /// its inputs.
 /// \sa directionOfEdgeFromVertex, edgeFromVertex
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::size_type
-GridGraph<D, S, VISITOR>::vertexFromVertex(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::size_type
+GridGraph<D, VISITOR>::vertexFromVertex(
     const VertexCoordinate& vertexCoordinate,
     const size_type j,
     size_type& direction,
@@ -1016,9 +969,9 @@ GridGraph<D, S, VISITOR>::vertexFromVertex(
     throw std::out_of_range("vertex neighbor index out of range.");
 }
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline void
-GridGraph<D, S, VISITOR>::adjacencyFromVertex(
+GridGraph<D, VISITOR>::adjacencyFromVertex(
     const VertexCoordinate& vertexCoordinate,
     const size_type j,
     size_type& adjacentVertexIndex,
@@ -1049,8 +1002,8 @@ GridGraph<D, S, VISITOR>::adjacencyFromVertex(
 /// Similarly, a value of \c false results in an object corresponding
 /// to the edge of which the largest endpoint has a
 /// GridGraph::VertexCoordinate equal to \b pivotCoordinate.
-template<std::size_t D, typename S, typename VISITOR>
-inline GridGraph<D, S, VISITOR>::EdgeCoordinate::EdgeCoordinate(
+template<unsigned char D, class VISITOR>
+inline GridGraph<D, VISITOR>::EdgeCoordinate::EdgeCoordinate(
     const VertexCoordinate& pivotCoordinate,
     const size_type dimension,
     const bool isSmaller
@@ -1066,8 +1019,8 @@ inline GridGraph<D, S, VISITOR>::EdgeCoordinate::EdgeCoordinate(
 /// Default non-initializing constructor
 /// \warning this constructor will \b NOT set the pivotCoordinate_ membr
 /// variable to zero.
-template<std::size_t D, typename S, typename VISITOR>
-inline GridGraph<D, S, VISITOR>::EdgeCoordinate::EdgeCoordinate() {
+template<unsigned char D, class VISITOR>
+inline GridGraph<D, VISITOR>::EdgeCoordinate::EdgeCoordinate() {
 }
 
 
@@ -1075,16 +1028,16 @@ inline GridGraph<D, S, VISITOR>::EdgeCoordinate::EdgeCoordinate() {
 
 // implementation of AdjacencyIterator
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline
-GridGraph<D, S, VISITOR>::AdjacencyIterator::AdjacencyIterator()
+GridGraph<D, VISITOR>::AdjacencyIterator::AdjacencyIterator()
     :   vertex_(0),
         adjacencyIndex_(0),
         adjacency_()
 {}
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline
-GridGraph<D, S, VISITOR>::AdjacencyIterator::AdjacencyIterator(
+GridGraph<D, VISITOR>::AdjacencyIterator::AdjacencyIterator(
     const GraphType& graph
 )
     :   graph_(&graph),
@@ -1093,9 +1046,9 @@ GridGraph<D, S, VISITOR>::AdjacencyIterator::AdjacencyIterator(
         adjacency_()
 {}
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline
-GridGraph<D, S, VISITOR>::AdjacencyIterator::AdjacencyIterator(
+GridGraph<D, VISITOR>::AdjacencyIterator::AdjacencyIterator(
     const GraphType& graph,
     const size_type vertex
 )
@@ -1106,9 +1059,9 @@ GridGraph<D, S, VISITOR>::AdjacencyIterator::AdjacencyIterator(
     assert(vertex < graph.numberOfVertices());
 }
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline
-GridGraph<D, S, VISITOR>::AdjacencyIterator::AdjacencyIterator(
+GridGraph<D, VISITOR>::AdjacencyIterator::AdjacencyIterator(
     const GraphType& graph,
     const size_type vertex,
     const size_type adjacencyIndex
@@ -1121,57 +1074,57 @@ GridGraph<D, S, VISITOR>::AdjacencyIterator::AdjacencyIterator(
     assert(adjacencyIndex <= graph.numberOfVertices());
 }
 
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::AdjacencyIterator&
-GridGraph<D, S, VISITOR>::AdjacencyIterator::operator+=(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::AdjacencyIterator&
+GridGraph<D, VISITOR>::AdjacencyIterator::operator+=(
     const difference_type d
 ) {
     adjacencyIndex_ += d;
     return *this;
 }
 
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::AdjacencyIterator&
-GridGraph<D, S, VISITOR>::AdjacencyIterator::operator-=(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::AdjacencyIterator&
+GridGraph<D, VISITOR>::AdjacencyIterator::operator-=(
     const difference_type d
 ) {
     adjacencyIndex_ -= d;
     return *this;
 }
 
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::AdjacencyIterator&
-GridGraph<D, S, VISITOR>::AdjacencyIterator::operator++() {
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::AdjacencyIterator&
+GridGraph<D, VISITOR>::AdjacencyIterator::operator++() {
     ++adjacencyIndex_;
     return *this;
 }
 
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::AdjacencyIterator&
-GridGraph<D, S, VISITOR>::AdjacencyIterator::operator--() {
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::AdjacencyIterator&
+GridGraph<D, VISITOR>::AdjacencyIterator::operator--() {
     --adjacencyIndex_;
     return *this;
 }
 
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::AdjacencyIterator
-GridGraph<D, S, VISITOR>::AdjacencyIterator::operator++(int) {
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::AdjacencyIterator
+GridGraph<D, VISITOR>::AdjacencyIterator::operator++(int) {
     AdjacencyIterator copy = *this;
     ++adjacencyIndex_;
     return copy;
 }
 
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::AdjacencyIterator
-GridGraph<D, S, VISITOR>::AdjacencyIterator::operator--(int) {
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::AdjacencyIterator
+GridGraph<D, VISITOR>::AdjacencyIterator::operator--(int) {
     AdjacencyIterator copy = *this;
     --adjacencyIndex_;
     return copy;
 }
 
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::AdjacencyIterator
-GridGraph<D, S, VISITOR>::AdjacencyIterator::operator+(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::AdjacencyIterator
+GridGraph<D, VISITOR>::AdjacencyIterator::operator+(
     const difference_type d
 ) const {
     AdjacencyIterator copy = *this;
@@ -1179,9 +1132,9 @@ GridGraph<D, S, VISITOR>::AdjacencyIterator::operator+(
     return copy;
 }
 
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::AdjacencyIterator
-GridGraph<D, S, VISITOR>::AdjacencyIterator::operator-(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::AdjacencyIterator
+GridGraph<D, VISITOR>::AdjacencyIterator::operator-(
     const difference_type d
 ) const {
     AdjacencyIterator copy = *this;
@@ -1189,17 +1142,17 @@ GridGraph<D, S, VISITOR>::AdjacencyIterator::operator-(
     return copy;
 }
 
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::AdjacencyIterator::difference_type
-GridGraph<D, S, VISITOR>::AdjacencyIterator::operator-(
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::AdjacencyIterator::difference_type
+GridGraph<D, VISITOR>::AdjacencyIterator::operator-(
     const AdjacencyIterator& adjacencyIterator
 ) const {
     return adjacencyIndex_ - adjacencyIterator.adjacencyIndex_;
 }
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline bool
-GridGraph<D, S, VISITOR>::AdjacencyIterator::operator==(
+GridGraph<D, VISITOR>::AdjacencyIterator::operator==(
     const AdjacencyIterator& other
 ) const {
     return adjacencyIndex_ == other.adjacencyIndex_
@@ -1207,9 +1160,9 @@ GridGraph<D, S, VISITOR>::AdjacencyIterator::operator==(
            && graph_ == other.graph_;
 }
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline bool
-GridGraph<D, S, VISITOR>::AdjacencyIterator::operator!=(
+GridGraph<D, VISITOR>::AdjacencyIterator::operator!=(
     const AdjacencyIterator& other
 ) const {
     return adjacencyIndex_ != other.adjacencyIndex_
@@ -1217,9 +1170,9 @@ GridGraph<D, S, VISITOR>::AdjacencyIterator::operator!=(
            || graph_ != other.graph_;
 }
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline bool
-GridGraph<D, S, VISITOR>::AdjacencyIterator::operator<(
+GridGraph<D, VISITOR>::AdjacencyIterator::operator<(
     const AdjacencyIterator& other
 ) const {
     return adjacencyIndex_ < other.adjacencyIndex_
@@ -1227,9 +1180,9 @@ GridGraph<D, S, VISITOR>::AdjacencyIterator::operator<(
            && graph_ == other.graph_;
 }
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline bool
-GridGraph<D, S, VISITOR>::AdjacencyIterator::operator<=(
+GridGraph<D, VISITOR>::AdjacencyIterator::operator<=(
     const AdjacencyIterator& other
 ) const {
     return adjacencyIndex_ <= other.adjacencyIndex_
@@ -1237,9 +1190,9 @@ GridGraph<D, S, VISITOR>::AdjacencyIterator::operator<=(
            && graph_ == other.graph_;
 }
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline bool
-GridGraph<D, S, VISITOR>::AdjacencyIterator::operator>(
+GridGraph<D, VISITOR>::AdjacencyIterator::operator>(
     const AdjacencyIterator& other
 ) const {
     return adjacencyIndex_ > other.adjacencyIndex_
@@ -1247,9 +1200,9 @@ GridGraph<D, S, VISITOR>::AdjacencyIterator::operator>(
            && graph_ == other.graph_;
 }
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline bool
-GridGraph<D, S, VISITOR>::AdjacencyIterator::operator>=(
+GridGraph<D, VISITOR>::AdjacencyIterator::operator>=(
     const AdjacencyIterator& other
 ) const {
     return adjacencyIndex_ >= other.adjacencyIndex_
@@ -1268,23 +1221,23 @@ GridGraph<D, S, VISITOR>::AdjacencyIterator::operator>=(
 // unique for the AdjacencyIterator instance.
 // This operation will therefore silently update all previous references to
 // the adjacency object of the iterator.
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::AdjacencyIterator::reference
-GridGraph<D, S, VISITOR>::AdjacencyIterator::operator*() {
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::AdjacencyIterator::reference
+GridGraph<D, VISITOR>::AdjacencyIterator::operator*() {
     adjacency_ = graph_->adjacencyFromVertex(vertex_, adjacencyIndex_);
     return adjacency_;
 }
 
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::AdjacencyIterator::pointer
-GridGraph<D, S, VISITOR>::AdjacencyIterator::operator->() {
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::AdjacencyIterator::pointer
+GridGraph<D, VISITOR>::AdjacencyIterator::operator->() {
     adjacency_ = graph_->adjacencyFromVertex(vertex_, adjacencyIndex_);
     return &adjacency_;
 }
 
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::AdjacencyIterator::reference
-GridGraph<D, S, VISITOR>::AdjacencyIterator::operator[](
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::AdjacencyIterator::reference
+GridGraph<D, VISITOR>::AdjacencyIterator::operator[](
     const difference_type j
 ) {
     adjacency_ = graph_->adjacencyFromVertex(vertex_, adjacencyIndex_ + j);
@@ -1293,32 +1246,32 @@ GridGraph<D, S, VISITOR>::AdjacencyIterator::operator[](
 
 // implementation of VertexIterator
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline
-GridGraph<D, S, VISITOR>::VertexIterator::VertexIterator()
+GridGraph<D, VISITOR>::VertexIterator::VertexIterator()
     :   Base()
 {}
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline
-GridGraph<D, S, VISITOR>::VertexIterator::VertexIterator(
+GridGraph<D, VISITOR>::VertexIterator::VertexIterator(
     const GraphType& graph
 )
     :   Base(graph)
 {}
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline
-GridGraph<D, S, VISITOR>::VertexIterator::VertexIterator(
+GridGraph<D, VISITOR>::VertexIterator::VertexIterator(
     const GraphType& graph,
     const size_type vertex
 )
     :   Base(graph, vertex)
 {}
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline
-GridGraph<D, S, VISITOR>::VertexIterator::VertexIterator(
+GridGraph<D, VISITOR>::VertexIterator::VertexIterator(
     const GraphType& graph,
     const size_type vertex,
     const size_type adjacencyIndex
@@ -1326,39 +1279,39 @@ GridGraph<D, S, VISITOR>::VertexIterator::VertexIterator(
     :   Base(graph, vertex, adjacencyIndex)
 {}
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline
-GridGraph<D, S, VISITOR>::VertexIterator::VertexIterator(
+GridGraph<D, VISITOR>::VertexIterator::VertexIterator(
     const VertexIterator& it
 )
     :   Base(*(it.graph_), it.vertex_, it.adjacencyIndex_)
 {}
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline
-GridGraph<D, S, VISITOR>::VertexIterator::VertexIterator(
+GridGraph<D, VISITOR>::VertexIterator::VertexIterator(
     const AdjacencyIterator& it
 )
     :   Base(it)
 {}
 
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::VertexIterator::value_type
-GridGraph<D, S, VISITOR>::VertexIterator::operator*() const {
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::VertexIterator::value_type
+GridGraph<D, VISITOR>::VertexIterator::operator*() const {
     return Base::graph_->vertexFromVertex(Base::vertex_, Base::adjacencyIndex_);
 }
 
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::VertexIterator::value_type
-GridGraph<D, S, VISITOR>::VertexIterator::operator[](
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::VertexIterator::value_type
+GridGraph<D, VISITOR>::VertexIterator::operator[](
     const difference_type j
 ) const {
     return Base::graph_->vertexFromVertex(Base::vertex_, Base::adjacencyIndex_ + j);
 }
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline void
-GridGraph<D, S, VISITOR>::VertexIterator::coordinate(
+GridGraph<D, VISITOR>::VertexIterator::coordinate(
     VertexCoordinate& vertexCoordinate
 ) const {
     const size_type opposite = Base::graph_->vertexFromVertex(Base::vertex_, Base::adjacencyIndex_);
@@ -1367,32 +1320,32 @@ GridGraph<D, S, VISITOR>::VertexIterator::coordinate(
 
 // implementation of EdgeIterator
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline
-GridGraph<D, S, VISITOR>::EdgeIterator::EdgeIterator()
+GridGraph<D, VISITOR>::EdgeIterator::EdgeIterator()
     :   Base()
 {}
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline
-GridGraph<D, S, VISITOR>::EdgeIterator::EdgeIterator(
+GridGraph<D, VISITOR>::EdgeIterator::EdgeIterator(
     const GraphType& graph
 )
     :   Base(graph)
 {}
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline
-GridGraph<D, S, VISITOR>::EdgeIterator::EdgeIterator(
+GridGraph<D, VISITOR>::EdgeIterator::EdgeIterator(
     const GraphType& graph,
     const size_type vertex
 )
     :   Base(graph, vertex)
 {}
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline
-GridGraph<D, S, VISITOR>::EdgeIterator::EdgeIterator(
+GridGraph<D, VISITOR>::EdgeIterator::EdgeIterator(
     const GraphType& graph,
     const size_type vertex,
     const size_type adjacencyIndex
@@ -1400,31 +1353,31 @@ GridGraph<D, S, VISITOR>::EdgeIterator::EdgeIterator(
     :   Base(graph, vertex, adjacencyIndex)
 {}
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline
-GridGraph<D, S, VISITOR>::EdgeIterator::EdgeIterator(
+GridGraph<D, VISITOR>::EdgeIterator::EdgeIterator(
     const EdgeIterator& it
 )
     :   Base(*(it.graph_), it.vertex_, it.adjacencyIndex_)
 {}
 
-template<std::size_t D, typename S, typename VISITOR>
+template<unsigned char D, class VISITOR>
 inline
-GridGraph<D, S, VISITOR>::EdgeIterator::EdgeIterator(
+GridGraph<D, VISITOR>::EdgeIterator::EdgeIterator(
     const AdjacencyIterator& it
 )
     :   Base(it)
 {}
 
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::EdgeIterator::value_type
-GridGraph<D, S, VISITOR>::EdgeIterator::operator*() const {
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::EdgeIterator::value_type
+GridGraph<D, VISITOR>::EdgeIterator::operator*() const {
     return Base::graph_->edgeFromVertex(Base::vertex_, Base::adjacencyIndex_);
 }
 
-template<std::size_t D, typename S, typename VISITOR>
-inline typename GridGraph<D, S, VISITOR>::EdgeIterator::value_type
-GridGraph<D, S, VISITOR>::EdgeIterator::operator[](
+template<unsigned char D, class VISITOR>
+inline typename GridGraph<D, VISITOR>::EdgeIterator::value_type
+GridGraph<D, VISITOR>::EdgeIterator::operator[](
     const difference_type j
 ) const {
     return Base::graph_->edgeFromVertex(Base::vertex_, Base::adjacencyIndex_ + j);
