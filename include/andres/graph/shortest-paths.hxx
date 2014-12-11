@@ -15,15 +15,6 @@
 namespace andres {
 namespace graph {
 
-template<class T>
-void
-spspHelper(
-    const std::vector<std::ptrdiff_t>&,
-    const T,
-    const T,
-    std::deque<T>&
-);
-
 template<class GRAPH>
 bool
 spsp(
