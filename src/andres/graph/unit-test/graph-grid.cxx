@@ -506,9 +506,9 @@ void testConstructionAndNumbers() {
     typedef GridGraphType::VertexCoordinate VertexCoordinate;
     typedef GridGraphType::EdgeCoordinate EdgeCoordinate;
 
-    // Documentation examples
+    // Simple examples
     {
-        GridGraphType gridGraph({{6,5}});
+        GridGraphType gridGraph({6,5});
         VertexCoordinate originCoordinate({{0,0}});
         size_t originIndex(0);
         VertexCoordinate tenthCoordinate({{3,1}});
@@ -516,9 +516,15 @@ void testConstructionAndNumbers() {
         test(originIndex == gridGraph.vertex(originCoordinate));
         test(tenthIndex == gridGraph.vertex(tenthCoordinate));
     }
+    // Test initialization lists
+    {
+        GridGraphType gridGraph = {6,5};
+        test(gridGraph.shape(0) == 6);
+        test(gridGraph.shape(1) == 5);
+    }
     {
         // Second edge
-        GridGraphType gridGraph({{6,5}});
+        GridGraphType gridGraph({6,5});
         EdgeCoordinate secondEdgeCoordinate({{1,0}}, 0);
         size_t secondEdgeIndex(1);
         test(secondEdgeIndex == gridGraph.edge(secondEdgeCoordinate));
@@ -1012,7 +1018,7 @@ int main() {
         typedef andres::graph::GridGraph<4> GridGraph;
         typedef typename GridGraph::VertexCoordinate VertexCoordinate;
         {
-            GridGraph g({{6,4,3,5}});
+            GridGraph g({6,4,3,5});
             const size_t pivot = g.vertex(VertexCoordinate({{1,2,2,1}}));
             testIteratorCompile(g, pivot);
         }
