@@ -8,6 +8,7 @@
 #include <cmath>
 #include <iterator>
 #include <array>
+#include <initializer_list>
 
 #include "adjacency.hxx"
 #include "visitor.hxx"
@@ -152,6 +153,7 @@ public:
     // construction
     GridGraph(const Visitor& = Visitor());
     GridGraph(const VertexCoordinate&, const Visitor& = Visitor());
+    GridGraph(const std::initializer_list<std::size_t>, const Visitor& = Visitor());
     void assign(const Visitor& = Visitor());
     void assign(const VertexCoordinate&, const Visitor& = Visitor());
 
@@ -220,7 +222,7 @@ inline
 GridGraph<D, VISITOR>::GridGraph(
     const Visitor& visitor
 )
-:   GridGraph({{0, 0}}, visitor) // Chain-call Constructor
+:   GridGraph(VertexCoordinate({}), visitor) // Chain-call Constructor
 {}
 
 /// Construct a grid graph with a specified shape.
@@ -236,6 +238,24 @@ GridGraph<D, VISITOR>::GridGraph(
 )
     :   numberOfEdges_ (edgeIndexOffsets_[DIMENSION - 1]) {
     assign(shape, visitor);
+}
+
+/// Construct a grid graph with a specified shape.
+///
+/// \param shape the shape of the Grid Graph as an std::array.
+/// \param visitor Visitor to follow changes of integer indices of vertices
+/// and edges.
+template<unsigned char D, class VISITOR>
+inline
+GridGraph<D, VISITOR>::GridGraph(
+    std::initializer_list<std::size_t> shape,
+    const Visitor& visitor
+)
+    :   numberOfEdges_ (edgeIndexOffsets_[DIMENSION - 1]) {
+    assert(shape.size()==D);
+    VertexCoordinate vCoord;
+    std::copy(shape.begin(), shape.end(), vCoord.begin());
+    assign(vCoord, visitor);
 }
 
 /// Clear a grid graph.
@@ -938,16 +958,15 @@ GridGraph<D, VISITOR>::vertexFromVertex(
     bool& isSmaller
 ) const {
     assert(vertex(vertexCoordinate) < numberOfVertices());
-    VertexCoordinate& modifieableVertexCoordinate = const_cast<VertexCoordinate&>(vertexCoordinate);
+    VertexCoordinate modifieableVertexCoordinate = vertexCoordinate;
     size_type cur_j = 0;
     for(size_type i = DIMENSION; i > 0; --i) {
         if(vertexCoordinate[i - 1] > 0) { // edge exists
             if(cur_j == j) {
                 direction = i - 1;
                 isSmaller = true;
-                --modifieableVertexCoordinate[i - 1]; // Increase, avoiding copies
+                --modifieableVertexCoordinate[i - 1];
                 const size_type vertexIndex = vertex(modifieableVertexCoordinate);
-                ++modifieableVertexCoordinate[i - 1]; // Restore
                 return vertexIndex;
             }
             ++cur_j;
@@ -958,9 +977,8 @@ GridGraph<D, VISITOR>::vertexFromVertex(
             if(cur_j == j) {
                 direction = i;
                 isSmaller = false;
-                ++modifieableVertexCoordinate[i]; // Increase, avoiding copies
+                ++modifieableVertexCoordinate[i];
                 const size_type vertexIndex = vertex(modifieableVertexCoordinate);
-                --modifieableVertexCoordinate[i]; // Restore
                 return vertexIndex;
             }
             ++cur_j;
