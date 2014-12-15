@@ -14,14 +14,9 @@ namespace graph{
 namespace hdf5{
 
 
-struct DatasetNamesComplete : public DatasetNames {
-    const char vertices[9] = "vertices";
-};
-static const DatasetNamesComplete datasetNamesComplete;
-
 template<>
 template<class VISITOR>
-struct graph_traits<CompleteGraph<VISITOR> > {
+struct GraphTraitsHDF5<CompleteGraph<VISITOR> > {
     static const int ID = 10002;
 };
 
@@ -36,25 +31,25 @@ void load(const hid_t, const std::string&, CompleteGraph<VISITOR>& graph);
 template <class VISITOR>
 void
 save(
-    const hid_t fileHandle,
-    const std::string& datasetName,
+    const hid_t parentHandle,
+    const std::string& graphName,
     const CompleteGraph<VISITOR>& graph
 ) {
     typedef CompleteGraph<VISITOR> Graph;
     hdf5::HandleCheck<ANDRES_GRAPH_HDF5_DEBUG> handleCheck;
-    hid_t groupHandle = openGroup(fileHandle, datasetName,true);
+    hid_t groupHandle = openGroup(parentHandle, graphName,true);
     std::string sError;
     try{
-        save(groupHandle, datasetNamesComplete.vertices, graph.numberOfVertices());
-        int ID = graph_traits<Graph>::ID;
-        save(groupHandle, datasetNamesComplete.graphTypeId, ID);
+        save(groupHandle, "vertices", graph.numberOfVertices());
+        int ID = GraphTraitsHDF5<Graph>::ID;
+        save(groupHandle, "graph-type-id", ID);
     } catch (std::exception& e) {
         sError = e.what();
     }
     closeGroup(groupHandle);
     if(!sError.empty()) {
         throw std::runtime_error(
-            "CompleteGraph: Saving to dataset '"+datasetName+"' failed: "+sError
+            "CompleteGraph: Saving to dataset '"+graphName+"' failed: "+sError
         );
     }
 }
@@ -62,25 +57,25 @@ save(
 template <class VISITOR>
 void
 load(
-    const hid_t fileHandle,
-    const std::string& datasetName,
+    const hid_t parentHandle,
+    const std::string& graphName,
     CompleteGraph<VISITOR>& graph
 ) {
     typedef CompleteGraph<VISITOR> CompleteGraph;
     hdf5::HandleCheck<ANDRES_GRAPH_HDF5_DEBUG> handleCheck;
-    hid_t groupHandle = openGroup(fileHandle, datasetName);
+    hid_t groupHandle = openGroup(parentHandle, graphName);
     std::string sError;
     try{
         {
             int ID;
-            load(groupHandle, datasetNamesComplete.graphTypeId, ID);
-            if(ID!=graph_traits<CompleteGraph>::ID) {
+            load(groupHandle, "graph-type-id", ID);
+            if(ID!=GraphTraitsHDF5<CompleteGraph>::ID) {
                 sError = "Stored graph type is not a CompleteGraph.";
                 goto cleanup;
             }
         }
         std::size_t numberOfVertices;
-        load(groupHandle, datasetNamesComplete.vertices, numberOfVertices);
+        load(groupHandle, "vertices", numberOfVertices);
         graph.assign(numberOfVertices);
         }catch(std::exception& e) {
             sError = e.what();
@@ -89,7 +84,7 @@ cleanup:
     closeGroup(groupHandle);
     if(!sError.empty()) {
         throw std::runtime_error(
-            "CompleteGraph: Loading dataset '"+datasetName+"' failed: "+sError
+            "CompleteGraph: Loading dataset '"+graphName+"' failed: "+sError
         );
     }
 }

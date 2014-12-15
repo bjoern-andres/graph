@@ -13,14 +13,9 @@ namespace andres{
 namespace graph{
 namespace hdf5{
 
-struct DatasetNamesGridGraph: public DatasetNames {
-    const char shape[6] = "shape";
-};
-static const DatasetNamesGridGraph datasetNamesGridGraph;
-
 template<>
 template<unsigned char D, class VISITOR>
-struct graph_traits<GridGraph<D, VISITOR> > {
+struct GraphTraitsHDF5<GridGraph<D, VISITOR> > {
     static const int ID = 10003;
 };
 
@@ -35,30 +30,30 @@ void load(const hid_t, const std::string&, GridGraph<D, VISITOR>&);
 template<unsigned char D, class VISITOR>
 void
 save(
-    const hid_t fileHandle,
-    const std::string& datasetName,
+    const hid_t parentHandle,
+    const std::string& graphName,
     const GridGraph<D, VISITOR>& graph
 ) {
     typedef GridGraph<D, VISITOR> Graph;
     HandleCheck<ANDRES_GRAPH_HDF5_DEBUG> handleCheck;
-    hid_t groupHandle = openGroup(fileHandle, datasetName,true);
+    hid_t groupHandle = openGroup(parentHandle, graphName,true);
     std::string sError;
     try {
-        const int ID = graph_traits<Graph>::ID;
-        save(groupHandle, datasetNamesGridGraph.graphTypeId, ID);
+        const int ID = GraphTraitsHDF5<Graph>::ID;
+        save(groupHandle, "graph-type-id", ID);
         // Save shape
         std::array<std::size_t, D> shape;
         for(std::size_t i=0;i<D;++i) {
             shape[i] = graph.shape(i);
         }
-        save(groupHandle, datasetNamesGridGraph.shape, {D}, &shape[0]);
+        save(groupHandle, "shape", {D}, &shape[0]);
     } catch(std::exception& e) {
         sError = e.what();
     }
     closeGroup(groupHandle);
     if(!sError.empty()) {
         throw std::runtime_error(
-            "GridGraph: Save to dataset '"+datasetName+"' failed :"+sError
+            "GridGraph: Save to dataset '"+graphName+"' failed :"+sError
         );
     }
 }
@@ -66,13 +61,13 @@ save(
 template<unsigned char D, class VISITOR>
 void
 load(
-    const hid_t fileHandle,
-    const std::string& datasetName,
+    const hid_t parentHandle,
+    const std::string& graphName,
     GridGraph<D, VISITOR>& graph
 ) {
     typedef GridGraph<D, VISITOR> Graph;
     HandleCheck<ANDRES_GRAPH_HDF5_DEBUG> handleCheck;
-    hid_t groupHandle = openGroup(fileHandle, datasetName);
+    hid_t groupHandle = openGroup(parentHandle, graphName);
     
     std::string sError;
     try{
@@ -80,13 +75,13 @@ load(
         std::vector<std::size_t> shape;
         {
             int ID;
-            load(groupHandle, datasetNamesGridGraph.graphTypeId, ID);
-            if(ID != graph_traits<Graph>::ID) {
+            load(groupHandle, "graph-type-id", ID);
+            if(ID != GraphTraitsHDF5<Graph>::ID) {
                 sError = "Stored graph type is not a GridGraph.";
                 goto cleanup;
             }
         }
-        load(groupHandle, datasetNamesGridGraph.shape, nDims, shape);
+        load(groupHandle, "shape", nDims, shape);
         if(nDims.size() != 1) {
             sError = "Shape dataset is not a vector.";
             goto cleanup;
@@ -106,7 +101,7 @@ cleanup:
     closeGroup(groupHandle);
     if(!sError.empty()) {
         throw std::runtime_error(
-            "GridGraph: Loading from dataset '" +datasetName+"' failed: "+sError
+            "GridGraph: Loading from dataset '" +graphName+"' failed: "+sError
         );
     }
 }

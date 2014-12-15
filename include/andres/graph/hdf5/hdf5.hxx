@@ -30,12 +30,8 @@ namespace andres{
 namespace graph{
 namespace hdf5{
 
-struct DatasetNames{
-    const char graphTypeId[14] = "graph-type-id";
-};
-
 template<class GRAPH>
-class graph_traits;
+class GraphTraitsHDF5;
 
 // \cond suppress doxygen
 template<bool B = true> class HandleCheck;
@@ -130,7 +126,7 @@ hid_t openGroup(const hid_t&, const std::string&, const bool =false);
 void closeGroup(const hid_t&);
 
 template<class T>
-void save(const hid_t&, const std::string&, const std::vector<std::size_t>&, const T * const);
+void save(const hid_t&, const std::string&, std::initializer_list<std::size_t>, const T * const);
 template<class T>
 void save(const hid_t&, const std::string&, const T&);
 
@@ -292,19 +288,19 @@ closeGroup(
 
 /// Save shaped data a 2D HDF5 dataset.
 ///
-/// \param groupHandle Handle of the parent HDF5 file or group.
+/// \param parentHandle Handle of the parent HDF5 file or group.
 /// \param datasetName Name of the HDF5 dataset.
 /// \param shape Shape of the data.
 /// \param data A total of prod(shape) values must be readable.
 ///
 template<class T>
 void save(
-    const hid_t& groupHandle,
+    const hid_t& parentHandle,
     const std::string& datasetName,
-    const std::vector<std::size_t>& shape,
+    const std::initializer_list<std::size_t> shape,
     const T * const data
 ) {
-    assert(groupHandle >= 0);
+    assert(parentHandle >= 0);
     HandleCheck<ANDRES_GRAPH_HDF5_DEBUG> handleCheck;
 
     hid_t datatype, dataspace, dataset;
@@ -322,7 +318,7 @@ void save(
     }
 
     // create new dataset
-    dataset = H5Dcreate(groupHandle, datasetName.c_str(), datatype,
+    dataset = H5Dcreate(parentHandle, datasetName.c_str(), datatype,
         dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     if(dataset < 0) {
         sError = "Dataset creation failed.";
@@ -352,11 +348,11 @@ cleanupType:
 ///
 template<class T>
 void save(
-    const hid_t& groupHandle,
+    const hid_t& parentHandle,
     const std::string& datasetName,
     const T& data
 ) {
-    assert(groupHandle >= 0);
+    assert(parentHandle >= 0);
     HandleCheck<ANDRES_GRAPH_HDF5_DEBUG> handleCheck;
 
     std::string sError;
@@ -370,7 +366,7 @@ void save(
     }
 
     // create new dataset
-    dataset = H5Dcreate(groupHandle, datasetName.c_str(), datatype,
+    dataset = H5Dcreate(parentHandle, datasetName.c_str(), datatype,
         dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     if(dataset < 0) {
         sError = "Cannot create dataset.";
@@ -403,12 +399,12 @@ cleanupType:
 ///
 template<class T>
 void load(
-    const hid_t& groupHandle,
+    const hid_t& parentHandle,
     const std::string& datasetName,
     std::vector<std::size_t>& shape,
     std::vector<T>& data
 ) {
-    assert(groupHandle >= 0);
+    assert(parentHandle >= 0);
     HandleCheck<ANDRES_GRAPH_HDF5_DEBUG> handleCheck;
 
     hid_t dataset, memspace, filespace, type, nativeType;
@@ -417,7 +413,7 @@ void load(
     std::string sError;
     shape.clear();
     
-    dataset = H5Dopen(groupHandle, datasetName.c_str(), H5P_DEFAULT);
+    dataset = H5Dopen(parentHandle, datasetName.c_str(), H5P_DEFAULT);
     if(dataset < 0) {
         sError = "Cannot open dataset.";
         goto errorCheck;
@@ -482,17 +478,17 @@ errorCheck:
 ///
 template<class T>
 void load(
-    const hid_t& groupHandle,
+    const hid_t& parentHandle,
     const std::string& datasetName,
     T& data
 ) {
-    assert(groupHandle >= 0);
+    assert(parentHandle >= 0);
     HandleCheck<ANDRES_GRAPH_HDF5_DEBUG> handleCheck;
     
     std::string sError;
     hid_t dataset, filespace, type, nativeType, memspace;
     int ndims;
-    dataset = H5Dopen(groupHandle, datasetName.c_str(), H5P_DEFAULT);
+    dataset = H5Dopen(parentHandle, datasetName.c_str(), H5P_DEFAULT);
     if(dataset < 0) {
         sError = "Cannot open dataset.";
         goto error;
@@ -546,11 +542,11 @@ error:
 template<>
 inline void
 load(
-    const hid_t& groupHandle,
+    const hid_t& parentHandle,
     const std::string& datasetName,
     std::string& data
 ) {
-    assert(groupHandle>0);
+    assert(parentHandle>0);
     HandleCheck<ANDRES_GRAPH_HDF5_DEBUG> handleCheck;
     
     std::string sError;
@@ -558,7 +554,7 @@ load(
     hid_t dataSet, fileType, dataSpace, memType;
     hsize_t stringSize;
     
-    dataSet = H5Dopen (groupHandle, datasetName.c_str(), H5P_DEFAULT);
+    dataSet = H5Dopen (parentHandle, datasetName.c_str(), H5P_DEFAULT);
     fileType = H5Dget_type(dataSet);
     dataSpace = H5Dget_space(dataSet);
     // Verify we opened an 1 dimensional array.
