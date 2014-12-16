@@ -9,6 +9,8 @@
 
 #include "andres/partition.hxx"
 
+#include "subgraph.hxx"
+
 namespace andres {
 namespace graph {
 

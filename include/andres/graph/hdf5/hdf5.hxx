@@ -285,8 +285,7 @@ closeGroup(
     H5Gclose(handle);
 }
 
-
-/// Save shaped data a 2D HDF5 dataset.
+/// Save shaped data as HDF5 dataset.
 ///
 /// \param parentHandle Handle of the parent HDF5 file or group.
 /// \param datasetName Name of the HDF5 dataset.
@@ -329,6 +328,7 @@ void save(
         sError = "Failed  to write data to dataset.";
         goto cleanupDataset;
     }
+
 cleanupDataset:
     H5Dclose(dataset);
 cleanupSpace:
@@ -378,6 +378,7 @@ void save(
     }
     
     H5Dclose(dataset);
+
 cleanupSpace:
     H5Sclose(dataspace);
 cleanupType:
@@ -455,6 +456,7 @@ void load(
         goto cleanupDataset;
     }
     shape.assign(storedShape.begin(),storedShape.end());
+
 cleanupDataset:
     H5Dclose(dataset);
     H5Sclose(memspace);
@@ -598,6 +600,7 @@ load(
         }
         data.assign(&buf[0]);
     }
+
 cleanupAll:    
     H5Tclose (memType);
 cleanupTypes:

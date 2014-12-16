@@ -18,7 +18,7 @@ class BreadthFirstSearchData {
 public:
     typedef S size_type;
 
-    static constexpr size_type NOT_VISITED = std::numeric_limits<S>::max();
+    static const size_type NOT_VISITED;
 
     BreadthFirstSearchData(const size_type size)
         :   depth_(size, NOT_VISITED)
@@ -52,7 +52,7 @@ private:
     std::queue<size_type> queue_;
 };
 template<typename S>
-    constexpr typename BreadthFirstSearchData<S>::size_type BreadthFirstSearchData<S>::NOT_VISITED;
+   const S BreadthFirstSearchData<S>::NOT_VISITED = std::numeric_limits<S>::max();
 
 template<typename GRAPH, typename CALLBACK>
 inline void
