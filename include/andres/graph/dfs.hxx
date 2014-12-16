@@ -65,9 +65,8 @@ depthFirstSearch(
     CALLBACK&& callback
 )
 {
-    const auto f = callback;
     DepthFirstSearchData<std::size_t> data(g);
-    depthFirstSearch(g, DefaultSubgraphMask<>(), start_vertex, f, data);
+    depthFirstSearch(g, DefaultSubgraphMask<>(), start_vertex, callback, data);
 }
 
 template<typename GRAPH, typename CALLBACK>
@@ -91,8 +90,7 @@ depthFirstSearch(
     DepthFirstSearchData<std::size_t>& data
 )
 {
-    const auto f = callback;
-    depthFirstSearch(g, DefaultSubgraphMask<>(), start_vertex, f, data);
+    depthFirstSearch(g, DefaultSubgraphMask<>(), start_vertex, callback, data);
 }
 
 template<typename GRAPH, typename SUBGRAPH, typename CALLBACK>
@@ -117,9 +115,8 @@ depthFirstSearch(
     CALLBACK&& callback
 )
 {
-    const auto f = callback;
     DepthFirstSearchData<std::size_t> data(g);
-    depthFirstSearch(g, subgraph_mask, start_vertex, f, data);
+    depthFirstSearch(g, subgraph_mask, start_vertex, callback, data);
 }
 
 template<typename GRAPH, typename SUBGRAPH, typename CALLBACK>
@@ -176,8 +173,7 @@ depthFirstSearch(
     DepthFirstSearchData<std::size_t>& data
 )
 {
-    const auto f = callback;
-    depthFirstSearch(g, subgraph_mask, start_vertex, f, data);
+    depthFirstSearch(g, subgraph_mask, start_vertex, callback, data);
 }
 
 } // namespace graph

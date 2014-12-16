@@ -68,9 +68,8 @@ breadthFirstSearch(
     CALLBACK&& callback
 )
 {
-    const auto f = callback;
     BreadthFirstSearchData<std::size_t> data(g);
-    breadthFirstSearch(g, DefaultSubgraphMask<>(), start_vertex, f, data);
+    breadthFirstSearch(g, DefaultSubgraphMask<>(), start_vertex, callback, data);
 }
 
 template<typename GRAPH, typename CALLBACK>
@@ -94,8 +93,7 @@ breadthFirstSearch(
     BreadthFirstSearchData<std::size_t>& data
 )
 {
-    const auto f = callback;
-    breadthFirstSearch(g, DefaultSubgraphMask<>(), start_vertex, f, data);
+    breadthFirstSearch(g, DefaultSubgraphMask<>(), start_vertex, callback, data);
 }
 
 template<typename GRAPH, typename SUBGRAPH, typename CALLBACK>
@@ -120,9 +118,8 @@ breadthFirstSearch(
     CALLBACK&& callback
 )
 {
-    const auto f = callback;
     BreadthFirstSearchData<std::size_t> data(g);
-    breadthFirstSearch(g, subgraph_mask, start_vertex, f, data);
+    breadthFirstSearch(g, subgraph_mask, start_vertex, callback, data);
 }
 
 template<typename GRAPH, typename SUBGRAPH, typename CALLBACK>
@@ -185,8 +182,7 @@ breadthFirstSearch(
     BreadthFirstSearchData<std::size_t>& data
 )
 {
-    const auto f = callback;
-    breadthFirstSearch(g, subgraph_mask, start_vertex, f, data);
+    breadthFirstSearch(g, subgraph_mask, start_vertex, callback, data);
 }
 
 } // namespace graph
