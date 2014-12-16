@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <limits>
 #include <queue>
+#include <type_traits>
 #include <vector>
 
 #include "subgraph.hxx"
@@ -59,12 +60,36 @@ breadthFirstSearch(
     breadthFirstSearch(g, DefaultSubgraphMask<>(), start_vertex, callback, data);
 }
 
+template<typename GRAPH, typename CALLBACK, typename = typename std::enable_if<!std::is_lvalue_reference<CALLBACK>::value>::type>
+inline void
+breadthFirstSearch(
+    const GRAPH& g,
+    const std::size_t start_vertex,
+    CALLBACK&& callback
+)
+{
+    BreadthFirstSearchData<std::size_t> data(g);
+    breadthFirstSearch(g, DefaultSubgraphMask<>(), start_vertex, callback, data);
+}
+
 template<typename GRAPH, typename CALLBACK>
 inline void
 breadthFirstSearch(
     const GRAPH& g,
     const std::size_t start_vertex,
     CALLBACK& callback,
+    BreadthFirstSearchData<std::size_t>& data
+)
+{
+    breadthFirstSearch(g, DefaultSubgraphMask<>(), start_vertex, callback, data);
+}
+
+template<typename GRAPH, typename CALLBACK, typename = typename std::enable_if<!std::is_lvalue_reference<CALLBACK>::value>::type>
+inline void
+breadthFirstSearch(
+    const GRAPH& g,
+    const std::size_t start_vertex,
+    CALLBACK&& callback,
     BreadthFirstSearchData<std::size_t>& data
 )
 {
@@ -78,6 +103,19 @@ breadthFirstSearch(
     const SUBGRAPH& subgraph_mask,
     const std::size_t start_vertex,
     CALLBACK& callback
+)
+{
+    BreadthFirstSearchData<std::size_t> data(g);
+    breadthFirstSearch(g, subgraph_mask, start_vertex, callback, data);
+}
+
+template<typename GRAPH, typename SUBGRAPH, typename CALLBACK, typename = typename std::enable_if<!std::is_lvalue_reference<CALLBACK>::value>::type>
+inline void
+breadthFirstSearch(
+    const GRAPH& g,
+    const SUBGRAPH& subgraph_mask,
+    const std::size_t start_vertex,
+    CALLBACK&& callback
 )
 {
     BreadthFirstSearchData<std::size_t> data(g);
@@ -132,6 +170,19 @@ breadthFirstSearch(
                     data.add(*it, depth);
             }
     }
+}
+
+template<typename GRAPH, typename SUBGRAPH, typename CALLBACK, typename = typename std::enable_if<!std::is_lvalue_reference<CALLBACK>::value>::type>
+inline void
+breadthFirstSearch(
+    const GRAPH& g,
+    const SUBGRAPH& subgraph_mask,
+    const std::size_t start_vertex,
+    CALLBACK&& callback,
+    BreadthFirstSearchData<std::size_t>& data
+)
+{
+    breadthFirstSearch(g, subgraph_mask, start_vertex, callback, data);
 }
 
 } // namespace graph

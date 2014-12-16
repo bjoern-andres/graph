@@ -57,12 +57,36 @@ depthFirstSearch(
     depthFirstSearch(g, DefaultSubgraphMask<>(), start_vertex, callback, data);
 }
 
+template<typename GRAPH, typename CALLBACK, typename = typename std::enable_if<!std::is_lvalue_reference<CALLBACK>::value>::type>
+inline void
+depthFirstSearch(
+    const GRAPH& g,
+    const std::size_t start_vertex,
+    CALLBACK&& callback
+)
+{
+    DepthFirstSearchData<std::size_t> data(g);
+    depthFirstSearch(g, DefaultSubgraphMask<>(), start_vertex, callback, data);
+}
+
 template<typename GRAPH, typename CALLBACK>
 inline void
 depthFirstSearch(
     const GRAPH& g,
     const std::size_t start_vertex,
     CALLBACK& callback,
+    DepthFirstSearchData<std::size_t>& data
+)
+{
+    depthFirstSearch(g, DefaultSubgraphMask<>(), start_vertex, callback, data);
+}
+
+template<typename GRAPH, typename CALLBACK, typename = typename std::enable_if<!std::is_lvalue_reference<CALLBACK>::value>::type>
+inline void
+depthFirstSearch(
+    const GRAPH& g,
+    const std::size_t start_vertex,
+    CALLBACK&& callback,
     DepthFirstSearchData<std::size_t>& data
 )
 {
@@ -76,6 +100,19 @@ depthFirstSearch(
     const SUBGRAPH& subgraph_mask,
     const std::size_t start_vertex,
     CALLBACK& callback
+)
+{
+    DepthFirstSearchData<std::size_t> data(g);
+    depthFirstSearch(g, subgraph_mask, start_vertex, callback, data);
+}
+
+template<typename GRAPH, typename SUBGRAPH, typename CALLBACK, typename = typename std::enable_if<!std::is_lvalue_reference<CALLBACK>::value>::type>
+inline void
+depthFirstSearch(
+    const GRAPH& g,
+    const SUBGRAPH& subgraph_mask,
+    const std::size_t start_vertex,
+    CALLBACK&& callback
 )
 {
     DepthFirstSearchData<std::size_t> data(g);
@@ -124,6 +161,19 @@ depthFirstSearch(
             }
         }
     }
+}
+
+template<typename GRAPH, typename SUBGRAPH, typename CALLBACK, typename = typename std::enable_if<!std::is_lvalue_reference<CALLBACK>::value>::type>
+inline void
+depthFirstSearch(
+    const GRAPH& g,
+    const SUBGRAPH& subgraph_mask,
+    const std::size_t start_vertex,
+    CALLBACK&& callback,
+    DepthFirstSearchData<std::size_t>& data
+)
+{
+    depthFirstSearch(g, subgraph_mask, start_vertex, callback, data);
 }
 
 } // namespace graph
