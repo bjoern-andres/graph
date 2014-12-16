@@ -24,7 +24,7 @@ Vertices and edges are always indexed by contiguous integers.
 This indexing simplifies the implementation of algorithms for static graphs.
 In dynamic settings where vertices and edges are removed from a graph,
 indices of vertices and edges can change.
-These changes can be followed, if necessary, via a functor.
+These changes can be tracked, if necessary, by a functor.
 Subgraphs are defined by subgraph masks.
 
 
@@ -35,7 +35,7 @@ Features
    - Subgraphs defined by subgraph masks
    - Multiple edges between the same pair of vertices (disabled by default)
    - Insertion and removal of vertices and edges
-   - Tracking of integer indices of vertices and edges via a functor 
+   - Tracking of integer indices of vertices and edges by a functor 
    - Constant-time random access to neighboring vertices and incident edges 
       - By contiguous integer indices
       - By STL-compliant random access iterators
