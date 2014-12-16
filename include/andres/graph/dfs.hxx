@@ -25,7 +25,6 @@ public:
     DepthFirstSearchData(const GRAPH& graph)
         :   visited_(graph.numberOfVertices())
         {}
-
     size_type add(const size_type v)
         { stack_.push(v); }
     void clearStack()

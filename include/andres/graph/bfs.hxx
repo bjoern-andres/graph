@@ -27,13 +27,6 @@ public:
     BreadthFirstSearchData(const GRAPH& graph)
         :   depth_(graph.numberOfVertices(), NOT_VISITED)
         {}
-    void assign(const size_type size = 0)
-        {
-            depth_.assign(size, NOT_VISITED);
-            if(!queue_.empty()) {
-                queue_ = std::queue<size_type>();
-            }
-        }
     size_type add(const size_type v, const size_type depth)
         { depth_[v] = depth; queue_.push(v); }
     void clearQueue()
