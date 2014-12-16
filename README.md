@@ -36,9 +36,9 @@ Features
    - Multiple edges between the same pair of vertices (disabled by default)
    - Insertion and removal of vertices and edges
    - Tracking of integer indices of vertices and edges via a functor 
-- Constant-time random access to neighboring vertices and incident edges 
-   - By contiguous integer indices
-   - By STL-compliant random access iterators
+   - Constant-time random access to neighboring vertices and incident edges 
+      - By contiguous integer indices
+      - By STL-compliant random access iterators
 - Graph classes
    - Digraph
    - Graph
