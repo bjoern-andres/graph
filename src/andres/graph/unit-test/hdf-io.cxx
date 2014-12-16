@@ -6,11 +6,11 @@
 #include <andres/graph/hdf5/complete-graph.hxx>
 #include <andres/graph/hdf5/grid-graph.hxx>
 
-
 inline void test(bool pred) { 
     if(!pred)
         throw std::runtime_error("Test failed."); 
 }
+
 #define testThrowsException(PRED, EXC) { \
         {\
             bool threw = false; \
@@ -25,6 +25,7 @@ inline void test(bool pred) {
                 throw std::runtime_error("Test did not throw exception");\
         }\
     }
+
 #define testThrows(PRED) { \
         {\
             bool threw = false; \
@@ -319,6 +320,7 @@ void testSaveLoadCompleteGraph(const std::string& fileName) {
 void testTypeDetection(const std::string& fileName) {
     {
         saveGraph(fileName, "graph", Graph<>());
+        { Graph<> g; loadGraph(fileName, "graph", g); }
         { Digraph<> g; testThrowsException(loadGraph(fileName, "graph", g), std::runtime_error); }
         { CompleteGraph<> g; testThrowsException(loadGraph(fileName, "graph", g), std::runtime_error); }
         { GridGraph<> g; testThrowsException(loadGraph(fileName, "graph", g), std::runtime_error); }
@@ -326,6 +328,7 @@ void testTypeDetection(const std::string& fileName) {
     {
         saveGraph(fileName, "graph", Digraph<>());
         { Graph<> g; testThrowsException(loadGraph(fileName, "graph", g), std::runtime_error); }
+        { Digraph<> g; loadGraph(fileName, "graph", g); }
         { CompleteGraph<> g; testThrowsException(loadGraph(fileName, "graph", g), std::runtime_error); }
         { GridGraph<> g; testThrowsException(loadGraph(fileName, "graph", g), std::runtime_error); }
     }
@@ -333,6 +336,7 @@ void testTypeDetection(const std::string& fileName) {
         saveGraph(fileName, "graph", CompleteGraph<>(10));
         { Graph<> g; testThrowsException(loadGraph(fileName, "graph", g), std::runtime_error); }
         { Digraph<> g; testThrowsException(loadGraph(fileName, "graph", g), std::runtime_error); }
+        { CompleteGraph<> g; loadGraph(fileName, "graph", g); }
         { GridGraph<> g; testThrowsException(loadGraph(fileName, "graph", g), std::runtime_error); }
     }
     {
@@ -340,17 +344,20 @@ void testTypeDetection(const std::string& fileName) {
         { Graph<> g; testThrowsException(loadGraph(fileName, "graph", g), std::runtime_error); }
         { Digraph<> g; testThrowsException(loadGraph(fileName, "graph", g), std::runtime_error); }
         { CompleteGraph<> g; testThrowsException(loadGraph(fileName, "graph", g), std::runtime_error); }
+        { GridGraph<2> g; testThrowsException(loadGraph(fileName, "graph", g), std::runtime_error); }
+        { GridGraph<3> g; loadGraph(fileName, "graph", g); }
     }
 }
 
 int main() {
-    // const std::string fileName = tmpnam(nullptr);
     const std::string fileName = "temp.h5";
+
     testLowLevel(fileName);
     testSaveLoadGraph(fileName);
     testSaveLoadDigraph(fileName);
     testSaveLoadGridGraph(fileName);
     testSaveLoadCompleteGraph(fileName);
     testTypeDetection(fileName);
+
     return 0;
 }
