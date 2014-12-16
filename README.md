@@ -44,6 +44,7 @@ Features
    - Graph
    - Complete graph
    - n-dimensional grid graph
+- Graph file format and I/O based on HDF5
 - Graph algorithms
    - Search and traversal with functors
       * depth first search (DFS)
