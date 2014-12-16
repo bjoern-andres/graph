@@ -51,6 +51,8 @@ private:
     std::vector<size_type> depth_;
     std::queue<size_type> queue_;
 };
+template<typename S>
+    constexpr typename BreadthFirstSearchData<S>::size_type BreadthFirstSearchData<S>::NOT_VISITED;
 
 template<typename GRAPH, typename CALLBACK>
 inline void
