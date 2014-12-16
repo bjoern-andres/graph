@@ -24,7 +24,7 @@ Vertices and edges are always indexed by contiguous integers.
 This indexing simplifies the implementation of algorithms for static graphs.
 In dynamic settings where vertices and edges are removed from a graph,
 indices of vertices and edges can change.
-These changes can be followed, if necessary, via callbacks.
+These changes can be followed, if necessary, via functors.
 Subgraphs are defined by subgraph masks.
 
 
@@ -37,14 +37,14 @@ Features
    - by STL-compliant random access iterators
 - Insertion and removal of vertices and edges
 - Multiple edges between the same pair of vertices (disabled by default)
-- Callbacks for following changes of integer indices of vertices and edges
+- Functors for following changes of integer indices of vertices and edges
 - Graph classes
    - Digraph
    - Graph
    - Complete graph
    - n-dimensional grid graph
 - Graph algorithms
-   - Search and traversal, implemented generically, with callbacks
+   - Search and traversal with functors
       * depth first search (DFS)
       * breadth first search (BFS)
    - 1-connected components
