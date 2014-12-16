@@ -116,7 +116,8 @@ int main() {
 
     {
         SimpleCallback callback;
-        andres::graph::depthFirstSearch(g, callback);
+        andres::graph::depthFirstSearch(g, 0, callback);
+        andres::graph::depthFirstSearch(g, 7, callback);
         test(callback.vertexIndices_.size() == 9);
         test(callback.vertexIndices_[0] == 0);
         test(callback.vertexIndices_[1] == 4);

@@ -5,22 +5,27 @@
 #include <cassert>
 #include <cstddef>
 #include <limits>
-#include <vector>
 #include <queue>
+#include <vector>
+
+#include "subgraph.hxx"
 
 namespace andres {
 namespace graph {
 
-template<class S = std::size_t>
+template<typename S = std::size_t>
 class BreadthFirstSearchData {
 public:
     typedef S size_type;
 
-    static const size_type NOT_VISITED;
+    static constexpr size_type NOT_VISITED = std::numeric_limits<S>::max();
 
-    BreadthFirstSearchData(const size_type size = 0)
-        :   depth_(size, NOT_VISITED),
-            queue_()
+    BreadthFirstSearchData(const size_type size)
+        :   depth_(size, NOT_VISITED)
+        {}
+    template<typename GRAPH>
+    BreadthFirstSearchData(const GRAPH& graph)
+        :   depth_(graph.numberOfVertices(), NOT_VISITED)
         {}
     void assign(const size_type size = 0)
         {
@@ -31,10 +36,14 @@ public:
         }
     size_type add(const size_type v, const size_type depth)
         { depth_[v] = depth; queue_.push(v); }
+    void clearQueue()
+        { queue_ = std::queue<size_type>(); }
+    bool empty() const
+        { return queue_.empty(); }
+    void markAllNotvisited()
+        { std::fill(depth_.begin(), depth_.end(), NOT_VISITED); }
     size_type next()
         { const size_type v = queue_.front(); queue_.pop(); return v; }
-    bool isEmpty() const
-        { return queue_.empty(); }
     size_type depth(const size_type v) const
         { return depth_[v]; }
 
@@ -43,90 +52,91 @@ private:
     std::queue<size_type> queue_;
 };
 
-template<class S>
-const S BreadthFirstSearchData<S>::NOT_VISITED = std::numeric_limits<S>::max();
-
-template<class GRAPH, class CALLBACK>
-void
+template<typename GRAPH, typename CALLBACK>
+inline void
 breadthFirstSearch(
     const GRAPH& g,
-    const std::size_t startVertex,
+    const std::size_t start_vertex,
+    CALLBACK& callback
+)
+{
+    BreadthFirstSearchData<std::size_t> data(g);
+    breadthFirstSearch(g, DefaultSubgraphMask<>(), start_vertex, callback, data);
+}
+
+template<typename GRAPH, typename CALLBACK>
+inline void
+breadthFirstSearch(
+    const GRAPH& g,
+    const std::size_t start_vertex,
     CALLBACK& callback,
     BreadthFirstSearchData<std::size_t>& data
-) {
-    typedef std::size_t size_type;
-    typedef typename GRAPH::VertexIterator VertexIterator;
-    typedef BreadthFirstSearchData<std::size_t> SearchDataType;
+)
+{
+    breadthFirstSearch(g, DefaultSubgraphMask<>(), start_vertex, callback, data);
+}
 
-    assert(startVertex < g.numberOfVertices());
-    data.assign(g.numberOfVertices());
+template<typename GRAPH, typename SUBGRAPH, typename CALLBACK>
+inline void
+breadthFirstSearch(
+    const GRAPH& g,
+    const SUBGRAPH& subgraph_mask,
+    const std::size_t start_vertex,
+    CALLBACK& callback
+)
+{
+    BreadthFirstSearchData<std::size_t> data(g);
+    breadthFirstSearch(g, subgraph_mask, start_vertex, callback, data);
+}
+
+template<typename GRAPH, typename SUBGRAPH, typename CALLBACK>
+inline void
+breadthFirstSearch(
+    const GRAPH& g,
+    const SUBGRAPH& subgraph_mask,
+    const std::size_t start_vertex,
+    CALLBACK& callback,
+    BreadthFirstSearchData<std::size_t>& data
+)
+{
+    assert(start_vertex < g.numberOfVertices());
+
     {
         bool proceed;
         bool add;
-        callback(startVertex, 0, proceed, add);
+        callback(start_vertex, 0, proceed, add);
         if(!proceed) {
             return;
         }
         if(add) {
-            data.add(startVertex, 0);
+            data.add(start_vertex, 0);
         }
     }
-    while(!data.isEmpty()) {
-        const size_type v = data.next();
-        const size_type depth = data.depth(v) + 1;
-        for(VertexIterator it = g.verticesFromVertexBegin(v); it != g.verticesFromVertexEnd(v); ++it) {
-            const size_type w = *it;
-            if(data.depth(w) == SearchDataType::NOT_VISITED) {
+    while(!data.empty()) {
+        const auto v = data.next();
+        const auto depth = data.depth(v) + 1;
+
+        auto e_it = g.edgesFromVertexBegin(v);
+        for(auto it = g.verticesFromVertexBegin(v); it != g.verticesFromVertexEnd(v); ++it, ++e_it)
+            if(data.depth(*it) == BreadthFirstSearchData<std::size_t>::NOT_VISITED &&
+                subgraph_mask.vertex(*it) &&
+                subgraph_mask.edge(*e_it))
+            {
                 bool proceed;
                 bool add;
-                callback(w, depth, proceed, add);
-                if(!proceed) {
+
+                callback(*it, depth, proceed, add);
+                
+                if(!proceed)
+                {
+                    data.clearQueue();
                     return;
                 }
-                if(add) {
-                    data.add(w, depth);
-                }
+                
+                if(add)
+                    data.add(*it, depth);
             }
-        }
     }
-}
-
-template<class GRAPH, class CALLBACK>
-void
-breadthFirstSearch(
-    const GRAPH& g,
-    CALLBACK& callback,
-    BreadthFirstSearchData<std::size_t>& data
-) {
-    typedef BreadthFirstSearchData<std::size_t> SearchDataType;
-
-    breadthFirstSearch(g, 0, callback, data);
-    for(std::size_t v = 0; v < g.numberOfVertices(); ++v) {
-        if(data.depth(v) == SearchDataType::NOT_VISITED) {
-            breadthFirstSearch(g, v, callback, data);
-        }
-    }
-}
-
-template<class GRAPH, class CALLBACK>
-inline void
-breadthFirstSearch(
-    const GRAPH& g,
-    const std::size_t startVertex,
-    CALLBACK& callback
-) {
-    BreadthFirstSearchData<std::size_t> data;
-    breadthFirstSearch(g, startVertex, callback, data);
-}
-
-template<class GRAPH, class CALLBACK>
-inline void
-breadthFirstSearch(
-    const GRAPH& g,
-    CALLBACK& callback
-) {
-    BreadthFirstSearchData<std::size_t> data;
-    breadthFirstSearch(g, callback, data);
 }
 
 } // namespace graph

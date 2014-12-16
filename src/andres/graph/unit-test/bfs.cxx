@@ -141,7 +141,8 @@ int main() {
 
     {
         SimpleCallback callback;
-        andres::graph::breadthFirstSearch(g, callback);
+        andres::graph::breadthFirstSearch(g, 0, callback);
+        andres::graph::breadthFirstSearch(g, 7, callback);
         test(callback.vertexIndices_.size() == 9);
         test(callback.vertexIndices_[0] == 0);
         test(callback.vertexIndices_[1] == 1);
