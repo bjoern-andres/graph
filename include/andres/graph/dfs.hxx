@@ -55,7 +55,7 @@ depthFirstSearch(
 )
 {
     DepthFirstSearchData<std::size_t> data(g);
-    depthFirstSearch(g, start_vertex, callback, data);
+    depthFirstSearch(g, DefaultSubgraphMask<>(), start_vertex, callback, data);
 }
 
 template<typename GRAPH, typename CALLBACK>
@@ -95,8 +95,6 @@ depthFirstSearch(
 {
     assert(start_vertex < g.numberOfVertices());
 
-    bool proceed;
-    bool addNeighbors;
     data.add(start_vertex);
 
     while(!data.empty())
@@ -107,6 +105,9 @@ depthFirstSearch(
         {
             data.visited(v) = 1;
             
+            bool proceed;
+            bool addNeighbors;
+
             callback(v, proceed, addNeighbors);
             
             if (!proceed)
