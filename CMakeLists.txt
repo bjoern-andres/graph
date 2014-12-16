@@ -111,7 +111,7 @@ endif(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
 
 if(HDF5_FOUND)
     include_directories(PUBLIC ${HDF5_INCLUDE_DIRS})
-    add_executable(test-hdf src/andres/graph/unit-test/hdf-io.cxx ${headers})
+    add_executable(test-hdf src/andres/graph/unit-test/hdf5.cxx ${headers})
     target_link_libraries(test-hdf ${HDF5_LIBRARIES})
     add_test(test-hdf test-hdf)
 endif()
