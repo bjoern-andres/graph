@@ -61,6 +61,7 @@ Gurobi<T>::Gurobi
 template<class T>
 Gurobi<T>::~Gurobi() {
     delete gurobiModel_;
+    delete[] gurobiVariables_;
 }
 
 template<class T>
