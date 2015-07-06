@@ -39,29 +39,26 @@ public:
 
 private:
     GRBEnv gurobiEnvironment_;
-    GRBModel* gurobiModel_;
-    GRBVar* gurobiVariables_;
+    GRBModel* gurobiModel_ { nullptr };
+    GRBVar* gurobiVariables_ { nullptr };
     GRBLinExpr gurobiObjective_;
-    size_t nVariables_;
+    size_t nVariables_ { 0 };
 };
 
 template<class T>
 inline
-Gurobi<T>::Gurobi
-()
-:   gurobiEnvironment_(),
-    gurobiModel_(NULL),
-    gurobiVariables_(NULL),
-    gurobiObjective_(),
-    nVariables_(0)
+Gurobi<T>::Gurobi()
 {
     setVerbosity(false);
 }
 
 template<class T>
 Gurobi<T>::~Gurobi() {
-    delete gurobiModel_;
-    delete[] gurobiVariables_;
+    if (gurobiModel_ != nullptr)
+        delete gurobiModel_;
+
+    if (gurobiVariables_ != nullptr)
+        delete[] gurobiVariables_;
 }
 
 template<class T>
@@ -164,7 +161,13 @@ Gurobi<T>::initModel(
     const T* coefficients
 ) {
     nVariables_ = numberOfVariables;
-    delete gurobiModel_;
+    
+    if (gurobiModel_ != nullptr)
+        delete gurobiModel_;
+
+    if (gurobiVariables_ != nullptr)
+        delete[] gurobiVariables_;
+
     gurobiModel_ = new GRBModel(gurobiEnvironment_);
     gurobiVariables_ = gurobiModel_->addVars(numberOfVariables, GRB_BINARY);
     gurobiModel_->update();
