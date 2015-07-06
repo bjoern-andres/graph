@@ -173,7 +173,9 @@ Multicut<GRAPH, ILP>::solve(
     const std::size_t maxIterations,
     VISITOR& visitor
 ) {
-    for(std::size_t i = 0; maxIterations == 0 || i < maxIterations; ++i) {
+    std::size_t i = 0;
+
+    for (; maxIterations == 0 || i < maxIterations; ++i) {
         if(i != 0) {
             visitor.repairSolution();
             repairSolution();
@@ -186,6 +188,12 @@ Multicut<GRAPH, ILP>::solve(
         if(nc == 0) {
             break;
         }
+    }
+
+    if (i == maxIterations)
+    {
+        visitor.repairSolution();
+        repairSolution();
     }
 }
 
@@ -296,7 +304,9 @@ Multicut<CompleteGraph<GRAPH_VISITOR>, ILP>::solve(
     const std::size_t maxIterations,
     VISITOR& visitor
 ) {
-    for(std::size_t i = 0; maxIterations == 0 || i < maxIterations; ++i) {
+    std::size_t i = 0;
+
+    for(; maxIterations == 0 || i < maxIterations; ++i) {
         // not repairing solution because connected component labeling
         // (whose runtime complexity is linear in the number of nodes plus the
         // number of edges) is usually slower for complete graphs than repair
@@ -315,6 +325,12 @@ Multicut<CompleteGraph<GRAPH_VISITOR>, ILP>::solve(
         if(nc == 0) {
             break;
         }
+    }
+
+    if (i == maxIterations)
+    {
+        visitor.repairSolution();
+        repairSolution();
     }
 }
 
