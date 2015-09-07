@@ -135,8 +135,8 @@ Multicut<GRAPH, ILP>::label(
     const std::size_t edge
 ) const {
     assert(edge < graph_->numberOfEdges());
-    auto v0 = graph_->vertexOfEdge(edge, 0);
-    auto v1 = graph_->vertexOfEdge(edge, 1);
+    size_t v0 = graph_->vertexOfEdge(edge, 0);
+    size_t v1 = graph_->vertexOfEdge(edge, 1);
     return components_.areConnected(v0, v1) ? 0 : 1;
 }
 
@@ -345,8 +345,8 @@ Multicut<CompleteGraph<GRAPH_VISITOR>, ILP>::label(
     const std::size_t edge
 ) const {
     assert(edge < graph_->numberOfEdges());
-    auto v0 = graph_->vertexOfEdge(edge, 0);
-    auto v1 = graph_->vertexOfEdge(edge, 1);
+    size_t v0 = graph_->vertexOfEdge(edge, 0);
+    size_t v1 = graph_->vertexOfEdge(edge, 1);
     return components_.areConnected(v0, v1) ? 0 : 1;
 }
 
