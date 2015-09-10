@@ -58,14 +58,14 @@ public:
 
 private:
     struct SubgraphWithoutCut { // a subgraph mask
-        SubgraphWithoutCut(const Multicut<GRAPH, ILP>& multicut)
-            : multicut_(multicut) {}
+        SubgraphWithoutCut(const ILP& ilp)
+            : ilp_(ilp) {}
         bool vertex(const std::size_t v) const
             { return true; }
         bool edge(const std::size_t e) const
-            { return multicut_.label(e) == 0; }
+            { return ilp_.label(e) == 0; }
 
-        const Multicut<GRAPH, ILP>& multicut_;
+        const ILP& ilp_;
     };
 
     std::size_t addCycleInequalities();
@@ -103,14 +103,14 @@ public:
 
 private:
     struct SubgraphWithoutCut { // a subgraph mask
-        SubgraphWithoutCut(const Multicut<CompleteGraph<GRAPH_VISITOR>, ILP>& multicut)
-            : multicut_(multicut) {}
+        SubgraphWithoutCut(const ILP& ilp)
+            : ilp_(ilp) {}
         bool vertex(const std::size_t v) const
             { return true; }
         bool edge(const std::size_t e) const
-            { return multicut_.label(e) == 0; }
+            { return ilp_.label(e) == 0; }
 
-        const Multicut<CompleteGraph<GRAPH_VISITOR>, ILP>& multicut_;
+        const ILP& ilp_;
     };
 
     std::size_t addCycleInequalities();
@@ -135,7 +135,9 @@ Multicut<GRAPH, ILP>::label(
     const std::size_t edge
 ) const {
     assert(edge < graph_->numberOfEdges());
-    return ilp_.label(edge);
+    size_t v0 = graph_->vertexOfEdge(edge, 0);
+    size_t v1 = graph_->vertexOfEdge(edge, 1);
+    return components_.areConnected(v0, v1) ? 0 : 1;
 }
 
 template<class GRAPH, class ILP>
@@ -173,7 +175,9 @@ Multicut<GRAPH, ILP>::solve(
     const std::size_t maxIterations,
     VISITOR& visitor
 ) {
-    for(std::size_t i = 0; maxIterations == 0 || i < maxIterations; ++i) {
+    std::size_t i = 0;
+
+    for (; maxIterations == 0 || i < maxIterations; ++i) {
         if(i != 0) {
             visitor.repairSolution();
             repairSolution();
@@ -187,13 +191,19 @@ Multicut<GRAPH, ILP>::solve(
             break;
         }
     }
+
+    if (i == maxIterations)
+    {
+        visitor.repairSolution();
+        repairSolution();
+    }
 }
 
 template<class GRAPH, class ILP>
 inline std::size_t
 Multicut<GRAPH, ILP>::addCycleInequalities() {
     // label connected components
-    components_.build(*graph_, SubgraphWithoutCut(*this));
+    components_.build(*graph_, SubgraphWithoutCut(ilp_));
 
     // search for violated non-chordal cycles and add corresp. inequalities
     std::deque<std::size_t> path;
@@ -203,12 +213,12 @@ Multicut<GRAPH, ILP>::addCycleInequalities() {
     std::size_t counter = 0;
     #pragma omp parallel for private(path, buffer, variables, coefficients), schedule(guided)
     for(ptrdiff_t edge = 0; edge < graph_->numberOfEdges(); ++edge) {
-        if(label(edge) == 1) {
+        if(ilp_.label(edge) == 1) {
             const std::size_t v0 = graph_->vertexOfEdge(edge, 0);
             const std::size_t v1 = graph_->vertexOfEdge(edge, 1);
             if(components_.areConnected(v0, v1)) { 
                 // search for shortest path
-                bool found = spsp(*graph_, SubgraphWithoutCut(*this), v0, v1, path, buffer); 
+                bool found = spsp(*graph_, SubgraphWithoutCut(ilp_), v0, v1, path, buffer); 
                 assert(found);
                 
                 // skip chordal paths
@@ -296,7 +306,9 @@ Multicut<CompleteGraph<GRAPH_VISITOR>, ILP>::solve(
     const std::size_t maxIterations,
     VISITOR& visitor
 ) {
-    for(std::size_t i = 0; maxIterations == 0 || i < maxIterations; ++i) {
+    std::size_t i = 0;
+
+    for(; maxIterations == 0 || i < maxIterations; ++i) {
         // not repairing solution because connected component labeling
         // (whose runtime complexity is linear in the number of nodes plus the
         // number of edges) is usually slower for complete graphs than repair
@@ -316,6 +328,9 @@ Multicut<CompleteGraph<GRAPH_VISITOR>, ILP>::solve(
             break;
         }
     }
+
+    visitor.repairSolution();
+    repairSolution();
 }
 
 template<class GRAPH_VISITOR, class ILP>
@@ -330,7 +345,9 @@ Multicut<CompleteGraph<GRAPH_VISITOR>, ILP>::label(
     const std::size_t edge
 ) const {
     assert(edge < graph_->numberOfEdges());
-    return ilp_.label(edge);
+    size_t v0 = graph_->vertexOfEdge(edge, 0);
+    size_t v1 = graph_->vertexOfEdge(edge, 1);
+    return components_.areConnected(v0, v1) ? 0 : 1;
 }
 
 template<class GRAPH_VISITOR, class ILP>
@@ -346,16 +363,16 @@ Multicut<CompleteGraph<GRAPH_VISITOR>, ILP>::addCycleInequalities() {
                 vi[2] = graph_->findEdge(j, l).second;
                 const double lowerBound = 0.0;
                 const double upperBound = std::numeric_limits<double>::infinity();
-                if(label(vi[0]) == 0) {
-                    if(label(vi[1]) == 0) {
-                        if(label(vi[2]) == 1) {
+                if(ilp_.label(vi[0]) == 0) {
+                    if(ilp_.label(vi[1]) == 0) {
+                        if(ilp_.label(vi[2]) == 1) {
                             const double coefficients[] = {1.0, 1.0, -1.0};
                             ilp_.addConstraint(vi, vi + 3, coefficients, lowerBound, upperBound);
                             ++numberOfInequalitiesAdded;
                         }
                     }
                     else {
-                        if(label(vi[2]) == 0) {
+                        if(ilp_.label(vi[2]) == 0) {
                             const double coefficients[] = {1.0, -1.0, 1.0};
                             ilp_.addConstraint(vi, vi + 3, coefficients, lowerBound, upperBound);
                             ++numberOfInequalitiesAdded;
@@ -363,7 +380,7 @@ Multicut<CompleteGraph<GRAPH_VISITOR>, ILP>::addCycleInequalities() {
                     }
                 }
                 else {
-                    if(label(vi[1]) == 0 && label(vi[2]) == 0) {
+                    if(ilp_.label(vi[1]) == 0 && ilp_.label(vi[2]) == 0) {
                         const double coefficients[] = {-1.0, 1.0, 1.0};
                         ilp_.addConstraint(vi, vi + 3, coefficients, lowerBound, upperBound);
                         ++numberOfInequalitiesAdded;
@@ -378,7 +395,7 @@ Multicut<CompleteGraph<GRAPH_VISITOR>, ILP>::addCycleInequalities() {
 template<class GRAPH_VISITOR, class ILP>
 inline void
 Multicut<CompleteGraph<GRAPH_VISITOR>, ILP>::repairSolution() {
-    components_.build(*graph_, SubgraphWithoutCut(*this));
+    components_.build(*graph_, SubgraphWithoutCut(ilp_));
     std::vector<double> repairedSolution(graph_->numberOfEdges());
     for(std::size_t edge = 0; edge < graph_->numberOfEdges(); ++edge) {
         const std::size_t v0 = graph_->vertexOfEdge(edge, 0);

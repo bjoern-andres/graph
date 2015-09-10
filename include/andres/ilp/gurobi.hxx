@@ -47,9 +47,8 @@ private:
 
 template<class T>
 inline
-Gurobi<T>::Gurobi
-()
-:   gurobiEnvironment_(),
+Gurobi<T>::Gurobi() :
+    gurobiEnvironment_(),
     gurobiModel_(NULL),
     gurobiVariables_(NULL),
     gurobiObjective_(),
@@ -60,7 +59,11 @@ Gurobi<T>::Gurobi
 
 template<class T>
 Gurobi<T>::~Gurobi() {
-    delete gurobiModel_;
+    if (gurobiModel_ != NULL)
+        delete gurobiModel_;
+
+    if (gurobiVariables_ != NULL)
+        delete[] gurobiVariables_;
 }
 
 template<class T>
@@ -163,7 +166,13 @@ Gurobi<T>::initModel(
     const T* coefficients
 ) {
     nVariables_ = numberOfVariables;
-    delete gurobiModel_;
+    
+    if (gurobiModel_ != NULL)
+        delete gurobiModel_;
+
+    if (gurobiVariables_ != NULL)
+        delete[] gurobiVariables_;
+
     gurobiModel_ = new GRBModel(gurobiEnvironment_);
     gurobiVariables_ = gurobiModel_->addVars(numberOfVariables, GRB_BINARY);
     gurobiModel_->update();

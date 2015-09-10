@@ -33,7 +33,7 @@ find_package(HDF5 1.8.0)
 ##############################################################################
 # Gurobi
 ##############################################################################
-#find_package(GUROBI)
+find_package(GUROBI)
 if(GUROBI_FOUND)
     include_directories(${GUROBI_INCLUDE_DIR})
 endif()
@@ -72,20 +72,6 @@ add_test(test-graph-graph test-graph-graph)
 add_executable(test-graph-digraph src/andres/graph/unit-test/digraph.cxx ${headers})
 add_test(test-graph-digraph test-graph-digraph)
 
-add_executable(test-graph-complete-graph src/andres/graph/unit-test/graph-complete.cxx ${headers})
-add_test(test-graph-complete-graph test-graph-complete-graph)
-
-if(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
-    add_executable(test-graph-grid-graph src/andres/graph/unit-test/graph-grid.cxx ${headers})
-    add_test(test-graph-grid-graph test-graph-grid-graph)
-endif(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
-
-add_executable(test-graph-dfs src/andres/graph/unit-test/dfs.cxx ${headers})
-add_test(test-graph-dfs test-graph-dfs)
-
-add_executable(test-graph-bfs src/andres/graph/unit-test/bfs.cxx ${headers})
-add_test(test-graph-bfs test-graph-bfs)
-
 add_executable(test-graph-shortest-paths src/andres/graph/unit-test/shortest-paths.cxx ${headers})
 add_test(test-graph-shortest-paths test-graph-shortest-paths)
 
@@ -99,6 +85,18 @@ add_executable(test-graph-max-flow src/andres/graph/unit-test/max-flow.cxx ${hea
 add_test(test-graph-max-flow test-graph-max-flow)
 
 if(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
+    add_executable(test-graph-complete-graph src/andres/graph/unit-test/graph-complete.cxx ${headers})
+    add_test(test-graph-complete-graph test-graph-complete-graph)
+
+    add_executable(test-graph-grid-graph src/andres/graph/unit-test/graph-grid.cxx ${headers})
+    add_test(test-graph-grid-graph test-graph-grid-graph)
+
+    add_executable(test-graph-dfs src/andres/graph/unit-test/dfs.cxx ${headers})
+    add_test(test-graph-dfs test-graph-dfs)
+
+    add_executable(test-graph-bfs src/andres/graph/unit-test/bfs.cxx ${headers})
+    add_test(test-graph-bfs test-graph-bfs)
+
     add_executable(test-graph-cut-vertices src/andres/graph/unit-test/cut-vertices.cxx ${headers})
     add_test(test-graph-cut-vertices test-graph-cut-vertices)
 
@@ -107,14 +105,14 @@ if(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
 
     add_executable(test-graph-minimum-spanning-tree src/andres/graph/unit-test/minimum-spanning-tree.cxx ${headers})
     add_test(test-graph-minimum-spanning-tree test-graph-minimum-spanning-tree)
-endif(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
 
-if(HDF5_FOUND)
-    include_directories(PUBLIC ${HDF5_INCLUDE_DIRS})
-    add_executable(test-hdf5 src/andres/graph/unit-test/hdf5.cxx ${headers})
-    target_link_libraries(test-hdf5 ${HDF5_LIBRARIES})
-    add_test(test-hdf5 test-hdf5)
-endif()
+    if(HDF5_FOUND)
+        include_directories(PUBLIC ${HDF5_INCLUDE_DIRS})
+        add_executable(test-hdf5 src/andres/graph/unit-test/hdf5.cxx ${headers})
+        target_link_libraries(test-hdf5 ${HDF5_LIBRARIES})
+        add_test(test-hdf5 test-hdf5)
+    endif()
+endif(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
 
 if(CPLEX_FOUND)
     add_executable(test-graph-multicut-cplex src/andres/graph/unit-test/multicut-cplex.cxx ${headers})
