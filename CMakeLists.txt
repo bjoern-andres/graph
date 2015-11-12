@@ -19,7 +19,7 @@ find_package(Doxygen)
 ##############################################################################
 # OpenMP
 ##############################################################################
-find_package(OpenMP)
+#find_package(OpenMP)
 if(OPENMP_FOUND)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
@@ -36,17 +36,6 @@ find_package(HDF5 1.8.0)
 find_package(GUROBI)
 if(GUROBI_FOUND)
     include_directories(${GUROBI_INCLUDE_DIR})
-endif()
-
-##############################################################################
-# Cplex
-##############################################################################
-find_package(CPLEX)
-if(CPLEX_FOUND)
-    include_directories(${CPLEX_INCLUDE_DIR})
-    include_directories(${CPLEX_CONCERT_INCLUDE_DIR})
-    add_definitions(-DILOUSESTL)
-    add_definitions(-DIL_STD)
 endif()
 
 ##############################################################################
@@ -106,6 +95,15 @@ if(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
     add_executable(test-graph-minimum-spanning-tree src/andres/graph/unit-test/minimum-spanning-tree.cxx ${headers})
     add_test(test-graph-minimum-spanning-tree test-graph-minimum-spanning-tree)
 
+    add_executable(test-graph-lifting src/andres/graph/unit-test/lifting.cxx ${headers})
+    add_test(test-graph-lifting test-graph-lifting)
+
+    add_executable(test-graph-multicut-lifted-kl src/andres/graph/unit-test/multicut-lifted/kernighan-lin.cxx ${headers})
+    add_test(test-graph-multicut-lifted-kl test-graph-multicut-lifted-kl)
+
+    add_executable(test-graph-multicut-lifted-greedy-additive src/andres/graph/unit-test/multicut-lifted/greedy-additive.cxx ${headers})
+    add_test(test-graph-multicut-lifted-greedy-additive test-graph-multicut-lifted-greedy-additive)
+
     if(HDF5_FOUND)
         include_directories(PUBLIC ${HDF5_INCLUDE_DIRS})
         add_executable(test-hdf5 src/andres/graph/unit-test/hdf5.cxx ${headers})
@@ -114,16 +112,10 @@ if(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
     endif()
 endif(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
 
-if(CPLEX_FOUND)
-    add_executable(test-graph-multicut-cplex src/andres/graph/unit-test/multicut-cplex.cxx ${headers})
-    target_link_libraries(test-graph-multicut-cplex ${CPLEX_LIBRARIES})
-    add_test(test-graph-multicut-cplex test-graph-multicut-cplex)
-endif()
-
 if(GUROBI_FOUND)
-    add_executable(test-graph-multicut-gurobi src/andres/graph/unit-test/multicut-gurobi.cxx ${headers})
-    target_link_libraries(test-graph-multicut-gurobi ${CMAKE_THREAD_LIBS_INIT} ${GUROBI_CPP_LIBRARY} ${GUROBI_LIBRARY})
-    add_test(test-graph-multicut-gurobi test-graph-multicut-gurobi)
+    add_executable(test-graph-multicut-ilp src/andres/graph/unit-test/multicut/ilp.cxx ${headers})
+    target_link_libraries(test-graph-multicut-ilp ${CMAKE_THREAD_LIBS_INIT} ${GUROBI_CPP_LIBRARY} ${GUROBI_LIBRARY})
+    add_test(test-graph-multicut-ilp test-graph-multicut-ilp)
 endif()
 
 if(DOXYGEN_FOUND)
