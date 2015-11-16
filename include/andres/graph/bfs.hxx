@@ -40,6 +40,8 @@ public:
         { const size_type v = queue_.front(); queue_.pop(); return v; }
     size_type depth(const size_type v) const
         { return depth_[v]; }
+    size_type& depth(const size_type v)
+        { return depth_[v]; }
 
 private:
     std::vector<size_type> depth_;
