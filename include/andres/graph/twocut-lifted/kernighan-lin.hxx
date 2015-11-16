@@ -5,23 +5,23 @@
 #include <limits>
 #include <vector>
 
-
 namespace andres {
 namespace graph {
 namespace twocut_lifted {
 
-
-struct TwoCutSettings
-{
+struct TwoCutSettings {
     std::size_t numberOfIterations { std::numeric_limits<std::size_t>::max() };
     double epsilon { 1e-9 };
 };
 
 template<typename ORIGINAL_GRAPH>
-struct TwoCutBuffers
-{
-    TwoCutBuffers(const ORIGINAL_GRAPH&);
-
+struct TwoCutBuffers {
+    TwoCutBuffers(const ORIGINAL_GRAPH& graph)
+        :   differences(graph.numberOfVertices()),
+            is_moved(graph.numberOfVertices()),
+            referenced_by(graph.numberOfVertices()),
+            vertex_labels(graph.numberOfVertices())
+        {}
     std::vector<double> differences;
     std::vector<char> is_moved;
     std::size_t max_not_used_label;
@@ -30,63 +30,16 @@ struct TwoCutBuffers
 };
 
 template<typename ORIGINAL_GRAPH, typename LIFTED_GRAPH, typename SET, typename ECA>
-double kernighanLin(
-    const ORIGINAL_GRAPH& original_graph,
-    const LIFTED_GRAPH& lifted_graph,
-    const ECA& edge_costs,
-    SET& A,
-    SET& B,
-    const TwoCutSettings settings = TwoCutSettings());
-
-template<typename ORIGINAL_GRAPH, typename LIFTED_GRAPH, typename SET, typename ECA>
-double kernighanLin(
+inline double
+kernighanLin(
     const ORIGINAL_GRAPH& original_graph,
     const LIFTED_GRAPH& lifted_graph,
     const ECA& edge_costs,
     SET& A,
     SET& B,
     TwoCutBuffers<ORIGINAL_GRAPH>& buffer,
-    const TwoCutSettings settings = TwoCutSettings());
-
-
-
-
-
-
-
-
-template<typename ORIGINAL_GRAPH>
-TwoCutBuffers<ORIGINAL_GRAPH>::TwoCutBuffers(const ORIGINAL_GRAPH& graph) :
-    differences(graph.numberOfVertices()),
-    is_moved(graph.numberOfVertices()),
-    referenced_by(graph.numberOfVertices()),
-    vertex_labels(graph.numberOfVertices())
-{}
-
-template<typename ORIGINAL_GRAPH, typename LIFTED_GRAPH, typename SET, typename ECA>
-inline
-double kernighanLin(
-    const ORIGINAL_GRAPH& original_graph,
-    const LIFTED_GRAPH& lifted_graph,
-    const ECA& edge_costs,
-    SET& A,
-    SET& B,
-    const TwoCutSettings settings)
-{
-    TwoCutBuffers<ORIGINAL_GRAPH> buffer(original_graph);
-    return kernighanLin(original_graph, lifted_graph, edge_costs, A, B, buffer, settings);
-}
-
-template<typename ORIGINAL_GRAPH, typename LIFTED_GRAPH, typename SET, typename ECA>
-inline
-double kernighanLin(
-    const ORIGINAL_GRAPH& original_graph,
-    const LIFTED_GRAPH& lifted_graph,
-    const ECA& edge_costs,
-    SET& A,
-    SET& B,
-    TwoCutBuffers<ORIGINAL_GRAPH>& buffer,
-    const TwoCutSettings settings)
+    const TwoCutSettings settings
+)
 {
     struct Move
     {
@@ -300,6 +253,20 @@ double kernighanLin(
                 buffer.vertex_labels[moves[i].v] = label_B;
 
     return .0;
+}
+
+template<typename ORIGINAL_GRAPH, typename LIFTED_GRAPH, typename SET, typename ECA>
+inline double
+kernighanLin(
+    const ORIGINAL_GRAPH& original_graph,
+    const LIFTED_GRAPH& lifted_graph,
+    const ECA& edge_costs,
+    SET& A,
+    SET& B,
+    const TwoCutSettings settings
+) {
+    TwoCutBuffers<ORIGINAL_GRAPH> buffer(original_graph);
+    return kernighanLin(original_graph, lifted_graph, edge_costs, A, B, buffer, settings);
 }
 
 }
