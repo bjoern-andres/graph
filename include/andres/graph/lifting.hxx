@@ -81,16 +81,16 @@ lift(
 }
 
 /// Lift a grid graph - a faster implementation using the grid structure.
-template<unsigned char D, class INPUT_GRAPH_VISITOR, class OUTPUT_GRAPH>
+template<class INPUT_GRAPH_VISITOR, class OUTPUT_GRAPH>
 inline void
 lift(
-    const GridGraph<D, INPUT_GRAPH_VISITOR>& inputGraph,
+    const GridGraph<2, INPUT_GRAPH_VISITOR>& inputGraph,
     OUTPUT_GRAPH& outputGraph,
     const std::size_t distanceUpperBound,
     const std::size_t distanceLowerBound = 0,
     LiftingMetric metric = LiftingMetric::PathLength
 ) {
-    typedef GridGraph<D, INPUT_GRAPH_VISITOR> INPUT_GRAPH;
+    typedef GridGraph<2, INPUT_GRAPH_VISITOR> INPUT_GRAPH;
 
     typedef std::size_t size_type;
     typedef typename INPUT_GRAPH::VertexCoordinate VertexCoordinate;
