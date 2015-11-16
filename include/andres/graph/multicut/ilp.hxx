@@ -19,31 +19,19 @@
 
 namespace andres {
 namespace graph {
-namespace multicut
-{
+namespace multicut {
 
-/// Solver for the Minimum Cost Multicut Problem for arbitrary graphs.
-///
-/// This is a variant of the solver proposed in 
-/// 
-/// Andres B., Kroeger T., Briggman K. L., Denk W., Korogod N., Knott G., Koethe U. and Hamprecht F. A.
-/// Globally Optimal Closed-surface Segmentation for Connectomics. ECCV 2012
-/// http://dx.doi.org/10.1007/978-3-642-33712-3_56
-///
-/// This code operates on graphs whereas the code used to produce the results 
-/// in the above publication operates on cellular complexes. While cellular 
-/// complexes are richer structures than graphs and facilitates additional 
-/// tweaks of the solver (e.g. cell suppression), graphs are more common. 
-/// This code has a wider range of applications.
-/// 
 template<typename ILP, typename GRAPH, typename ECA, typename ELA>
-inline
-void ilp(const GRAPH& graph, const ECA& edgeCosts, const ELA& inputLabels, ELA& outputLabels, size_t numberOfIterations = std::numeric_limits<size_t>::max())
-{
-    struct Visitor
-    {
-        bool operator()(ELA const& edge_labels) const
-        {
+inline void
+ilp(
+    const GRAPH& graph,
+    const ECA& edgeCosts,
+    const ELA& inputLabels,
+    ELA& outputLabels,
+    size_t numberOfIterations = std::numeric_limits<size_t>::max()
+) {
+    struct Visitor {
+        bool operator()(ELA const& edge_labels) const {
             return true;
         }
     } visitor;
@@ -51,26 +39,32 @@ void ilp(const GRAPH& graph, const ECA& edgeCosts, const ELA& inputLabels, ELA& 
     ilp<ILP>(graph, edgeCosts, inputLabels, outputLabels, visitor, numberOfIterations);
 }
 
+/// Algorithm for the Minimum Cost Multicut Problem.
+///
+/// A variant of the algorithm proposed in
+///
+/// Andres B., Kroeger T., Briggman K. L., Denk W., Korogod N., Knott G.,
+/// Koethe U. and Hamprecht F. A. Globally Optimal Closed-surface Segmentation
+/// for Connectomics. ECCV 2012. http://dx.doi.org/10.1007/978-3-642-33712-3_56
+///
 template<typename ILP, typename GRAPH, typename ECA, typename ELA, typename VIS>
-inline
-void ilp(const GRAPH& graph, const ECA& edgeCosts, const ELA& inputLabels, ELA& outputLabels, VIS& visitor, size_t numberOfIterations = std::numeric_limits<size_t>::max())
-{
-    struct SubgraphWithCut
-    {
+inline void
+ilp(
+    const GRAPH& graph,
+    const ECA& edgeCosts,
+    const ELA& inputLabels,
+    ELA& outputLabels,
+    VIS& visitor,
+    size_t numberOfIterations = std::numeric_limits<size_t>::max()
+) {
+    struct SubgraphWithCut {
         SubgraphWithCut(const ILP& ilp)
             : ilp_(ilp) 
             {}
-
         bool vertex(const size_t v) const
-        {
-            return true;
-        }
-
+            { return true; }
         bool edge(const size_t e) const
-        {
-            return ilp_.label(e) == 0;
-        }
-
+            { return ilp_.label(e) == 0; }
         const ILP& ilp_;
     };
 
@@ -162,13 +156,15 @@ void ilp(const GRAPH& graph, const ECA& edgeCosts, const ELA& inputLabels, ELA& 
     repairSolution();
 }
 
-
-
-/// Solver for the Minimum Cost Multicut Problem for complete graphs (Set Partition Problem).
 template<typename ILP, typename GRAPH_VISITOR, typename ECA, typename ELA>
-inline
-void ilp(const CompleteGraph<GRAPH_VISITOR>& graph, const ECA& edgeCosts, const ELA& inputLabels, ELA& outputLabels, size_t numberOfIterations = std::numeric_limits<size_t>::max())
-{
+inline void
+ilp(
+    const CompleteGraph<GRAPH_VISITOR>& graph,
+    const ECA& edgeCosts,
+    const ELA& inputLabels,
+    ELA& outputLabels,
+    size_t numberOfIterations = std::numeric_limits<size_t>::max()
+) {
     struct Visitor
     {
         bool operator()(ELA const& edge_labels) const
@@ -180,26 +176,29 @@ void ilp(const CompleteGraph<GRAPH_VISITOR>& graph, const ECA& edgeCosts, const 
     ilp<ILP>(graph, edgeCosts, inputLabels, outputLabels, visitor, numberOfIterations);
 }
 
+/// Algorithm for the Set Partition Problem.
+///
+/// The Set Partition Problem is the Minimum Cost Multicut Problem for complete
+/// graphs.
+///
 template<typename ILP, typename GRAPH_VISITOR, typename ECA, typename ELA, typename VIS>
-inline
-void ilp(const CompleteGraph<GRAPH_VISITOR>& graph, const ECA& edgeCosts, const ELA& inputLabels, ELA& outputLabels, VIS& visitor, size_t numberOfIterations = std::numeric_limits<size_t>::max())
-{
-    struct SubgraphWithCut
-    {
+inline void
+ilp(
+    const CompleteGraph<GRAPH_VISITOR>& graph,
+    const ECA& edgeCosts,
+    const ELA& inputLabels,
+    ELA& outputLabels,
+    VIS& visitor,
+    size_t numberOfIterations = std::numeric_limits<size_t>::max()
+) {
+    struct SubgraphWithCut {
         SubgraphWithCut(const ILP& ilp)
             : ilp_(ilp) 
             {}
-
         bool vertex(const size_t v) const
-        {
-            return true;
-        }
-
+            { return true; }
         bool edge(const size_t e) const
-        {
-            return ilp_.label(e) == 0;
-        }
-
+            { return ilp_.label(e) == 0; }
         const ILP& ilp_;
     };
 

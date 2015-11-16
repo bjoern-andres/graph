@@ -4,10 +4,13 @@ project(graph)
 include_directories(include)
 file(GLOB headers
     include/andres/*.hxx
+    include/andres/ilp/*.hxx
     include/andres/graph/*.hxx
+    include/andres/graph/multicut/*.hxx
+    include/andres/graph/multicut-lifted/*.hxx
+    include/andres/graph/twocut-lifted/*.hxx
     include/andres/graph/hdf5/*.hxx
     include/andres/graph/detail/*.hxx
-    include/andres/ilp/*.hxx
 )
 enable_testing()
 
