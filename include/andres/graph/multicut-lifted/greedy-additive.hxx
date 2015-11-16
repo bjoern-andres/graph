@@ -11,73 +11,63 @@
 
 #include "andres/partition.hxx"
 
-
 namespace andres {
 namespace graph {
 namespace multicut_lifted {
 
-/// Greedy agglomerative decomposition of a graph.
-///
+/// Graph decomposition by greedy additive edge contraction.
 template<typename ORIGGRAPH, typename LIFTGRAPH, typename EVA, typename ELA>
 void greedyAdditiveEdgeContraction(
     const ORIGGRAPH& original_graph,
     const LIFTGRAPH& lifted_graph,
     EVA const& edge_values,
     ELA& edge_labels
-)
-{ 
-    class DynamicGraph
-    {
+) {
+    class DynamicGraph {
     public:
-        DynamicGraph(size_t n) :
-            vertices_(n)
-        {}
-
+        DynamicGraph(size_t n)
+            :   vertices_(n)
+            {}
         bool edgeExists(size_t a, size_t b) const
-        {
-            return !vertices_[a].empty() && vertices_[a].find(b) != vertices_[a].end();
-        }
-
+            {
+                return !vertices_[a].empty() && vertices_[a].find(b) != vertices_[a].end();
+            }
         std::map<size_t, typename EVA::value_type> const& getAdjacentVertices(size_t v) const
-        {
-            return vertices_[v];
-        }
-
+            {
+                return vertices_[v];
+            }
         typename EVA::value_type getEdgeWeight(size_t a, size_t b) const
-        {
-            return vertices_[a].at(b);
-        }
-
+            {
+                return vertices_[a].at(b);
+            }
         void removeVertex(size_t v)
-        {
-            for (auto& p : vertices_[v])
-                vertices_[p.first].erase(v);
+            {
+                for (auto& p : vertices_[v])
+                    vertices_[p.first].erase(v);
 
-            vertices_[v].clear();
-        }
-
+                vertices_[v].clear();
+            }
         void setEdgeWeight(size_t a, size_t b, typename EVA::value_type w)
-        {
-            vertices_[a][b] = w;
-            vertices_[b][a] = w;
-        }
+            {
+                vertices_[a][b] = w;
+                vertices_[b][a] = w;
+            }
 
     private:
         std::vector<std::map<size_t, typename EVA::value_type>> vertices_;
     };
 
-    struct Edge
-    {
+    struct Edge {
         Edge(size_t _a, size_t _b, typename EVA::value_type _w)
-        {
-            if (_a > _b)
-                std::swap(_a, _b);
+            {
+                if (_a > _b)
+                    std::swap(_a, _b);
 
-            a = _a;
-            b = _b;
+                a = _a;
+                b = _b;
 
-            w = _w;
-        }
+                w = _w;
+            }
 
         size_t a;
         size_t b;
@@ -85,9 +75,7 @@ void greedyAdditiveEdgeContraction(
         typename EVA::value_type w;
 
         bool operator <(Edge const& other) const
-        {
-            return w < other.w;
-        }
+            { return w < other.w; }
     };
 
     std::vector<std::map<size_t, size_t>> edge_editions(original_graph.numberOfVertices());
@@ -95,23 +83,20 @@ void greedyAdditiveEdgeContraction(
     DynamicGraph lifted_graph_cp(original_graph.numberOfVertices());
     std::priority_queue<Edge> Q;
 
-    for (size_t i = 0; i < original_graph.numberOfEdges(); ++i)
-    {
+    for (size_t i = 0; i < original_graph.numberOfEdges(); ++i) {
         auto a = original_graph.vertexOfEdge(i, 0);
         auto b = original_graph.vertexOfEdge(i, 1);
         
         original_graph_cp.setEdgeWeight(a, b, 1.);
     }
 
-    for (size_t i = 0; i < lifted_graph.numberOfEdges(); ++i)
-    {
+    for (size_t i = 0; i < lifted_graph.numberOfEdges(); ++i) {
         auto a = lifted_graph.vertexOfEdge(i, 0);
         auto b = lifted_graph.vertexOfEdge(i, 1);
 
         lifted_graph_cp.setEdgeWeight(a, b, edge_values[i]);
         
-        if (original_graph_cp.edgeExists(a, b))
-        {
+        if (original_graph_cp.edgeExists(a, b)) {
             auto e = Edge(a, b, edge_values[i]);
             e.edition = ++edge_editions[e.a][e.b];
 
@@ -121,8 +106,7 @@ void greedyAdditiveEdgeContraction(
 
     andres::Partition<size_t> partition(original_graph.numberOfVertices());
 
-    while (!Q.empty())
-    {
+    while (!Q.empty()) {
         auto edge = Q.top();
         Q.pop();
 
@@ -140,8 +124,7 @@ void greedyAdditiveEdgeContraction(
 
         partition.merge(stable_vertex, merge_vertex);
 
-        for (auto& p : original_graph_cp.getAdjacentVertices(merge_vertex))
-        {
+        for (auto& p : original_graph_cp.getAdjacentVertices(merge_vertex)) {
             if (p.first == stable_vertex)
                 continue;
 
@@ -150,8 +133,7 @@ void greedyAdditiveEdgeContraction(
 
         original_graph_cp.removeVertex(merge_vertex);
 
-        for (auto& p : lifted_graph_cp.getAdjacentVertices(merge_vertex))
-        {
+        for (auto& p : lifted_graph_cp.getAdjacentVertices(merge_vertex)) {
             if (p.first == stable_vertex)
                 continue;
 
@@ -162,8 +144,7 @@ void greedyAdditiveEdgeContraction(
 
             lifted_graph_cp.setEdgeWeight(stable_vertex, p.first, p.second + t);
             
-            if (original_graph_cp.edgeExists(stable_vertex, p.first))
-            {
+            if (original_graph_cp.edgeExists(stable_vertex, p.first)) {
                 auto e = Edge(stable_vertex, p.first, p.second + t);
                 e.edition = ++edge_editions[e.a][e.b];
 
