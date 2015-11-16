@@ -104,7 +104,7 @@ lift(
     outputGraph.insertVertices(inputGraph.numberOfVertices());
 
     VertexCoordinate cv;
-    for(size_type v = 0; v < inputGraph.numberOfVertices(); ++v)
+    for (size_type v = 0; v < inputGraph.numberOfVertices(); ++v)
     {
         inputGraph.vertex(v, cv);
 
