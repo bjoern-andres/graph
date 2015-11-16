@@ -15,61 +15,12 @@ namespace andres {
 namespace graph {
 namespace multicut_lifted {
 
-struct KernighanLinSettings
-{
+struct KernighanLinSettings {
     std::size_t numberOfInnerIterations { std::numeric_limits<std::size_t>::max() };
     std::size_t numberOfOuterIterations { 100 };
     double epsilon { 1e-7 };
     bool verbose { true };
 };
-
-template<typename ORIGINAL_GRAPH, typename LIFTED_GRAPH, typename ECA, typename ELA>
-void kernighanLin(
-    const ORIGINAL_GRAPH& original_graph,
-    const LIFTED_GRAPH& lifted_graph,
-    const ECA& edgeCosts,
-    const ELA& inputLabels,
-    ELA& outputLabels,
-    const KernighanLinSettings settings = KernighanLinSettings());
-
-template<typename ORIGINAL_GRAPH, typename LIFTED_GRAPH, typename ECA, typename ELA, typename VIS>
-void kernighanLin(
-    const ORIGINAL_GRAPH& original_graph,
-    const LIFTED_GRAPH& lifted_graph,
-    const ECA& edgeCosts,
-    const ELA& inputLabels,
-    ELA& outputLabels,
-    VIS& visitor,
-    const KernighanLinSettings settings = KernighanLinSettings());
-
-
-
-
-
-template<typename ORIGINAL_GRAPH, typename LIFTED_GRAPH, typename ECA, typename ELA>
-void kernighanLin(
-    const ORIGINAL_GRAPH& original_graph,
-    const LIFTED_GRAPH& lifted_graph,
-    const ECA& edgeCosts,
-    const ELA& inputLabels,
-    ELA& outputLabels,
-    const KernighanLinSettings settings = KernighanLinSettings())
-{
-    struct Visitor
-    {
-        constexpr bool operator()(std::vector<std::size_t>& vertex_labels)
-        {
-            return true;
-        }
-
-        constexpr bool time_limit_exceeded()
-        {
-            return false;
-        }
-    } visitor;
-
-    kernighanLin(original_graph, lifted_graph, edgeCosts, inputLabels, outputLabels, visitor, settings);
-}
 
 template<typename ORIGINAL_GRAPH, typename LIFTED_GRAPH, typename ECA, typename ELA, typename VIS>
 inline
@@ -357,6 +308,25 @@ void kernighanLin(
 
         current_energy_value = new_energy_value;
     }
+}
+
+template<typename ORIGINAL_GRAPH, typename LIFTED_GRAPH, typename ECA, typename ELA>
+void kernighanLin(
+    const ORIGINAL_GRAPH& original_graph,
+    const LIFTED_GRAPH& lifted_graph,
+    const ECA& edgeCosts,
+    const ELA& inputLabels,
+    ELA& outputLabels,
+    const KernighanLinSettings settings = KernighanLinSettings())
+{
+    struct Visitor {
+        constexpr bool operator()(std::vector<std::size_t>& vertex_labels)
+            { return true; }
+        constexpr bool time_limit_exceeded()
+            { return false; }
+    } visitor;
+
+    kernighanLin(original_graph, lifted_graph, edgeCosts, inputLabels, outputLabels, visitor, settings);
 }
 
 }

@@ -50,11 +50,13 @@ struct my_make_signed<T,
 /// Computer Vision and Materials Science. Cambridge University Press, 
 /// 1999.
 ///
+/// \param inputGraph input graph.
+/// \param inputEdgeValues iterator to the beginning of a sequence of edge values
+/// \param sourceVertex source vertex.
 /// \param targetGraph graph with the same vertices as inputGraph but, possibly, additional edges for which distances are to be computed.
-/// \param interpolationOrder 0=nearest neighbor, 1=linear.
+/// \param interpolationOrder 0=nearest neighbor, 1=linear interpolation.
 /// \param targetEdgeValues input AND output: input: infinity=to be computed, not infinity=known and fixed.
 ///
-
 template<
     class INPUT_GRAPH_VISITOR,
     class INPUT_EDGE_VALUE_ITERATOR,

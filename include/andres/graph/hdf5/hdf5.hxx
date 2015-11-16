@@ -238,6 +238,7 @@ createGroup (
 ///
 /// \param parentHandle HDF5 handle on the parent group or file.
 /// \param groupName Name of the group.
+/// \param createIfNonexistent if set to true, the group is newly created if it cannot be opened.
 /// \returns HDF5 handle on the opened group.
 ///
 /// \sa createGroup(), closeGroup()
@@ -342,7 +343,7 @@ cleanupType:
 
 /// Save a scalar as an HDF5 dataset.
 ///
-/// \param groupHandle Handle of the parent HDF5 file or group.
+/// \param parentHandle Handle of the parent HDF5 file or group.
 /// \param datasetName Name of the HDF5 dataset.
 /// \param data Scalar to save.
 ///
@@ -392,7 +393,7 @@ cleanupType:
 
 /// Load a 2D array from an HDF5 dataset as a single vector.
 ///
-/// \param groupHandle Handle of the parent HDF5 file or group.
+/// \param parentHandle Handle of the parent HDF5 file or group.
 /// \param datasetName Name of the HDF5 dataset.
 /// \param shape The shape of the read data.
 /// If an error occures, shape is cleared and an exception is thrown.
@@ -472,7 +473,7 @@ errorCheck:
 
 /// Load a scalar value from an HDF5 dataset.
 ///
-/// \param groupHandle Handle of the parent HDF5 file or group.
+/// \param parentHandle Handle of the parent HDF5 file or group.
 /// \param datasetName Name of the HDF5 dataset.
 /// \param data Scalar.
 ///
@@ -535,7 +536,7 @@ error:
 
 /// Load a string value from an HDF5 dataset.
 ///
-/// \param groupHandle Handle of the parent HDF5 file or group.
+/// \param parentHandle Handle of the parent HDF5 file or group.
 /// \param datasetName Name of the HDF5 dataset.
 /// \param data string to hold the read data.
 ///
