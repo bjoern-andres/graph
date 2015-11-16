@@ -12,6 +12,23 @@
 namespace andres {
 namespace graph {
 
+/// \cond SUPPRESS DOXYGEN
+namespace detail {
+
+template<typename T, typename Enable = void>
+struct my_make_signed {
+    typedef typename std::make_signed<T>::type type;
+};
+
+template<typename T>
+struct my_make_signed<T,
+    typename std::enable_if<std::is_floating_point<T>::value>::type> {
+    typedef T type;
+};
+
+}
+/// \endcond
+
 template<class T = double, class S = std::size_t>
 class FastMarchingBuffers {
 public:
@@ -29,18 +46,7 @@ public:
     std::vector<value_type> distances_;
 };
 
-template<typename T, typename Enable = void>
-struct my_make_signed {
-    typedef typename std::make_signed<T>::type type;
-};
-
-template<typename T>
-struct my_make_signed<T,
-    typename std::enable_if<std::is_floating_point<T>::value>::type> {
-    typedef T type;
-};
-
-/// Fast Marching for (a subgraph of) a 2-dimensional grid graph.
+/// Fast Marching Algorithm for (a subgraph of) a 2-dimensional grid graph.
 ///
 /// Implementation by Margret Keuper <keuper@mpi-inf.mpg.de>
 /// of the algorithm defined in:
@@ -97,7 +103,7 @@ fastMarching(
     typedef typename InputGraph::AdjacencyType Adjacency;
     typedef typename InputGraph::EdgeCoordinate EdgeCoordinate;
     typedef typename std::iterator_traits<TARGET_EDGE_VALUE_ITERATOR>::value_type Value;
-    typedef typename my_make_signed<Value>::type signedValue;
+    typedef typename detail::my_make_signed<Value>::type signedValue;
     if(interpolationOrder < 0 || interpolationOrder > 1) {
         throw std::runtime_error("specified interpolation order not implemented.");
     }
