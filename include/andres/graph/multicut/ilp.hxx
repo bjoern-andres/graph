@@ -8,7 +8,7 @@
 #include <vector>
 #include <deque>
 #include <array>
-#include <algorithm> // std::copy
+#include <algorithm>
 
 #include "andres/partition.hxx" 
 #include "andres/graph/complete-graph.hxx"
@@ -16,28 +16,9 @@
 #include "andres/graph/components.hxx"
 #include "andres/graph/shortest-paths.hxx"
 
-
 namespace andres {
 namespace graph {
 namespace multicut {
-
-template<typename ILP, typename GRAPH, typename ECA, typename ELA>
-inline void
-ilp(
-    const GRAPH& graph,
-    const ECA& edgeCosts,
-    const ELA& inputLabels,
-    ELA& outputLabels,
-    size_t numberOfIterations = std::numeric_limits<size_t>::max()
-) {
-    struct Visitor {
-        bool operator()(ELA const& edge_labels) const {
-            return true;
-        }
-    } visitor;
-
-    ilp<ILP>(graph, edgeCosts, inputLabels, outputLabels, visitor, numberOfIterations);
-}
 
 /// Algorithm for the Minimum Cost Multicut Problem.
 ///
@@ -156,19 +137,17 @@ ilp(
     repairSolution();
 }
 
-template<typename ILP, typename GRAPH_VISITOR, typename ECA, typename ELA>
+template<typename ILP, typename GRAPH, typename ECA, typename ELA>
 inline void
 ilp(
-    const CompleteGraph<GRAPH_VISITOR>& graph,
+    const GRAPH& graph,
     const ECA& edgeCosts,
     const ELA& inputLabels,
     ELA& outputLabels,
     size_t numberOfIterations = std::numeric_limits<size_t>::max()
 ) {
-    struct Visitor
-    {
-        bool operator()(ELA const& edge_labels) const
-        {
+    struct Visitor {
+        bool operator()(ELA const& edge_labels) const {
             return true;
         }
     } visitor;
@@ -281,6 +260,26 @@ ilp(
     }
 
     repairSolution();
+}
+
+template<typename ILP, typename GRAPH_VISITOR, typename ECA, typename ELA>
+inline void
+ilp(
+    const CompleteGraph<GRAPH_VISITOR>& graph,
+    const ECA& edgeCosts,
+    const ELA& inputLabels,
+    ELA& outputLabels,
+    size_t numberOfIterations = std::numeric_limits<size_t>::max()
+) {
+    struct Visitor
+    {
+        bool operator()(ELA const& edge_labels) const
+        {
+            return true;
+        }
+    } visitor;
+
+    ilp<ILP>(graph, edgeCosts, inputLabels, outputLabels, visitor, numberOfIterations);
 }
 
 } // namespace multicut
