@@ -8,7 +8,7 @@
 */
 
 #include <functional> // std::less
-
+#include <vector>     // std::vector
 namespace graph{
 
 template<class T,class COMPARE = std::less<T> >
