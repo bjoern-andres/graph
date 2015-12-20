@@ -107,6 +107,9 @@ if(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
     add_executable(test-graph-multicut-lifted-greedy-additive src/andres/graph/unit-test/multicut-lifted/greedy-additive.cxx ${headers})
     add_test(test-graph-multicut-lifted-greedy-additive test-graph-multicut-lifted-greedy-additive)
 
+    add_executable(test-graph-pq src/andres/graph/unit-test/pq.cxx ${headers})
+    add_test(test-graph-pq test-graph-pq)
+
     if(HDF5_FOUND)
         include_directories(PUBLIC ${HDF5_INCLUDE_DIRS})
         add_executable(test-hdf5 src/andres/graph/unit-test/hdf5.cxx ${headers})

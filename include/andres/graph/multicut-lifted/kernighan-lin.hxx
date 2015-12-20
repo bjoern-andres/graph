@@ -112,7 +112,7 @@ void kernighanLin(
     // 1 if i-th partitioned changed since last iteration, 0 otherwise
     std::vector<char> changed(numberOfComponents, 1);
 
-    // interatively update bipartition in order to minimize the total cost of the multicut
+    // iteratively update bipartition in order to minimize the total cost of the multicut
     for (std::size_t k = 0; k < settings.numberOfOuterIterations; ++k)
     {        
         auto energy_decrease = .0;
@@ -149,7 +149,7 @@ void kernighanLin(
         auto new_end = std::partition(partitions.begin(), partitions.end(), [](const std::vector<std::size_t>& s) { return !s.empty(); });
         partitions.resize(new_end - partitions.begin());
 
-        // try to intoduce new partitions
+        // try to introduce new partitions
         for (std::size_t i = 0, p_size = partitions.size(); i < p_size && !visitor.time_limit_exceeded(); ++i)
         {
             if (!changed[i])
