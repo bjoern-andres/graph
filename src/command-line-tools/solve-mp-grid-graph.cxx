@@ -11,7 +11,7 @@ try
     Parameters parameters;
     parseCommandLine(argc, argv, parameters);
 
-    solveCC<andres::graph::GridGraph<>>(parameters);
+    solveMulticutProblem<andres::graph::GridGraph<>>(parameters);
 
     return 0;
 }

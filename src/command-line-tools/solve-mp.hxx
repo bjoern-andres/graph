@@ -109,7 +109,7 @@ parseCommandLine(
 }
 
 template<typename GraphType>
-void solveCC(
+void solveMulticutProblem(
     const Parameters& parameters,
     ostream& stream = std::cout
 )
