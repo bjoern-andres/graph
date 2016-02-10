@@ -131,3 +131,17 @@ if(DOXYGEN_FOUND)
     configure_file("${graph_SOURCE_DIR}/doxygen/doxyfile-graph.in" "${graph_BINARY_DIR}/doxyfile-graph" @ONLY IMMEDIATE)
     add_custom_target(doc-graph ALL COMMAND ${DOXYGEN} "${graph_BINARY_DIR}/doxyfile-graph")
 endif()
+
+if((COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11) AND GUROBI_FOUND AND HDF5_FOUND)
+    include_directories(src)
+    include_directories(src/command-line-tools)
+
+    add_executable(solve-mp src/command-line-tools/solve-mp.cxx ${headers})
+    target_link_libraries(solve-mp ${HDF5_LIBRARIES} ${GUROBI_LIBRARIES})
+
+    add_executable(solve-mp-complete-graph src/command-line-tools/solve-mp-complete-graph.cxx ${headers})
+    target_link_libraries(solve-mp-complete-graph ${HDF5_LIBRARIES} ${GUROBI_LIBRARIES})
+
+    add_executable(solve-mp-grid-graph src/command-line-tools/solve-mp-grid-graph.cxx ${headers})
+    target_link_libraries(solve-mp-grid-graph ${HDF5_LIBRARIES} ${GUROBI_LIBRARIES})
+endif()

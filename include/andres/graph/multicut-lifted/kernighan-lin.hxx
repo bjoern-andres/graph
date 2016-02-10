@@ -31,7 +31,7 @@ void kernighanLin(
     const ELA& inputLabels,
     ELA& outputLabels,
     VIS& visitor,
-    const KernighanLinSettings settings)
+    const KernighanLinSettings settings = KernighanLinSettings())
 {
     struct SubgraphWithCut { // a subgraph with cut mask
         SubgraphWithCut(const ELA& labels, std::vector<std::size_t> const& edge_in_lifted_graph)
@@ -61,17 +61,13 @@ void kernighanLin(
 
     double current_energy_value = .0;
 
-    // find out how many connected components there are
     // check if the input multicut labeling is valid
-    std::size_t numberOfComponents = 0;
     for(std::size_t edge = 0; edge < lifted_graph.numberOfEdges(); ++edge)
     {
         outputLabels[edge] = inputLabels[edge];
 
         auto v0 = lifted_graph.vertexOfEdge(edge, 0);
         auto v1 = lifted_graph.vertexOfEdge(edge, 1);
-
-        numberOfComponents = std::max(numberOfComponents, std::max(components.labels_[v0], components.labels_[v1]));
 
         if (inputLabels[edge])
             current_energy_value += edgeCosts[edge];
@@ -80,7 +76,7 @@ void kernighanLin(
             throw std::runtime_error("the input multicut labeling is invalid.");
     }
 
-    ++numberOfComponents;
+    auto numberOfComponents = *std::max_element(components.labels_.begin(), components.labels_.end()) + 1;
 
     std::vector<std::vector<std::size_t>> partitions(numberOfComponents);
 

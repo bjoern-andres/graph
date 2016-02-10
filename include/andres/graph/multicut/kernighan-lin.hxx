@@ -19,8 +19,8 @@ namespace multicut {
 
 struct Settings
 {
-    std::size_t numberOfInnerIterations { std::numeric_limits<std::size_t>::max() };
-    std::size_t numberOfOuterIterations { 100 };
+    size_t numberOfInnerIterations { std::numeric_limits<size_t>::max() };
+    size_t numberOfOuterIterations { 100 };
     double epsilon { 1e-7 };
     bool verbose { true };
 };
@@ -31,7 +31,7 @@ void kernighanLin(const GRAPH& graph, const ECA& edgeCosts, const ELA& inputLabe
 {
     struct Visitor
     {
-        bool operator()(std::vector<std::size_t>& vertex_labels) const
+        bool operator()(std::vector<size_t>& vertex_labels) const
         {
             return true;
         }
@@ -47,9 +47,9 @@ void kernighanLin(const GRAPH& graph, const ECA& edgeCosts, const ELA& inputLabe
     struct SubgraphWithCut { // a subgraph with cut mask
         SubgraphWithCut(const ELA& labels)
             : labels_(labels) {}
-        bool vertex(const std::size_t v) const
+        bool vertex(const size_t v) const
             { return true; }
-        bool edge(const std::size_t e) const
+        bool edge(const size_t e) const
             { return labels_[e] == 0; }
 
         const ELA& labels_;
@@ -61,17 +61,13 @@ void kernighanLin(const GRAPH& graph, const ECA& edgeCosts, const ELA& inputLabe
 
     double starting_energy = .0;
 
-    // find out how many connected components there are
     // check if the input multicut labeling is valid
-    std::size_t numberOfComponents = 0;
-    for(std::size_t edge = 0; edge < graph.numberOfEdges(); ++edge)
+    for(size_t edge = 0; edge < graph.numberOfEdges(); ++edge)
     {
         outputLabels[edge] = inputLabels[edge];
 
         auto v0 = graph.vertexOfEdge(edge, 0);
         auto v1 = graph.vertexOfEdge(edge, 1);
-
-        numberOfComponents = std::max(numberOfComponents, std::max(components.labels_[v0], components.labels_[v1]));
 
         if (inputLabels[edge])
             starting_energy += edgeCosts[edge];
@@ -80,7 +76,7 @@ void kernighanLin(const GRAPH& graph, const ECA& edgeCosts, const ELA& inputLabe
             throw std::runtime_error("the input multicut labeling is invalid.");
     }
 
-    ++numberOfComponents;
+    auto numberOfComponents = *std::max_element(components.labels_.begin(), components.labels_.end()) + 1;
 
     auto twocut_buffers = twocut::makeTwoCutBuffers(graph);
 
@@ -89,9 +85,9 @@ void kernighanLin(const GRAPH& graph, const ECA& edgeCosts, const ELA& inputLabe
     twocut_settings.epsilon = settings.epsilon;
 
     // build partitions
-    std::vector<std::vector<std::size_t>> partitions(numberOfComponents);
+    std::vector<std::vector<size_t>> partitions(numberOfComponents);
 
-    for (std::size_t i = 0; i < components.labels_.size(); ++i)
+    for (size_t i = 0; i < components.labels_.size(); ++i)
     {
         partitions[components.labels_[i]].push_back(i);
         twocut_buffers.vertex_labels[i] = components.labels_[i];
@@ -114,12 +110,12 @@ void kernighanLin(const GRAPH& graph, const ECA& edgeCosts, const ELA& inputLabe
     std::vector<char> changed(numberOfComponents, 1);
 
     // interatively update bipartition in order to minimize the total cost of the multicut
-    for (std::size_t k = 0; k < settings.numberOfOuterIterations; ++k)
+    for (size_t k = 0; k < settings.numberOfOuterIterations; ++k)
     {
         auto energy_decrease = .0;
 
-        std::vector<std::unordered_set<std::size_t>> edges(numberOfComponents);
-        for (std::size_t e = 0; e < graph.numberOfEdges(); ++e)
+        std::vector<std::unordered_set<size_t>> edges(numberOfComponents);
+        for (size_t e = 0; e < graph.numberOfEdges(); ++e)
             if (outputLabels[e])
             {
                 auto v0 = twocut_buffers.vertex_labels[graph.vertexOfEdge(e, 0)];
@@ -128,7 +124,7 @@ void kernighanLin(const GRAPH& graph, const ECA& edgeCosts, const ELA& inputLabe
                 edges[std::min(v0, v1)].insert(std::max(v0, v1));
             }
 
-        for (std::size_t i = 0; i < numberOfComponents; ++i)
+        for (size_t i = 0; i < numberOfComponents; ++i)
             if (!partitions[i].empty())
                 for (auto j : edges[i])
                     if (!partitions[j].empty() && (changed[j] || changed[i]))
@@ -147,11 +143,11 @@ void kernighanLin(const GRAPH& graph, const ECA& edgeCosts, const ELA& inputLabe
         auto ee = energy_decrease;
 
         // remove partitions that became empty after the previous step
-        auto new_end = std::partition(partitions.begin(), partitions.end(), [](const std::vector<std::size_t>& s) { return !s.empty(); });
+        auto new_end = std::partition(partitions.begin(), partitions.end(), [](const std::vector<size_t>& s) { return !s.empty(); });
         partitions.resize(new_end - partitions.begin());
 
         // try to intoduce new partitions
-        for (std::size_t i = 0, p_size = partitions.size(); i < p_size; ++i)
+        for (size_t i = 0, p_size = partitions.size(); i < p_size; ++i)
         {
             if (!changed[i])
                 continue;
@@ -160,7 +156,7 @@ void kernighanLin(const GRAPH& graph, const ECA& edgeCosts, const ELA& inputLabe
             
             while (flag)
             {
-                std::vector<std::size_t> new_set;
+                std::vector<size_t> new_set;
                 energy_decrease += twocut::kernighanLin(graph, edgeCosts, partitions[i], new_set, twocut_buffers, twocut_settings);
 
                 flag = !new_set.empty();
@@ -176,7 +172,7 @@ void kernighanLin(const GRAPH& graph, const ECA& edgeCosts, const ELA& inputLabe
         if (energy_decrease == .0)
             break;
 
-        std::stack<std::size_t> S;
+        std::stack<size_t> S;
         
         std::fill(visited.begin(), visited.end(), 0);
 
@@ -184,7 +180,7 @@ void kernighanLin(const GRAPH& graph, const ECA& edgeCosts, const ELA& inputLabe
         numberOfComponents = 0;
 
         // do connected component labeling on the original graph and form new pфrtitions
-        for (std::size_t i = 0; i < graph.numberOfVertices(); ++i)
+        for (size_t i = 0; i < graph.numberOfVertices(); ++i)
             if (!visited[i])
             {
                 S.push(i);
@@ -194,7 +190,7 @@ void kernighanLin(const GRAPH& graph, const ECA& edgeCosts, const ELA& inputLabe
 
                 twocut_buffers.referenced_by[i] = numberOfComponents;
 
-                partitions.emplace_back(std::vector<std::size_t>());
+                partitions.emplace_back(std::vector<size_t>());
                 partitions.back().push_back(i);
 
                 while (!S.empty())
@@ -220,7 +216,7 @@ void kernighanLin(const GRAPH& graph, const ECA& edgeCosts, const ELA& inputLabe
         twocut_buffers.max_not_used_label = numberOfComponents;
 
         bool didnt_change = true;
-        for (std::size_t i = 0; i < graph.numberOfEdges(); ++i)
+        for (size_t i = 0; i < graph.numberOfEdges(); ++i)
         {
             auto v0 = graph.vertexOfEdge(i, 0);
             auto v1 = graph.vertexOfEdge(i, 1);
@@ -240,7 +236,7 @@ void kernighanLin(const GRAPH& graph, const ECA& edgeCosts, const ELA& inputLabe
 
         std::fill(visited.begin(), visited.end(), 0);
 
-        for (std::size_t i = 0; i < graph.numberOfVertices(); ++i)
+        for (size_t i = 0; i < graph.numberOfVertices(); ++i)
             if (!visited[i])
             {
                 S.push(i);
@@ -285,12 +281,27 @@ template<typename GraphVisitor, typename ECA, typename ELA>
 inline
 void kernighanLin(const CompleteGraph<GraphVisitor>& graph, const ECA& edgeCosts, const ELA& inputLabels, ELA& outputLabels, const Settings settings = Settings())
 {
+    struct Visitor
+    {
+        bool operator()(ELA const& edge_labels) const
+        {
+            return true;
+        }
+    } visitor;
+
+    kernighanLin(graph, edgeCosts, inputLabels, outputLabels, visitor, settings);
+}
+
+template<typename GraphVisitor, typename ECA, typename ELA, typename VIS>
+inline
+void kernighanLin(const CompleteGraph<GraphVisitor>& graph, const ECA& edgeCosts, const ELA& inputLabels, ELA& outputLabels, VIS& visitor, const Settings settings = Settings())
+{
     struct SubgraphWithCut { // a subgraph with cut mask
         SubgraphWithCut(const ELA& labels)
             : labels_(labels) {}
-        bool vertex(const std::size_t v) const
+        bool vertex(const size_t v) const
             { return true; }
-        bool edge(const std::size_t e) const
+        bool edge(const size_t e) const
             { return labels_[e] == 0; }
 
         const ELA& labels_;
@@ -300,23 +311,24 @@ void kernighanLin(const CompleteGraph<GraphVisitor>& graph, const ECA& edgeCosts
     ComponentsBySearch<CompleteGraph<GraphVisitor>> components;
     components.build(graph, SubgraphWithCut(inputLabels));
 
-    // find out how many connected components there are
+    double starting_energy = .0;
+
     // check if the input multicut labeling is valid
-    std::size_t numberOfComponents = 0;
-    for(std::size_t edge = 0; edge < graph.numberOfEdges(); ++edge)
+    for(size_t edge = 0; edge < graph.numberOfEdges(); ++edge)
     {
         auto v0 = graph.vertexOfEdge(edge, 0);
         auto v1 = graph.vertexOfEdge(edge, 1);
 
-        numberOfComponents = std::max(numberOfComponents, std::max(components.labels_[v0], components.labels_[v1]));
+        if (inputLabels[edge])
+            starting_energy += edgeCosts[edge];
 
         if (static_cast<bool>(inputLabels[edge]) != !components.areConnected(v0, v1))
             throw std::runtime_error("the input multicut labeling is invalid.");
     }
 
-    ++numberOfComponents;
+    auto numberOfComponents = *std::max_element(components.labels_.begin(), components.labels_.end()) + 1;
 
-    std::vector<std::vector<std::size_t>> partitions(numberOfComponents);
+    std::vector<std::vector<size_t>> partitions(numberOfComponents);
 
     auto twocut_buffers = twocut::makeTwoCutBuffers(graph);
     
@@ -325,47 +337,64 @@ void kernighanLin(const CompleteGraph<GraphVisitor>& graph, const ECA& edgeCosts
     twocut_settings.epsilon = settings.epsilon;
 
     // build partitions
-    for (std::size_t i = 0; i < components.labels_.size(); ++i)
+    for (size_t i = 0; i < components.labels_.size(); ++i)
         partitions[components.labels_[i]].push_back(i);
 
+    if (settings.verbose)
+    {
+        std::cout << "Starting energy: " << starting_energy << std::endl;
+        std::cout << std::setw(4) << "Iter" << std::setw(16) << "Total decrease" << std::setw(15) << "Pair updates" << std::setw(15) << "New sets" << std::setw(15) << "Num. of sets\n";
+    }
+
     // interatively update bipartition in order to minimize the total cost of the multicut
-    for (std::size_t k = 0; k < settings.numberOfOuterIterations; ++k)
+    for (size_t k = 0; k < settings.numberOfOuterIterations; ++k)
     {
         auto energy_decrease = .0;
 
         // update pairs of partitions
-        for (std::size_t i = 0; i < partitions.size() - 1; ++i)
+        for (size_t i = 0; i < partitions.size() - 1; ++i)
             for (auto j = i + 1; j < partitions.size(); ++j)
                 if (!partitions[j].empty())
                     energy_decrease += twocut::kernighanLin(graph, edgeCosts, partitions[i], partitions[j], twocut_buffers, twocut_settings);
 
         // remove partitions that became empty after the previous step
-        auto new_end = std::partition(partitions.begin(), partitions.end(), [](const std::vector<std::size_t>& s) { return !s.empty(); });
+        auto new_end = std::partition(partitions.begin(), partitions.end(), [](const std::vector<size_t>& s) { return !s.empty(); });
         partitions.resize(new_end - partitions.begin());
 
-        // try to intoduce new partitions
-        for (std::size_t i = 0, p_size = partitions.size(); i < p_size; ++i)
-        {
-            std::vector<std::size_t> new_set;
-            energy_decrease += twocut::kernighanLin(graph, edgeCosts, partitions[i], new_set, twocut_buffers, twocut_settings);
+        auto ee = energy_decrease;
 
-            if (!new_set.empty())
-                partitions.emplace_back(std::move(new_set));
-        }
+        // try to intoduce new partitions
+        for (size_t i = 0, p_size = partitions.size(); i < p_size; ++i)       
+            while (1)
+            {
+                std::vector<size_t> new_set;
+                energy_decrease += twocut::kernighanLin(graph, edgeCosts, partitions[i], new_set, twocut_buffers, twocut_settings);
+
+                if (!new_set.empty())
+                    partitions.emplace_back(std::move(new_set));
+                else
+                    break;
+            }
 
         if (energy_decrease == .0)
             break;
 
-        for (std::size_t i = 0; i < partitions.size(); ++i)
-            for (std::size_t a = 0; a < partitions[i].size(); ++a)
+        for (size_t i = 0; i < partitions.size(); ++i)
+            for (size_t a = 0; a < partitions[i].size(); ++a)
             {
-                for (std::size_t b = a + 1; b < partitions[i].size(); ++b)
+                for (size_t b = a + 1; b < partitions[i].size(); ++b)
                     outputLabels[graph.findEdge(partitions[i][a], partitions[i][b]).second] = 0;
 
-                for (std::size_t j = i + 1; j < partitions.size(); ++j)
+                for (size_t j = i + 1; j < partitions.size(); ++j)
                     for (auto b : partitions[j])
                         outputLabels[graph.findEdge(partitions[i][a], b).second] = 1;                        
             }
+
+        if (!visitor(outputLabels))
+            break;
+
+        if (settings.verbose)
+            std::cout << std::setw(4) << k+1 << std::setw(16) << energy_decrease << std::setw(15) << ee << std::setw(15) << (energy_decrease - ee) << std::setw(14) << partitions.size() << std::endl;
     }
 }
 
