@@ -102,9 +102,6 @@ kernighanLin(
         if (buffer.referenced_by[b] > 0)
             border.push_back(b);
 
-    if (border.empty())
-        return .0;
-
     std::vector<Move> moves;
     double cumulative_diff = .0;
     std::pair<double, std::size_t> max_move { std::numeric_limits<double>::lowest(), 0 };

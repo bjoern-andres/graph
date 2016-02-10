@@ -462,9 +462,9 @@ CompleteGraph<VISITOR>::vertexOfEdge(
 ) const {
     assert(edge < numberOfEdges());
     assert(j < 2);
-    const float p = static_cast<float>(numberOfVertices() * 2 - 1) / 2;
-    const float q = static_cast<float>(edge) * 2;
-    const std::size_t vertex0 = static_cast<std::size_t>(p - std::sqrt(p * p - q));
+    double p = static_cast<double>(numberOfVertices() * 2 - 1) / 2;
+    double q = static_cast<double>(edge) * 2;
+    std::size_t vertex0 = static_cast<std::size_t>(p - std::sqrt(p * p - q));
     if(j == 0) {
         return vertex0;
     }

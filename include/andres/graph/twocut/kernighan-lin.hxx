@@ -238,9 +238,6 @@ double kernighanLin(
 
         if (cumulative_diff > max_move.first)
             max_move = std::make_pair(cumulative_diff, moves.size());
-
-        if (cumulative_diff <= neg_sum)
-            break;
     }
 
     if (gain_from_merging > max_move.first && gain_from_merging > settings.epsilon)
@@ -321,6 +318,8 @@ double kernighanLin(
     if (A.empty())
         return .0;
 
+    auto gain_from_merging = .0;
+
     // compute differences for set A
     for (std::size_t i = 0; i < A.size(); ++i)
     {
@@ -332,7 +331,10 @@ double kernighanLin(
                 diff -= edge_costs[graph.findEdge(A[i], v).second];
 
         for (auto v : B)
+        {
             diff += edge_costs[graph.findEdge(A[i], v).second];
+            gain_from_merging += edge_costs[graph.findEdge(A[i], v).second];
+        }
 
         buffer.differences[A[i]] = diff;
     }
@@ -345,10 +347,10 @@ double kernighanLin(
 
         for (auto v : B)
             if (B[i] != v)
-                buffer.differences[B[i]] -= edge_costs[graph.findEdge(B[i], v).second];
+                diff -= edge_costs[graph.findEdge(B[i], v).second];
 
         for (auto v : A)
-            buffer.differences[B[i]] += edge_costs[graph.findEdge(B[i], v).second];
+            diff += edge_costs[graph.findEdge(B[i], v).second];
 
         buffer.differences[B[i]] = diff;
     }
@@ -420,6 +422,14 @@ double kernighanLin(
             max_move = std::make_pair(cumulative_diff, moves.size());
     }
 
+    if (gain_from_merging > max_move.first && gain_from_merging > settings.epsilon)
+    {
+        A.insert(A.end(), B.begin(), B.end());
+
+        B.clear();
+
+        return gain_from_merging;
+    }
     if (max_move.first > settings.epsilon)
     {
         for (std::size_t i = max_move.second; i < moves.size(); ++i)
