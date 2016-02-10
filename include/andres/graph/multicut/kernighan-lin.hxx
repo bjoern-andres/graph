@@ -283,7 +283,7 @@ void kernighanLin(const CompleteGraph<GraphVisitor>& graph, const ECA& edgeCosts
 {
     struct Visitor
     {
-        bool operator()(std::vector<size_t>& edge_labels) const
+        bool operator()(ELA const& edge_labels) const
         {
             return true;
         }
