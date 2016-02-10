@@ -134,7 +134,6 @@ endif()
 
 if((COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11) AND GUROBI_FOUND AND HDF5_FOUND)
     include_directories(src)
-    include_directories(src/command-line-tools)
 
     add_executable(solve-mp src/command-line-tools/solve-mp.cxx ${headers})
     target_link_libraries(solve-mp ${HDF5_LIBRARIES} ${GUROBI_LIBRARIES})
@@ -144,4 +143,20 @@ if((COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11) AND GUROBI_FOUND AND HDF
 
     add_executable(solve-mp-grid-graph src/command-line-tools/solve-mp-grid-graph.cxx ${headers})
     target_link_libraries(solve-mp-grid-graph ${HDF5_LIBRARIES} ${GUROBI_LIBRARIES})
+endif()
+
+if((COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11) AND HDF5_FOUND)
+    include_directories(src)
+
+    add_executable(lift-mp src/command-line-tools/lift-mp.cxx ${headers})
+    target_link_libraries(lift-mp ${HDF5_LIBRARIES})
+
+    add_executable(lift-mp-grid-graph src/command-line-tools/lift-mp-grid-graph.cxx ${headers})
+    target_link_libraries(lift-mp-grid-graph ${HDF5_LIBRARIES})
+
+    add_executable(solve-lmp src/command-line-tools/solve-lmp.cxx ${headers})
+    target_link_libraries(solve-lmp ${HDF5_LIBRARIES} ${GUROBI_LIBRARIES})
+
+    add_executable(solve-lmp-grid-graph src/command-line-tools/solve-lmp-grid-graph.cxx ${headers})
+    target_link_libraries(solve-lmp-grid-graph ${HDF5_LIBRARIES} ${GUROBI_LIBRARIES})
 endif()
