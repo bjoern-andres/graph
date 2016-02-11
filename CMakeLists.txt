@@ -5,7 +5,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 project(graph)
 
 include_directories(include)
-include_directories(src)
 
 file(GLOB headers
     include/andres/*.hxx
@@ -138,6 +137,8 @@ if(DOXYGEN_FOUND)
 endif()
 
 if((COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11) AND GUROBI_FOUND AND HDF5_FOUND)
+    include_directories(src)
+
     add_executable(solve-mp src/command-line-tools/solve-mp.cxx ${headers})
     target_link_libraries(solve-mp ${HDF5_LIBRARIES} ${GUROBI_LIBRARIES})
 
@@ -149,6 +150,11 @@ if((COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11) AND GUROBI_FOUND AND HDF
 endif()
 
 if((COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11) AND HDF5_FOUND)
+    include_directories(src)
+
+    add_executable(test-probabilistic-lifting src/command-line-tools/test-probabilistic-lifting.cxx ${headers})
+    add_test(test-probabilistic-lifting test-probabilistic-lifting)
+
     add_executable(lift-mp src/command-line-tools/lift-mp.cxx ${headers})
     target_link_libraries(lift-mp ${HDF5_LIBRARIES})
 
