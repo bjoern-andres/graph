@@ -12,7 +12,9 @@
 #include <andres/graph/hdf5/graph.hxx>
 #include <andres/graph/lifting.hxx>
 
+
 #include "Timer.hpp"
+#include "probabilistic-lifting.hxx"
 
 using namespace std;
 using namespace andres;

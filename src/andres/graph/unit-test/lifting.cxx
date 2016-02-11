@@ -3,6 +3,8 @@
 #include "andres/graph/graph.hxx"
 #include "andres/graph/lifting.hxx"
 
+#include <command-line-tools/probabilistic-lifting.hxx>
+
 inline void test(const bool condition) {
     if(!condition) throw std::logic_error("test failed.");
 }
@@ -146,7 +148,7 @@ void testLiftEdgeValuesSPSP() {
 
     // lift edge weights (by means of SPSP)
     std::vector<unsigned int> edgeValuesLifted(graphLifted.numberOfEdges());
-    andres::graph::liftEdgeValues(graph, graphLifted, edgeValues.begin(), edgeValuesLifted.begin());
+    liftEdgeValues(graph, graphLifted, edgeValues.begin(), edgeValuesLifted.begin());
 
     // test lifted edge values
     for(size_type e = 0; e < graphLifted.numberOfEdges(); ++e)
@@ -178,11 +180,11 @@ void testLiftEdgeValuesFastMarching() {
     // lift edge values (by menas of fast marching)
     const size_type interpolationOrder = 0;
     std::vector<unsigned int> edgeValuesLiftedFM(graphLifted.numberOfEdges());
-    andres::graph::liftEdgeValues(graph, graphLifted, edgeValues.begin(), edgeValuesLiftedFM.begin(), interpolationOrder);
+    liftEdgeValues(graph, graphLifted, edgeValues.begin(), edgeValuesLiftedFM.begin(), interpolationOrder);
 
     // lift edge values (by menas of SPSP)
     std::vector<unsigned int> edgeValuesLiftedSPSP(graphLifted.numberOfEdges());
-    andres::graph::liftEdgeValues<
+    liftEdgeValues<
         GraphType,
         LiftedGraphType,
         std::vector<unsigned int>::const_iterator,
