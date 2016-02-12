@@ -7,10 +7,8 @@
 #include <vector>
 #include <type_traits>
         
-#include "grid-graph.hxx"
+#include <andres/graph/grid-graph.hxx>
 
-namespace andres {
-namespace graph {
 
 /// \cond SUPPRESS DOXYGEN
 namespace detail {
@@ -269,8 +267,5 @@ fastMarching(
         }
     }
 }
-
-} // namespace graph
-} // namespace andres
 
 #endif // #ifndef ANDRES_GRAPH_FAST_MARCHING_HXX
