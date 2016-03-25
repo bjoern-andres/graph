@@ -31,9 +31,9 @@ namespace multicut {
 template<typename ILP, typename GRAPH, typename ECA, typename ELA, typename VIS>
 inline void
 ilp(
-    const GRAPH& graph,
-    const ECA& edgeCosts,
-    const ELA& inputLabels,
+    GRAPH const& graph,
+    ECA const& edgeCosts,
+    ELA const& inputLabels,
     ELA& outputLabels,
     VIS& visitor,
     size_t numberOfIterations = std::numeric_limits<size_t>::max()
@@ -45,7 +45,7 @@ ilp(
         bool vertex(const size_t v) const
             { return true; }
         bool edge(const size_t e) const
-            { return ilp_.label(e) == 0; }
+            { return ilp_.label(e) < .5; }
         const ILP& ilp_;
     };
 
@@ -65,7 +65,7 @@ ilp(
 
         #pragma omp parallel for firstprivate(path, buffer, variables, coefficients), schedule(guided)
         for (size_t edge = 0; edge < graph.numberOfEdges(); ++edge) 
-            if (ilp.label(edge) == 1)
+            if (ilp.label(edge) > .5)
             {
                 auto v0 = graph.vertexOfEdge(edge, 0);
                 auto v1 = graph.vertexOfEdge(edge, 1);
@@ -140,9 +140,9 @@ ilp(
 template<typename ILP, typename GRAPH, typename ECA, typename ELA>
 inline void
 ilp(
-    const GRAPH& graph,
-    const ECA& edgeCosts,
-    const ELA& inputLabels,
+    GRAPH const& graph,
+    ECA const& edgeCosts,
+    ELA const& inputLabels,
     ELA& outputLabels,
     size_t numberOfIterations = std::numeric_limits<size_t>::max()
 ) {
@@ -163,9 +163,9 @@ ilp(
 template<typename ILP, typename GRAPH_VISITOR, typename ECA, typename ELA, typename VIS>
 inline void
 ilp(
-    const CompleteGraph<GRAPH_VISITOR>& graph,
-    const ECA& edgeCosts,
-    const ELA& inputLabels,
+    CompleteGraph<GRAPH_VISITOR> const& graph,
+    ECA const& edgeCosts,
+    ELA const& inputLabels,
     ELA& outputLabels,
     VIS& visitor,
     size_t numberOfIterations = std::numeric_limits<size_t>::max()
@@ -177,7 +177,7 @@ ilp(
         bool vertex(const size_t v) const
             { return true; }
         bool edge(const size_t e) const
-            { return ilp_.label(e) == 0; }
+            { return ilp_.label(e) < .5; }
         const ILP& ilp_;
     };
 
@@ -194,7 +194,7 @@ ilp(
 
         #pragma omp parallel for firstprivate(variables, coefficients), schedule(guided)
         for(size_t edge = 0; edge < graph.numberOfEdges(); ++edge) 
-            if (ilp.label(edge) == 1)
+            if (ilp.label(edge) > .5)
             {
                 variables[2] = edge;
 
@@ -209,7 +209,7 @@ ilp(
                     variables[0] = graph.findEdge(v0, i).second;
                     variables[1] = graph.findEdge(v1, i).second;
 
-                    if (ilp.label(variables[0]) == 0 && ilp.label(variables[1]) == 0)
+                    if (ilp.label(variables[0]) < .5 && ilp.label(variables[1]) < .5)
                     {
                         coefficients[0] =  1.0;
                         coefficients[1] =  1.0;
@@ -265,9 +265,9 @@ ilp(
 template<typename ILP, typename GRAPH_VISITOR, typename ECA, typename ELA>
 inline void
 ilp(
-    const CompleteGraph<GRAPH_VISITOR>& graph,
-    const ECA& edgeCosts,
-    const ELA& inputLabels,
+    CompleteGraph<GRAPH_VISITOR> const& graph,
+    ECA const& edgeCosts,
+    ELA const& inputLabels,
     ELA& outputLabels,
     size_t numberOfIterations = std::numeric_limits<size_t>::max()
 ) {

@@ -30,7 +30,7 @@ void testMulticut() {
     weights[6] = 5;
 
     std::vector<char> edge_labels(graph.numberOfEdges(), 1);
-    andres::graph::multicut::ilp<andres::ilp::Gurobi<>>(graph, weights, edge_labels, edge_labels);
+    andres::graph::multicut::ilp<andres::ilp::Gurobi>(graph, weights, edge_labels, edge_labels);
 
     test(edge_labels[0] == 0);
     test(edge_labels[1] == 1);
@@ -59,7 +59,7 @@ void testMulticutCompleteGraph() {
     weights[graph.findEdge(3, 4).second] = 10;
 
     std::vector<char> edge_labels(graph.numberOfEdges(), 1);
-    andres::graph::multicut::ilp<andres::ilp::Gurobi<>>(graph, weights, edge_labels, edge_labels);
+    andres::graph::multicut::ilp<andres::ilp::Gurobi>(graph, weights, edge_labels, edge_labels);
 
     test(edge_labels[graph.findEdge(0, 1).second] == 0);
     test(edge_labels[graph.findEdge(0, 2).second] == 0);
