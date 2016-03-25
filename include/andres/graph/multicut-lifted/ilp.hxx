@@ -123,11 +123,13 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
                 auto label = components.labels_[lv0];
 
                 std::fill(visited.begin(), visited.end(), 0);
+
                 std::stack<size_t> S;
                 S.push(lv0);
+                
                 visited[lv0] = 1;
 
-                size_t sz = 0;
+                ptrdiff_t sz = 0;
 
                 while (!S.empty())
                 {
@@ -135,56 +137,17 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
                     S.pop();
 
                     for (auto it = original_graph.adjacenciesFromVertexBegin(v); it != original_graph.adjacenciesFromVertexEnd(v); ++it)
-                        if (components.labels_[it->vertex()] == label)
+                        if (components.labels_[it->vertex()] != label)
                         {
-                            if (!visited[it->vertex()])
-                            {
-                                S.push(it->vertex());
-                                visited[it->vertex()] = 1;
-                            }
-                        }
-                        else
-                        {
+                            coefficients[sz] = -1;
                             variables[sz] = edge_in_lifted_graph[it->edge()];
-                            coefficients[sz++] = -1;
+                            
+                            ++sz;
                         }
-                }
-
-                // variables[sz] = static_cast<double>(edge);
-                // coefficients[sz] = 1;
-
-                // #pragma omp critical
-                // ilp.addConstraint(variables.begin(), variables.begin() + sz + 1, coefficients.begin(), 1.0 - sz, std::numeric_limits<double>::infinity());    
-
-                // #pragma omp atomic
-                // ++counter;
-
-
-                label = components.labels_[lv1];
-
-                S.push(lv1);
-                visited[lv1] = 1;
-
-                // sz = 0;
-
-                while (!S.empty())
-                {
-                    auto v = S.top();
-                    S.pop();
-
-                    for (auto it = original_graph.adjacenciesFromVertexBegin(v); it != original_graph.adjacenciesFromVertexEnd(v); ++it)
-                        if (components.labels_[it->vertex()] == label)
+                        else if (!visited[it->vertex()])
                         {
-                            if (!visited[it->vertex()])
-                            {
-                                S.push(it->vertex());
-                                visited[it->vertex()] = 1;
-                            }
-                        }
-                        else
-                        {
-                            variables[sz] = edge_in_lifted_graph[it->edge()];
-                            coefficients[sz++] = -1;
+                            S.push(it->vertex());
+                            visited[it->vertex()] = 1;
                         }
                 }
 
@@ -241,15 +204,6 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
         if (i != 0)
         {
             repairSolution();
-
-            auto energy_value = inner_product(edgeCosts.begin(), edgeCosts.end(), inputLabels.begin(), .0);
-            printf("Energy: %f\n", energy_value);
-            energy_value = .0;
-            for(ptrdiff_t edge = 0; edge < lifted_graph.numberOfEdges(); ++edge)
-                if (ilp.label(edge) > 0.5)
-                    energy_value += edgeCosts[edge];
-
-            printf("ILP Energy: %f\n", energy_value);
 
             if (!visitor(outputLabels))
                 break;
