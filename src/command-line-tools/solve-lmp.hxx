@@ -1,10 +1,11 @@
 #include <stdexcept>
 #include <iostream>
-// #include <string>
 
 #include <tclap/CmdLine.h>
 
 #include <andres/functional.hxx>
+#include <andres/lp/gurobi.hxx>
+#include <andres/graph/multicut-lifted/lp.hxx>
 #include <andres/graph/multicut-lifted/greedy-additive.hxx>
 #include <andres/graph/multicut-lifted/kernighan-lin.hxx>
 
@@ -18,6 +19,7 @@ enum class Method {
     Ones,
     GAEC,
     Kernighan_Lin,
+    LP
 };
 
 enum class Initialization {
@@ -28,12 +30,12 @@ enum class Initialization {
 };
 
 struct Parameters {
-    std::string inputHDF5FileName_;
-    std::string outputHDF5FileName_;
-    std::string labelingHDF5FileName_;
-    Method optimizationMethod_ { Method::Kernighan_Lin };
-    Initialization initialization_ { Initialization::Zeros };
-    bool probabilistic_ { true };
+    std::string inputHDF5FileName;
+    std::string outputHDF5FileName;
+    std::string labelingHDF5FileName;
+    Method optimizationMethod { Method::Kernighan_Lin };
+    Initialization initialization { Initialization::Zeros };
+    bool probabilistic { true };
 };
 
 inline void
@@ -45,31 +47,33 @@ parseCommandLine(
 try
 {
     TCLAP::CmdLine tclap("solve-lifted-multicut-problem-grid-graph", ' ', "1.0");
-    TCLAP::ValueArg<std::string> argInputHDF5FileName("i", "input-hdf5-file", "File to load multicut problem from", true, parameters.inputHDF5FileName_, "INPUT_HDF5_FILE", tclap);
-    TCLAP::ValueArg<std::string> argOutputHDF5FileName("o", "output-hdf-file", "hdf file (output)", true, parameters.outputHDF5FileName_, "OUTPUT_HDF5_FILE", tclap);
-    TCLAP::ValueArg<std::string> argLabelingHDF5FileName("l", "labeling-hdf-file", "hdf file specifying initial node labelings (input)", false, parameters.labelingHDF5FileName_, "LABELING_HDF5_FILE", tclap);
-    TCLAP::ValueArg<std::string> argOptimizationMethod("m", "optimization-method", "optimization method to use {zeros, ones, GAEC, KL}", false, "KL", "OPTIMIZATION_METHOD", tclap);
+    TCLAP::ValueArg<std::string> argInputHDF5FileName("i", "input-hdf5-file", "File to load multicut problem from", true, parameters.inputHDF5FileName, "INPUT_HDF5_FILE", tclap);
+    TCLAP::ValueArg<std::string> argOutputHDF5FileName("o", "output-hdf-file", "hdf file (output)", false, parameters.outputHDF5FileName, "OUTPUT_HDF5_FILE", tclap);
+    TCLAP::ValueArg<std::string> argLabelingHDF5FileName("l", "labeling-hdf-file", "hdf file specifying initial node labelings (input)", false, parameters.labelingHDF5FileName, "LABELING_HDF5_FILE", tclap);
+    TCLAP::ValueArg<std::string> argOptimizationMethod("m", "optimization-method", "optimization method to use {zeros, ones, LP, GAEC, KL}", false, "KL", "OPTIMIZATION_METHOD", tclap);
     TCLAP::ValueArg<std::string> argInitializationMethod("I", "initialization-method", "initialization method to use {zeros, ones, GAEC}", false, "zeros", "INITIALIZATION_METHOD", tclap);
     TCLAP::SwitchArg argNonProbabilistic("p", "non-probabilistic", "Assume inputs are not probabilities. By default, all inputs are assumed to be Logistic Probabilities. (Default: disabled).",tclap);
 
     tclap.parse(argc, argv);
 
-    parameters.inputHDF5FileName_ = argInputHDF5FileName.getValue();
-    parameters.outputHDF5FileName_ = argOutputHDF5FileName.getValue();
-    parameters.probabilistic_ = !argNonProbabilistic.getValue();
+    parameters.inputHDF5FileName = argInputHDF5FileName.getValue();
+    parameters.outputHDF5FileName = argOutputHDF5FileName.getValue();
+    parameters.probabilistic = !argNonProbabilistic.getValue();
 
     if (!argOptimizationMethod.isSet())
         throw std::runtime_error("No optimization method specified");
     
     if (argOptimizationMethod.getValue() == "GAEC")
-        parameters.optimizationMethod_ = Method::GAEC;
+        parameters.optimizationMethod = Method::GAEC;
     else if (argOptimizationMethod.getValue() == "zeros")
-        parameters.optimizationMethod_ = Method::Zeros;
+        parameters.optimizationMethod = Method::Zeros;
     else if (argOptimizationMethod.getValue() == "ones")
-        parameters.optimizationMethod_ = Method::Ones;
+        parameters.optimizationMethod = Method::Ones;
+    else if (argOptimizationMethod.getValue() == "LP")
+        parameters.optimizationMethod = Method::LP;
     else if(argOptimizationMethod.getValue() == "KL")
     {
-        parameters.optimizationMethod_ = Method::Kernighan_Lin;
+        parameters.optimizationMethod = Method::Kernighan_Lin;
 
         if (!argInitializationMethod.isSet() && !argLabelingHDF5FileName.isSet())
             throw std::runtime_error("Either initialization method (zeros, ones) or initial labeling must be specified for Kernighan-Lin.");
@@ -79,17 +83,17 @@ try
             if(argInitializationMethod.isSet())
                 throw std::runtime_error("Either initialization method or initial labeling must be specified.");
             
-            parameters.labelingHDF5FileName_ = argLabelingHDF5FileName.getValue();
-            parameters.initialization_ = Initialization::Input_Labeling;
+            parameters.labelingHDF5FileName = argLabelingHDF5FileName.getValue();
+            parameters.initialization = Initialization::Input_Labeling;
         }
         else if (argInitializationMethod.isSet())
         {
             if(argInitializationMethod.getValue() == "ones")
-                parameters.initialization_ = Initialization::Ones;
+                parameters.initialization = Initialization::Ones;
             else if(argInitializationMethod.getValue() == "zeros")
-                parameters.initialization_ = Initialization::Zeros;
+                parameters.initialization = Initialization::Zeros;
             else if(argInitializationMethod.getValue() == "GAEC")
-                parameters.initialization_ = Initialization::GAEC;
+                parameters.initialization = Initialization::GAEC;
             else
                 throw std::runtime_error("Invalid initialization method specified");
         }
@@ -114,7 +118,7 @@ void solveLiftedMulticutProblem(
 
     // Load Lifted Multicut Problem
     {
-        auto fileHandle = andres::graph::hdf5::openFile(parameters.inputHDF5FileName_);
+        auto fileHandle = andres::graph::hdf5::openFile(parameters.inputHDF5FileName);
 
         andres::graph::hdf5::load(fileHandle, "graph", original_graph);        
         andres::graph::hdf5::load(fileHandle, "graph-lifted", lifted_graph);
@@ -124,7 +128,7 @@ void solveLiftedMulticutProblem(
         andres::graph::hdf5::closeFile(fileHandle);
     }
 
-    if (parameters.probabilistic_)
+    if (parameters.probabilistic)
         std::transform(
             edge_values.begin(),
             edge_values.end(),
@@ -138,13 +142,13 @@ void solveLiftedMulticutProblem(
     Timer t;
     t.start();
 
-    if (parameters.initialization_ == Initialization::Zeros)
+    if (parameters.initialization == Initialization::Zeros)
         std::fill(edge_labels.begin(), edge_labels.end(), 0);
-    else if (parameters.initialization_ == Initialization::Ones)
+    else if (parameters.initialization == Initialization::Ones)
         std::fill(edge_labels.begin(), edge_labels.end(), 1);
-    else if (parameters.initialization_ == Initialization::Input_Labeling)
+    else if (parameters.initialization == Initialization::Input_Labeling)
     {
-        auto fileHandle = andres::graph::hdf5::openFile(parameters.labelingHDF5FileName_);
+        auto fileHandle = andres::graph::hdf5::openFile(parameters.labelingHDF5FileName);
 
         std::vector<size_t> shape;
         std::vector<size_t> vertex_labels;
@@ -159,25 +163,51 @@ void solveLiftedMulticutProblem(
 
         vertexToEdgeLabels(original_graph, lifted_graph, vertex_labels, edge_labels);
     }
-    else if (parameters.initialization_ == Initialization::GAEC)
+    else if (parameters.initialization == Initialization::GAEC)
         andres::graph::multicut_lifted::greedyAdditiveEdgeContraction(original_graph, lifted_graph, edge_values, edge_labels);
 
-    if (parameters.optimizationMethod_ == Method::Ones)
+    if (parameters.optimizationMethod == Method::Ones)
         std::fill(edge_labels.begin(), edge_labels.end(), 1);
-    else if (parameters.optimizationMethod_ == Method::Zeros)
+    else if (parameters.optimizationMethod == Method::Zeros)
         std::fill(edge_labels.begin(), edge_labels.end(), 0);
-    else if (parameters.optimizationMethod_ == Method::GAEC)
+    else if (parameters.optimizationMethod == Method::GAEC)
         andres::graph::multicut_lifted::greedyAdditiveEdgeContraction(original_graph, lifted_graph, edge_values, edge_labels);
-    else if (parameters.optimizationMethod_ == Method::Kernighan_Lin)
+    else if (parameters.optimizationMethod == Method::Kernighan_Lin)
         andres::graph::multicut_lifted::kernighanLin(original_graph, lifted_graph, edge_values, edge_labels, edge_labels);
+    else if (parameters.optimizationMethod == Method::LP)
+    {
+        auto values = andres::graph::multicut_lifted::lp<andres::relax::Gurobi<>>(original_graph, lifted_graph, edge_values);
+
+        t.stop();
+
+        auto energy_value = inner_product(edge_values.begin(), edge_values.end(), values.begin(), .0);
+
+        if (!parameters.outputHDF5FileName.empty())
+        {
+            auto file = andres::graph::hdf5::createFile(parameters.outputHDF5FileName);
+            
+            andres::graph::hdf5::save(file, "graph", original_graph);
+            andres::graph::hdf5::save(file, "energy-value", energy_value);
+            andres::graph::hdf5::save(file, "running-time", t.get_elapsed_seconds());
+            andres::graph::hdf5::save(file, "labels", { values.size() }, values.data()); // we save directly edge values as given by the LP solution, since the latter is not guaranteed to be integer
+
+            andres::graph::hdf5::closeFile(file);
+        }
+
+        std::cout << "Number of clusters: N/A\n";
+        std::cout << "Energy value: " << energy_value << std::endl;
+        std::cout << "Running time: " << t.to_string() << std::endl;
+
+        return;
+    }
     else
         throw std::runtime_error("Unsupported algorithm");
     
     t.stop();
     
-    stream << "saving decomposition into file: " << parameters.outputHDF5FileName_ << std::endl;
+    stream << "saving decomposition into file: " << parameters.outputHDF5FileName << std::endl;
     {
-        auto file = andres::graph::hdf5::createFile(parameters.outputHDF5FileName_);
+        auto file = andres::graph::hdf5::createFile(parameters.outputHDF5FileName);
         
         andres::graph::hdf5::save(file, "graph", original_graph);
 
