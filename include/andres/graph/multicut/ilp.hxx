@@ -181,15 +181,12 @@ ilp(
         const ILP& ilp_;
     };
 
-    ComponentsBySearch<CompleteGraph<GRAPH_VISITOR>> components;
     ILP ilp;
     std::array<double, 3> variables;
     std::array<double, 3> coefficients;
 
     auto addCycleInequalities = [&] ()
     {
-        components.build(graph, SubgraphWithCut(ilp));
-
         size_t counter = 0;
 
         #pragma omp parallel for firstprivate(variables, coefficients), schedule(guided)
@@ -227,31 +224,13 @@ ilp(
         return counter;
     };
 
-    auto repairSolution = [&] ()
-    {
-        for(size_t edge = 0; edge < graph.numberOfEdges(); ++edge)
-        {
-            auto v0 = graph.vertexOfEdge(edge, 0);
-            auto v1 = graph.vertexOfEdge(edge, 1);
-
-            outputLabels[edge] = components.areConnected(v0, v1) ? 0 : 1;
-        }
-
-        ilp.setStart(outputLabels.begin());
-    };
-
     ilp.initModel(graph.numberOfEdges(), edgeCosts.data());
     ilp.setStart(inputLabels.begin());
 
     for (size_t i = 0; numberOfIterations == 0 || i < numberOfIterations; ++i)
     {
-        if (i != 0)
-        {
-            repairSolution();
-
-            if (!visitor(outputLabels))
-                break;
-        }
+        if (!visitor())
+            break;
 
         ilp.optimize();
 
@@ -259,7 +238,16 @@ ilp(
             break;
     }
 
-    repairSolution();
+    ComponentsBySearch<CompleteGraph<GRAPH_VISITOR>> components;
+    components.build(graph, SubgraphWithCut(ilp));
+
+    for (size_t edge = 0; edge < graph.numberOfEdges(); ++edge)
+    {
+        auto v0 = graph.vertexOfEdge(edge, 0);
+        auto v1 = graph.vertexOfEdge(edge, 1);
+
+        outputLabels[edge] = components.areConnected(v0, v1) ? 0 : 1;
+    }
 }
 
 template<typename ILP, typename GRAPH_VISITOR, typename ECA, typename ELA>
@@ -273,7 +261,7 @@ ilp(
 ) {
     struct Visitor
     {
-        bool operator()(ELA const& edge_labels) const
+        bool operator()() const
         {
             return true;
         }
