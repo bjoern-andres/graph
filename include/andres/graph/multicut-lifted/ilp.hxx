@@ -70,8 +70,6 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
 
     auto addCycleInequalities = [&] ()
     {
-        t.stop();
-
         levinkov::Timer t_separation;
         t_separation.start();
 
@@ -161,6 +159,7 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
         }
 
         t_separation.stop();
+        t.stop();
 
         double objValue = .0;
         for (size_t i = 0; i < lifted_graph.numberOfEdges(); ++i)

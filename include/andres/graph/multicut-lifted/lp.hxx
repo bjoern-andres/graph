@@ -64,6 +64,10 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
         {
             src_ = src;
             dest_ = dest;
+
+            for (auto& adj : g_)
+                for (auto& e : adj)
+                    e.f = 0;
             
             int result = 0;
 
@@ -196,8 +200,6 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
 
     auto separateAndAddInequalities = [&] ()
     {
-        t.stop();
-
         levinkov::Timer t_separation;
         t_separation.start();
 
@@ -247,33 +249,33 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
                     ++nPath;
             }
 
-            flow.maxFlow(lv0, lv1);
-
-            double S_cut = .0;
-
-            ptrdiff_t sz = 0;
-            for (auto& p : flow.getMinCut())
+            if (!original_graph.findEdge(lv0, lv1).first)
             {
-                coefficients[sz] = -1.0;
-                variables[sz] = lifted_graph.findEdge(p.first, p.second).second;
+                auto flow_value = static_cast<double>(flow.maxFlow(lv0, lv1)) / 100000.0;
 
-                S_cut += 1.0 - vars[variables[sz]];
+                if (1.0 - std::min(std::max(.0, lp.variableValue(edge)), 1.0) > flow_value + tolerance)
+                {
+                    ptrdiff_t sz = 0;
+                    for (auto& p : flow.getMinCut())
+                    {
+                        coefficients[sz] = -1.0;
+                        variables[sz] = lifted_graph.findEdge(p.first, p.second).second;
 
-                ++sz;
-            }
+                        ++sz;
+                    }
 
-            if (1.0 - lp.variableValue(edge) > S_cut + tolerance)
-            {
-                coefficients[sz] = 1.0;
-                variables[sz] = edge;
+                    coefficients[sz] = 1.0;
+                    variables[sz] = edge;
 
-                lp.addConstraint(variables.begin(), variables.begin() + sz + 1, coefficients.begin(), 1.0 - sz, std::numeric_limits<double>::infinity());    
+                    lp.addConstraint(variables.begin(), variables.begin() + sz + 1, coefficients.begin(), 1.0 - sz, std::numeric_limits<double>::infinity());    
 
-                ++nCut;
+                    ++nCut;
+                }
             }
         }
 
         t_separation.stop();
+        t.stop();
 
         double objValue = .0;
         for (size_t i = 0; i < lifted_graph.numberOfEdges(); ++i)
