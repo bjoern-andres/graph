@@ -219,7 +219,7 @@ void ilp_callback(CompleteGraph<GRAPH_VISITOR> const& graph, ECA const& edgeCost
             std::array<double, 3> variables;
             std::array<double, 3> coefficients;
 
-            for(size_t edge = 0; edge < graph_.numberOfEdges(); ++edge) 
+            for (size_t edge = 0; edge < graph_.numberOfEdges(); ++edge) 
                 if (this->label(edge) > .5)
                 {
                     variables[2] = edge;

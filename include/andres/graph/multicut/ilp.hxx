@@ -7,10 +7,10 @@
 #include <array>
 #include <algorithm>
 
-#include "andres/graph/complete-graph.hxx"
-#include "andres/graph/components.hxx"
-#include "andres/graph/paths.hxx"
-#include "andres/graph/shortest-paths.hxx"
+#include <andres/graph/complete-graph.hxx>
+#include <andres/graph/components.hxx>
+#include <andres/graph/paths.hxx>
+#include <andres/graph/shortest-paths.hxx>
 
 namespace andres {
 namespace graph {
@@ -75,9 +75,8 @@ ilp(
         components.build(graph, SubgraphWithCut(ilp));
 
         // search for violated non-chordal cycles and add corresp. inequalities
-        size_t counter = 0;
+        size_t nCycle = 0;
 
-        #pragma omp parallel for firstprivate(path, buffer, variables, coefficients), schedule(guided)
         for (size_t edge = 0; edge < graph.numberOfEdges(); ++edge) 
             if (ilp.label(edge) > .5)
             {
@@ -105,15 +104,13 @@ ilp(
                     variables[path.size() - 1] = edge;
                     coefficients[path.size() - 1] = -1.0;
 
-                    #pragma omp critical
                     ilp.addConstraint(variables.begin(), variables.begin() + path.size(), coefficients.begin(), 0, std::numeric_limits<double>::infinity());
 
-                    #pragma omp atomic
-                    ++counter;
+                    ++nCycle;
                 }
             }
 
-        return counter;
+        return nCycle;
     };
 
     auto repairSolution = [&] ()
@@ -203,10 +200,9 @@ ilp(
 
     auto addCycleInequalities = [&] ()
     {
-        size_t counter = 0;
+        size_t nCycle = 0;
 
-        #pragma omp parallel for firstprivate(variables, coefficients), schedule(guided)
-        for(size_t edge = 0; edge < graph.numberOfEdges(); ++edge) 
+        for (size_t edge = 0; edge < graph.numberOfEdges(); ++edge) 
             if (ilp.label(edge) > .5)
             {
                 variables[2] = edge;
@@ -228,16 +224,14 @@ ilp(
                         coefficients[1] =  1.0;
                         coefficients[2] = -1.0;
 
-                        #pragma omp critical
                         ilp.addConstraint(variables.begin(), variables.end(), coefficients.begin(), 0, std::numeric_limits<double>::infinity());
 
-                        #pragma omp atomic
-                        ++counter;
+                        ++nCycle;
                     }
                 }
             }
 
-        return counter;
+        return nCycle;
     };
 
     ilp.initModel(graph.numberOfEdges(), edgeCosts.data());

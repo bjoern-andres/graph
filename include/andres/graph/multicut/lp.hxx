@@ -6,7 +6,8 @@
 #include <deque>
 #include <algorithm>
 
-#include "andres/graph/shortest-paths.hxx"
+#include <andres/graph/complete-graph.hxx>
+#include <andres/graph/shortest-paths.hxx>
 
 
 namespace andres {
@@ -51,7 +52,7 @@ std::vector<double> lp(GRAPH const& graph, ECA const& edgeCosts, VIS& visitor, s
             // sometimes Gurobi finds sligthly negative solutions of the order of 1e-13.
             // The latter totally screws up Dijkstra's shortest path algorithm
 
-        size_t counter = 0;
+        size_t nCycle = 0;
         for (size_t edge = 0; edge < graph.numberOfEdges(); ++edge) 
         {
             auto v0 = graph.vertexOfEdge(edge, 0);
@@ -60,6 +61,24 @@ std::vector<double> lp(GRAPH const& graph, ECA const& edgeCosts, VIS& visitor, s
             // search for shortest path
             double distance;
             spsp(graph, DefaultSubgraphMask<>(), v0, v1, vars.begin(), path, distance, distances.begin(), parents.begin());
+
+            bool chordless = true;
+            for (auto it1 = path.begin(); it1 != path.end() - 2 && chordless; ++it1)
+                for (auto it2 = it1 + 2; it2 != path.end(); ++it2)
+                {
+                    if (it1 == path.begin() && it2 == path.end() - 1)
+                        continue;
+
+                    auto e = graph.findEdge(*it1, *it2);
+                    if (e.first && std::min(std::max(.0, lp.variableValue(e.second)), 1.0) > distances[*it2] - distances[*it1] + tolerance)
+                    {
+                        chordless = false;
+                        break;
+                    }
+                }
+
+            if (!chordless)
+                continue;
 
             if (vars[edge] > distance + tolerance)
             {
@@ -75,11 +94,11 @@ std::vector<double> lp(GRAPH const& graph, ECA const& edgeCosts, VIS& visitor, s
 
                 lp.addConstraint(variables.begin(), variables.begin() + path.size(), coefficients.begin(), .0, std::numeric_limits<double>::infinity());
 
-                ++counter;
+                ++nCycle;
             }
         }
 
-        return counter;
+        return nCycle;
     };
 
     lp.initModel(graph.numberOfEdges(), edgeCosts.data());
