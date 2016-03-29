@@ -2,19 +2,15 @@
 #ifndef ANDRES_GRAPH_MULTICUT_ILP_HXX
 #define ANDRES_GRAPH_MULTICUT_ILP_HXX
 
-#include <cassert>
-#include <cstddef>
-#include <stdexcept>
 #include <vector>
 #include <deque>
 #include <array>
 #include <algorithm>
 
-#include "andres/partition.hxx" 
-#include "andres/graph/complete-graph.hxx"
-#include "andres/graph/paths.hxx"
-#include "andres/graph/components.hxx"
-#include "andres/graph/shortest-paths.hxx"
+#include <andres/graph/complete-graph.hxx>
+#include <andres/graph/components.hxx>
+#include <andres/graph/paths.hxx>
+#include <andres/graph/shortest-paths.hxx>
 
 namespace andres {
 namespace graph {
@@ -28,12 +24,30 @@ namespace multicut {
 /// Koethe U. and Hamprecht F. A. Globally Optimal Closed-surface Segmentation
 /// for Connectomics. ECCV 2012. http://dx.doi.org/10.1007/978-3-642-33712-3_56
 ///
+template<typename ILP, typename GRAPH, typename ECA, typename ELA>
+inline void
+ilp(
+    GRAPH const& graph,
+    ECA const& edgeCosts,
+    ELA const& inputLabels,
+    ELA& outputLabels,
+    size_t numberOfIterations = std::numeric_limits<size_t>::max()
+) {
+    struct Visitor {
+        bool operator()(ELA const& edge_labels) const {
+            return true;
+        }
+    } visitor;
+
+    ilp<ILP>(graph, edgeCosts, inputLabels, outputLabels, visitor, numberOfIterations);
+}
+
 template<typename ILP, typename GRAPH, typename ECA, typename ELA, typename VIS>
 inline void
 ilp(
-    const GRAPH& graph,
-    const ECA& edgeCosts,
-    const ELA& inputLabels,
+    GRAPH const& graph,
+    ECA const& edgeCosts,
+    ELA const& inputLabels,
     ELA& outputLabels,
     VIS& visitor,
     size_t numberOfIterations = std::numeric_limits<size_t>::max()
@@ -45,7 +59,7 @@ ilp(
         bool vertex(const size_t v) const
             { return true; }
         bool edge(const size_t e) const
-            { return ilp_.label(e) == 0; }
+            { return ilp_.label(e) < .5; }
         const ILP& ilp_;
     };
 
@@ -53,7 +67,7 @@ ilp(
     ILP ilp;
     std::deque<size_t> path;
     std::vector<ptrdiff_t> buffer;
-    std::vector<double> variables(graph.numberOfEdges());
+    std::vector<size_t> variables(graph.numberOfEdges());
     std::vector<double> coefficients(graph.numberOfEdges());
 
     auto addCycleInequalities = [&] ()
@@ -61,11 +75,10 @@ ilp(
         components.build(graph, SubgraphWithCut(ilp));
 
         // search for violated non-chordal cycles and add corresp. inequalities
-        size_t counter = 0;
+        size_t nCycle = 0;
 
-        #pragma omp parallel for firstprivate(path, buffer, variables, coefficients), schedule(guided)
         for (size_t edge = 0; edge < graph.numberOfEdges(); ++edge) 
-            if (ilp.label(edge) == 1)
+            if (ilp.label(edge) > .5)
             {
                 auto v0 = graph.vertexOfEdge(edge, 0);
                 auto v1 = graph.vertexOfEdge(edge, 1);
@@ -82,24 +95,22 @@ ilp(
                     // add inequality
                     auto sz = path.size();
 
-                    for (size_t j = 0; j < sz - 1; ++j)
+                    for (size_t j = 0; j < path.size() - 1; ++j)
                     {
-                        variables[j] = static_cast<double>(graph.findEdge(path[j], path[j + 1]).second);
+                        variables[j] = graph.findEdge(path[j], path[j + 1]).second;
                         coefficients[j] = 1.0;
                     }
 
-                    variables[sz-1] = static_cast<double>(edge);
-                    coefficients[sz-1] = -1.0;
+                    variables[path.size() - 1] = edge;
+                    coefficients[path.size() - 1] = -1.0;
 
-                    #pragma omp critical
-                    ilp.addConstraint(variables.begin(), variables.begin() + sz, coefficients.begin(), 0, std::numeric_limits<double>::infinity());
+                    ilp.addConstraint(variables.begin(), variables.begin() + path.size(), coefficients.begin(), 0, std::numeric_limits<double>::infinity());
 
-                    #pragma omp atomic
-                    ++counter;
+                    ++nCycle;
                 }
             }
 
-        return counter;
+        return nCycle;
     };
 
     auto repairSolution = [&] ()
@@ -137,17 +148,24 @@ ilp(
     repairSolution();
 }
 
-template<typename ILP, typename GRAPH, typename ECA, typename ELA>
+/// Algorithm for the Set Partition Problem.
+///
+/// The Set Partition Problem is the Minimum Cost Multicut Problem for complete
+/// graphs.
+///
+template<typename ILP, typename GRAPH_VISITOR, typename ECA, typename ELA>
 inline void
 ilp(
-    const GRAPH& graph,
-    const ECA& edgeCosts,
-    const ELA& inputLabels,
+    CompleteGraph<GRAPH_VISITOR> const& graph,
+    ECA const& edgeCosts,
+    ELA const& inputLabels,
     ELA& outputLabels,
     size_t numberOfIterations = std::numeric_limits<size_t>::max()
 ) {
-    struct Visitor {
-        bool operator()(ELA const& edge_labels) const {
+    struct Visitor
+    {
+        bool operator()() const
+        {
             return true;
         }
     } visitor;
@@ -155,17 +173,12 @@ ilp(
     ilp<ILP>(graph, edgeCosts, inputLabels, outputLabels, visitor, numberOfIterations);
 }
 
-/// Algorithm for the Set Partition Problem.
-///
-/// The Set Partition Problem is the Minimum Cost Multicut Problem for complete
-/// graphs.
-///
 template<typename ILP, typename GRAPH_VISITOR, typename ECA, typename ELA, typename VIS>
 inline void
 ilp(
-    const CompleteGraph<GRAPH_VISITOR>& graph,
-    const ECA& edgeCosts,
-    const ELA& inputLabels,
+    CompleteGraph<GRAPH_VISITOR> const& graph,
+    ECA const& edgeCosts,
+    ELA const& inputLabels,
     ELA& outputLabels,
     VIS& visitor,
     size_t numberOfIterations = std::numeric_limits<size_t>::max()
@@ -177,24 +190,20 @@ ilp(
         bool vertex(const size_t v) const
             { return true; }
         bool edge(const size_t e) const
-            { return ilp_.label(e) == 0; }
+            { return ilp_.label(e) < .5; }
         const ILP& ilp_;
     };
 
-    ComponentsBySearch<CompleteGraph<GRAPH_VISITOR>> components;
     ILP ilp;
     std::array<double, 3> variables;
     std::array<double, 3> coefficients;
 
     auto addCycleInequalities = [&] ()
     {
-        components.build(graph, SubgraphWithCut(ilp));
+        size_t nCycle = 0;
 
-        size_t counter = 0;
-
-        #pragma omp parallel for firstprivate(variables, coefficients), schedule(guided)
-        for(size_t edge = 0; edge < graph.numberOfEdges(); ++edge) 
-            if (ilp.label(edge) == 1)
+        for (size_t edge = 0; edge < graph.numberOfEdges(); ++edge) 
+            if (ilp.label(edge) > .5)
             {
                 variables[2] = edge;
 
@@ -209,35 +218,20 @@ ilp(
                     variables[0] = graph.findEdge(v0, i).second;
                     variables[1] = graph.findEdge(v1, i).second;
 
-                    if (ilp.label(variables[0]) == 0 && ilp.label(variables[1]) == 0)
+                    if (ilp.label(variables[0]) < .5 && ilp.label(variables[1]) < .5)
                     {
                         coefficients[0] =  1.0;
                         coefficients[1] =  1.0;
                         coefficients[2] = -1.0;
 
-                        #pragma omp critical
                         ilp.addConstraint(variables.begin(), variables.end(), coefficients.begin(), 0, std::numeric_limits<double>::infinity());
 
-                        #pragma omp atomic
-                        ++counter;
+                        ++nCycle;
                     }
                 }
             }
 
-        return counter;
-    };
-
-    auto repairSolution = [&] ()
-    {
-        for(size_t edge = 0; edge < graph.numberOfEdges(); ++edge)
-        {
-            auto v0 = graph.vertexOfEdge(edge, 0);
-            auto v1 = graph.vertexOfEdge(edge, 1);
-
-            outputLabels[edge] = components.areConnected(v0, v1) ? 0 : 1;
-        }
-
-        ilp.setStart(outputLabels.begin());
+        return nCycle;
     };
 
     ilp.initModel(graph.numberOfEdges(), edgeCosts.data());
@@ -245,13 +239,8 @@ ilp(
 
     for (size_t i = 0; numberOfIterations == 0 || i < numberOfIterations; ++i)
     {
-        if (i != 0)
-        {
-            repairSolution();
-
-            if (!visitor(outputLabels))
-                break;
-        }
+        if (!visitor())
+            break;
 
         ilp.optimize();
 
@@ -259,27 +248,16 @@ ilp(
             break;
     }
 
-    repairSolution();
-}
+    ComponentsBySearch<CompleteGraph<GRAPH_VISITOR>> components;
+    components.build(graph, SubgraphWithCut(ilp));
 
-template<typename ILP, typename GRAPH_VISITOR, typename ECA, typename ELA>
-inline void
-ilp(
-    const CompleteGraph<GRAPH_VISITOR>& graph,
-    const ECA& edgeCosts,
-    const ELA& inputLabels,
-    ELA& outputLabels,
-    size_t numberOfIterations = std::numeric_limits<size_t>::max()
-) {
-    struct Visitor
+    for (size_t edge = 0; edge < graph.numberOfEdges(); ++edge)
     {
-        bool operator()(ELA const& edge_labels) const
-        {
-            return true;
-        }
-    } visitor;
+        auto v0 = graph.vertexOfEdge(edge, 0);
+        auto v1 = graph.vertexOfEdge(edge, 1);
 
-    ilp<ILP>(graph, edgeCosts, inputLabels, outputLabels, visitor, numberOfIterations);
+        outputLabels[edge] = components.areConnected(v0, v1) ? 0 : 1;
+    }
 }
 
 } // namespace multicut

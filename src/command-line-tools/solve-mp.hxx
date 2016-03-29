@@ -172,10 +172,10 @@ void solveMulticutProblem(
     else if (parameters.optimizationMethod_ == Method::KL)
         andres::graph::multicut::kernighanLin(graph, edge_values, edge_labels, edge_labels);
     else if (parameters.optimizationMethod_ == Method::ILP)
-        andres::graph::multicut::ilp<andres::ilp::Gurobi<>>(graph, edge_values, edge_labels, edge_labels);
+        andres::graph::multicut::ilp<andres::ilp::Gurobi>(graph, edge_values, edge_labels, edge_labels);
     else if (parameters.optimizationMethod_ == Method::LP)
     {
-        auto values = andres::graph::multicut::lp<andres::relax::Gurobi<>>(graph, edge_values);
+        auto values = andres::graph::multicut::lp<andres::lp::Gurobi>(graph, edge_values);
 
         t.stop();
 
