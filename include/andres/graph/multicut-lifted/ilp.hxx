@@ -89,11 +89,25 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
             {
                 // if cycle/path inequality is violated
 
-                // search for shortest path
+                // search for shortest path that contains only non-lifted edges
                 spsp(original_graph, SubgraphWithCut(ilp, edge_in_lifted_graph), lv0, lv1, path, buffer);
 
-                // check for chords only if the edge is from the original graph
-                if (original_graph.findEdge(lv0, lv1).first && findChord(original_graph, path.begin(), path.end(), true).first)
+                bool chordless = true;
+                for (auto it1 = path.begin(); it1 != path.end() - 2 && chordless; ++it1)
+                    for (auto it2 = it1 + 2; it2 != path.end(); ++it2)
+                    {
+                        if (it1 == path.begin() && it2 == path.end() - 1)
+                            continue;
+
+                        auto e = lifted_graph.findEdge(*it1, *it2);
+                        if (e.first && ilp.label(e.second) > .5)
+                        {
+                            chordless = false;
+                            break;
+                        }
+                    }
+
+                if (!chordless)
                     continue;
 
                 // add inequality

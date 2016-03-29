@@ -228,8 +228,26 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
             // search for shortest path
             double distance;
             spsp(original_graph, DefaultSubgraphMask<>(), lv0, lv1, vars.begin(), path, distance, distances.begin(), parents.begin());
+
+            bool chordless = true;
+            for (auto it1 = path.begin(); it1 != path.end() - 2 && chordless; ++it1)
+                for (auto it2 = it1 + 2; it2 != path.end(); ++it2)
+                {
+                    if (it1 == path.begin() && it2 == path.end() - 1)
+                        continue;
+
+                    auto e = lifted_graph.findEdge(*it1, *it2);
+                    if (e.first && std::min(std::max(.0, lp.variableValue(e.second)), 1.0) > distances[*it2] - distances[*it1] + tolerance)
+                    {
+                        chordless = false;
+                        break;
+                    }
+                }
+
+            if (!chordless)
+                continue;
             
-            if (lp.variableValue(edge) > distance + tolerance)
+            if (std::min(std::max(.0, lp.variableValue(edge)), 1.0) > distance + tolerance)
             {
                 // add inequality
                 for (size_t j = 0; j < path.size() - 1; ++j)
@@ -251,6 +269,8 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
 
             if (!original_graph.findEdge(lv0, lv1).first)
             {
+                // find min cut only for lifted edges
+
                 auto flow_value = static_cast<double>(flow.maxFlow(lv0, lv1)) / 100000.0;
 
                 if (1.0 - std::min(std::max(.0, lp.variableValue(edge)), 1.0) > flow_value + tolerance)
