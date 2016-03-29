@@ -11,8 +11,8 @@ namespace lp {
 
 class Gurobi {
 public:
-    enum PreSolver {PRE_SOLVER_AUTO, PRE_SOLVER_PRIMAL, PRE_SOLVER_DUAL, PRE_SOLVER_NONE};
-    enum LPSolver {LP_SOLVER_PRIMAL_SIMPLEX, LP_SOLVER_DUAL_SIMPLEX, LP_SOLVER_BARRIER, LP_SOLVER_SIFTING};
+    enum class PreSolver {PRE_SOLVER_AUTO, PRE_SOLVER_PRIMAL, PRE_SOLVER_DUAL, PRE_SOLVER_NONE};
+    enum class LPSolver {LP_SOLVER_PRIMAL_SIMPLEX, LP_SOLVER_DUAL_SIMPLEX, LP_SOLVER_BARRIER, LP_SOLVER_SIFTING};
 
     Gurobi();
     ~Gurobi();
@@ -50,6 +50,7 @@ Gurobi::Gurobi()
     setVerbosity(false);
 }
 
+inline
 Gurobi::~Gurobi() {
     if (gurobiModel_ != nullptr)
         delete gurobiModel_;
@@ -97,16 +98,16 @@ void Gurobi::setPreSolver(
     const int passes
 ) {
     switch(preSolver) {
-    case PRE_SOLVER_NONE:
+    case PreSolver::PRE_SOLVER_NONE:
         gurobiEnvironment_.set(GRB_IntParam_Presolve, 0);
         return;
-    case PRE_SOLVER_AUTO:
+    case PreSolver::PRE_SOLVER_AUTO:
         gurobiEnvironment_.set(GRB_IntParam_PreDual, -1);
         break;
-    case PRE_SOLVER_PRIMAL:
+    case PreSolver::PRE_SOLVER_PRIMAL:
         gurobiEnvironment_.set(GRB_IntParam_PreDual, 0);
         break;
-    case PRE_SOLVER_DUAL:
+    case PreSolver::PRE_SOLVER_DUAL:
         gurobiEnvironment_.set(GRB_IntParam_PreDual, 1);
         break;
     }
@@ -129,16 +130,16 @@ void Gurobi::setLPSolver(
     const LPSolver lpSolver
 ) {
     switch(lpSolver) {
-    case LP_SOLVER_PRIMAL_SIMPLEX:
+    case LPSolver::LP_SOLVER_PRIMAL_SIMPLEX:
         gurobiEnvironment_.set(GRB_IntParam_NodeMethod, 0);
         break;
-    case LP_SOLVER_DUAL_SIMPLEX:
+    case LPSolver::LP_SOLVER_DUAL_SIMPLEX:
         gurobiEnvironment_.set(GRB_IntParam_NodeMethod, 1);
         break;
-    case LP_SOLVER_BARRIER:
+    case LPSolver::LP_SOLVER_BARRIER:
         gurobiEnvironment_.set(GRB_IntParam_NodeMethod, 2);
         break;
-    case LP_SOLVER_SIFTING:
+    case LPSolver::LP_SOLVER_SIFTING:
         gurobiEnvironment_.set(GRB_IntParam_NodeMethod, 1); // dual simplex
         gurobiEnvironment_.set(GRB_IntParam_SiftMethod, 1); // moderate, 2 = aggressive
         break;
@@ -201,6 +202,7 @@ double Gurobi::relativeGap() const {
 }
 
 template<class VariableIndexIterator, class CoefficientIterator>
+inline
 void Gurobi::addConstraint(
     VariableIndexIterator viBegin,
     VariableIndexIterator viEnd,
@@ -229,8 +231,8 @@ void Gurobi::addConstraint(
 }
 
 template<class Iterator>
-void
-Gurobi::setStart(
+inline
+void Gurobi::setStart(
     Iterator valueIterator
 )
 {

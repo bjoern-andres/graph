@@ -1,6 +1,6 @@
 #pragma once
-#ifndef ANDRES_GUROBI_HXX
-#define ANDRES_GUROBI_HXX
+#ifndef ANDRES_ILP_GUROBI_HXX
+#define ANDRES_ILP_GUROBI_HXX
 
 #include <limits>
 
@@ -54,6 +54,7 @@ Gurobi::Gurobi() :
     setVerbosity(false);
 }
 
+inline
 Gurobi::~Gurobi() {
     if (gurobiModel_ != NULL)
         delete gurobiModel_;
@@ -197,7 +198,8 @@ Gurobi::relativeGap() const {
 }
 
 template<class VariableIndexIterator, class CoefficientIterator>
-void Gurobi::addConstraint(
+inline void
+Gurobi::addConstraint(
     VariableIndexIterator viBegin,
     VariableIndexIterator viEnd,
     CoefficientIterator coefficient,
@@ -225,7 +227,7 @@ void Gurobi::addConstraint(
 }
 
 template<class Iterator>
-void
+inline void
 Gurobi::setStart(
     Iterator valueIterator
 ) {
@@ -237,4 +239,4 @@ Gurobi::setStart(
 } // namespace ilp
 } // namespace andres
 
-#endif // #ifndef ANDRES_GUROBI_HXX
+#endif // #ifndef ANDRES_ILP_GUROBI_HXX

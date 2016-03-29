@@ -2,18 +2,14 @@
 #ifndef ANDRES_GRAPH_MULTICUT_ILP_HXX
 #define ANDRES_GRAPH_MULTICUT_ILP_HXX
 
-#include <cassert>
-#include <cstddef>
-#include <stdexcept>
 #include <vector>
 #include <deque>
 #include <array>
 #include <algorithm>
 
-#include "andres/partition.hxx" 
 #include "andres/graph/complete-graph.hxx"
-#include "andres/graph/paths.hxx"
 #include "andres/graph/components.hxx"
+#include "andres/graph/paths.hxx"
 #include "andres/graph/shortest-paths.hxx"
 
 namespace andres {
@@ -28,6 +24,24 @@ namespace multicut {
 /// Koethe U. and Hamprecht F. A. Globally Optimal Closed-surface Segmentation
 /// for Connectomics. ECCV 2012. http://dx.doi.org/10.1007/978-3-642-33712-3_56
 ///
+template<typename ILP, typename GRAPH, typename ECA, typename ELA>
+inline void
+ilp(
+    GRAPH const& graph,
+    ECA const& edgeCosts,
+    ELA const& inputLabels,
+    ELA& outputLabels,
+    size_t numberOfIterations = std::numeric_limits<size_t>::max()
+) {
+    struct Visitor {
+        bool operator()(ELA const& edge_labels) const {
+            return true;
+        }
+    } visitor;
+
+    ilp<ILP>(graph, edgeCosts, inputLabels, outputLabels, visitor, numberOfIterations);
+}
+
 template<typename ILP, typename GRAPH, typename ECA, typename ELA, typename VIS>
 inline void
 ilp(
@@ -53,7 +67,7 @@ ilp(
     ILP ilp;
     std::deque<size_t> path;
     std::vector<ptrdiff_t> buffer;
-    std::vector<double> variables(graph.numberOfEdges());
+    std::vector<size_t> variables(graph.numberOfEdges());
     std::vector<double> coefficients(graph.numberOfEdges());
 
     auto addCycleInequalities = [&] ()
@@ -82,17 +96,17 @@ ilp(
                     // add inequality
                     auto sz = path.size();
 
-                    for (size_t j = 0; j < sz - 1; ++j)
+                    for (size_t j = 0; j < path.size() - 1; ++j)
                     {
-                        variables[j] = static_cast<double>(graph.findEdge(path[j], path[j + 1]).second);
+                        variables[j] = graph.findEdge(path[j], path[j + 1]).second;
                         coefficients[j] = 1.0;
                     }
 
-                    variables[sz-1] = static_cast<double>(edge);
-                    coefficients[sz-1] = -1.0;
+                    variables[path.size() - 1] = edge;
+                    coefficients[path.size() - 1] = -1.0;
 
                     #pragma omp critical
-                    ilp.addConstraint(variables.begin(), variables.begin() + sz, coefficients.begin(), 0, std::numeric_limits<double>::infinity());
+                    ilp.addConstraint(variables.begin(), variables.begin() + path.size(), coefficients.begin(), 0, std::numeric_limits<double>::infinity());
 
                     #pragma omp atomic
                     ++counter;
@@ -137,17 +151,24 @@ ilp(
     repairSolution();
 }
 
-template<typename ILP, typename GRAPH, typename ECA, typename ELA>
+/// Algorithm for the Set Partition Problem.
+///
+/// The Set Partition Problem is the Minimum Cost Multicut Problem for complete
+/// graphs.
+///
+template<typename ILP, typename GRAPH_VISITOR, typename ECA, typename ELA>
 inline void
 ilp(
-    GRAPH const& graph,
+    CompleteGraph<GRAPH_VISITOR> const& graph,
     ECA const& edgeCosts,
     ELA const& inputLabels,
     ELA& outputLabels,
     size_t numberOfIterations = std::numeric_limits<size_t>::max()
 ) {
-    struct Visitor {
-        bool operator()(ELA const& edge_labels) const {
+    struct Visitor
+    {
+        bool operator()() const
+        {
             return true;
         }
     } visitor;
@@ -155,11 +176,6 @@ ilp(
     ilp<ILP>(graph, edgeCosts, inputLabels, outputLabels, visitor, numberOfIterations);
 }
 
-/// Algorithm for the Set Partition Problem.
-///
-/// The Set Partition Problem is the Minimum Cost Multicut Problem for complete
-/// graphs.
-///
 template<typename ILP, typename GRAPH_VISITOR, typename ECA, typename ELA, typename VIS>
 inline void
 ilp(
@@ -248,26 +264,6 @@ ilp(
 
         outputLabels[edge] = components.areConnected(v0, v1) ? 0 : 1;
     }
-}
-
-template<typename ILP, typename GRAPH_VISITOR, typename ECA, typename ELA>
-inline void
-ilp(
-    CompleteGraph<GRAPH_VISITOR> const& graph,
-    ECA const& edgeCosts,
-    ELA const& inputLabels,
-    ELA& outputLabels,
-    size_t numberOfIterations = std::numeric_limits<size_t>::max()
-) {
-    struct Visitor
-    {
-        bool operator()() const
-        {
-            return true;
-        }
-    } visitor;
-
-    ilp<ILP>(graph, edgeCosts, inputLabels, outputLabels, visitor, numberOfIterations);
 }
 
 } // namespace multicut

@@ -2,18 +2,14 @@
 #ifndef ANDRES_GRAPH_MULTICUT_ILP_CALLBACK_HXX
 #define ANDRES_GRAPH_MULTICUT_ILP_CALLBACK_HXX
 
-#include <cassert>
-#include <cstddef>
-#include <stdexcept>
 #include <vector>
 #include <deque>
 #include <array>
 #include <algorithm> // std::copy
 
-#include "andres/partition.hxx" 
 #include "andres/graph/complete-graph.hxx"
-#include "andres/graph/paths.hxx"
 #include "andres/graph/components.hxx"
+#include "andres/graph/paths.hxx"
 #include "andres/graph/shortest-paths.hxx"
 
 
@@ -38,7 +34,7 @@ namespace multicut
 /// 
 template<typename ILP, typename GRAPH, typename ECA, typename ELA>
 inline
-void ilp_callback(GRAPH const& graph, ECA const& edgeCosts, ELA const& inputLabels, ELA& outputLabels, size_t timeLimit = 86400)
+void ilp_callback(GRAPH const& graph, ECA const& edgeCosts, ELA const& inputLabels, ELA& outputLabels, size_t timeLimitSeconds = 86400)
 {
     struct Visitor
     {
@@ -48,12 +44,12 @@ void ilp_callback(GRAPH const& graph, ECA const& edgeCosts, ELA const& inputLabe
         }
     } visitor;
 
-    ilp_callback<ILP>(graph, edgeCosts, inputLabels, outputLabels, visitor, timeLimit);
+    ilp_callback<ILP>(graph, edgeCosts, inputLabels, outputLabels, visitor, timeLimitSeconds);
 }
 
 template<typename ILP, typename GRAPH, typename ECA, typename ELA, typename VIS>
 inline
-void ilp_callback(GRAPH const& graph, ECA const& edgeCosts, ELA const& inputLabels, ELA& outputLabels, VIS& visitor, size_t timeLimit = 86400)
+void ilp_callback(GRAPH const& graph, ECA const& edgeCosts, ELA const& inputLabels, ELA& outputLabels, VIS& visitor, size_t timeLimitSeconds = 86400)
 {
     struct SubgraphWithCut
     {
@@ -150,7 +146,7 @@ void ilp_callback(GRAPH const& graph, ECA const& edgeCosts, ELA const& inputLabe
 
     ilp.setRelativeGap(0.0);
     ilp.setAbsoluteGap(0.0);
-    ilp.setTimeLimit(timeLimit);
+    ilp.setTimeLimit(timeLimitSeconds);
     ilp.addVariables(edgeCosts.size(), edgeCosts.data());
 
     Callback callback(ilp, graph);
@@ -175,7 +171,7 @@ void ilp_callback(GRAPH const& graph, ECA const& edgeCosts, ELA const& inputLabe
 /// Solver for the Minimum Cost Multicut Problem for complete graphs (Set Partition Problem).
 template<typename ILP, typename GRAPH_VISITOR, typename ECA, typename ELA>
 inline
-void ilp_callback(CompleteGraph<GRAPH_VISITOR> const& graph, ECA const& edgeCosts, ELA const& inputLabels, ELA& outputLabels, size_t timeLimit = 86400)
+void ilp_callback(CompleteGraph<GRAPH_VISITOR> const& graph, ECA const& edgeCosts, ELA const& inputLabels, ELA& outputLabels, size_t timeLimitSeconds = 86400)
 {
     struct Visitor
     {
@@ -190,7 +186,7 @@ void ilp_callback(CompleteGraph<GRAPH_VISITOR> const& graph, ECA const& edgeCost
 
 template<typename ILP, typename GRAPH_VISITOR, typename ECA, typename ELA, typename VIS>
 inline
-void ilp_callback(CompleteGraph<GRAPH_VISITOR> const& graph, ECA const& edgeCosts, ELA const& inputLabels, ELA& outputLabels, VIS& visitor, size_t timeLimit = 86400)
+void ilp_callback(CompleteGraph<GRAPH_VISITOR> const& graph, ECA const& edgeCosts, ELA const& inputLabels, ELA& outputLabels, VIS& visitor, size_t timeLimitSeconds = 86400)
 {
     struct SubgraphWithCut
     {
@@ -258,7 +254,7 @@ void ilp_callback(CompleteGraph<GRAPH_VISITOR> const& graph, ECA const& edgeCost
 
     ilp.setRelativeGap(0.0);
     ilp.setAbsoluteGap(0.0);
-    ilp.setTimeLimit(timeLimit);
+    ilp.setTimeLimit(timeLimitSeconds);
     ilp.addVariables(edgeCosts.size(), edgeCosts.data());
 
     Callback callback(ilp, graph);

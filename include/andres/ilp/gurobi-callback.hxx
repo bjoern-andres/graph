@@ -14,9 +14,9 @@ namespace ilp {
 
 class GurobiCallback {
 public:
-    enum PreSolver {PRE_SOLVER_AUTO, PRE_SOLVER_PRIMAL, PRE_SOLVER_DUAL, PRE_SOLVER_NONE};
-    enum LPSolver {LP_SOLVER_PRIMAL_SIMPLEX, LP_SOLVER_DUAL_SIMPLEX, LP_SOLVER_BARRIER, LP_SOLVER_SIFTING};
-    enum Focus {FOCUS_FEASIBILITY, FOCUS_OPTIMALITY, FOCUS_BESTBOUND, FOCUS_BALANCED};
+    enum class PreSolver {PRE_SOLVER_AUTO, PRE_SOLVER_PRIMAL, PRE_SOLVER_DUAL, PRE_SOLVER_NONE};
+    enum class LPSolver {LP_SOLVER_PRIMAL_SIMPLEX, LP_SOLVER_DUAL_SIMPLEX, LP_SOLVER_BARRIER, LP_SOLVER_SIFTING};
+    enum class Focus {FOCUS_FEASIBILITY, FOCUS_OPTIMALITY, FOCUS_BESTBOUND, FOCUS_BALANCED};
 
     class Callback: public GRBCallback
     {
@@ -47,7 +47,7 @@ public:
             throw std::runtime_error(std::string("GurobiCallback error ") + std::to_string(e.getErrorCode()) + ": " + e.getMessage() + " while executing GurobiCallback callback");
         }
 
-        double label(const std::size_t variableIndex)
+        double label(size_t variableIndex)
         {
             return getSolution(gurobi_.gurobiModel_->getVar(variableIndex));
         }
@@ -132,9 +132,13 @@ GurobiCallback::GurobiCallback()
     gurobiModel_->getEnv().set(GRB_IntParam_Disconnected, 2);
 }
 
+inline
 GurobiCallback::~GurobiCallback() {
-    delete gurobiModel_;
-    delete[] gurobiVariables_;
+    if (gurobiModel_ != nullptr)
+        delete gurobiModel_;
+
+    if (gurobiVariables_ != nullptr)
+        delete[] gurobiVariables_;
 }
 
 inline
@@ -170,13 +174,13 @@ void GurobiCallback::setFocus(
     const Focus focus
 ) {
     switch(focus) {
-    case FOCUS_FEASIBILITY:
+    case Focus::FOCUS_FEASIBILITY:
         gurobiModel_->getEnv().set(GRB_IntParam_MIPFocus, GRB_MIPFOCUS_FEASIBILITY);
         break;
-    case FOCUS_OPTIMALITY:
+    case Focus::FOCUS_OPTIMALITY:
         gurobiModel_->getEnv().set(GRB_IntParam_MIPFocus, GRB_MIPFOCUS_OPTIMALITY);
         break;
-    case FOCUS_BESTBOUND:
+    case Focus::FOCUS_BESTBOUND:
         gurobiModel_->getEnv().set(GRB_IntParam_MIPFocus, GRB_MIPFOCUS_BESTBOUND);
         break;
     default:
@@ -203,16 +207,16 @@ void GurobiCallback::setPreSolver(
     const int passes
 ) {
     switch(preSolver) {
-    case PRE_SOLVER_NONE:
+    case PreSolver::PRE_SOLVER_NONE:
         gurobiModel_->getEnv().set(GRB_IntParam_Presolve, 0);
         return;
-    case PRE_SOLVER_AUTO:
+    case PreSolver::PRE_SOLVER_AUTO:
         gurobiModel_->getEnv().set(GRB_IntParam_PreDual, -1);
         break;
-    case PRE_SOLVER_PRIMAL:
+    case PreSolver::PRE_SOLVER_PRIMAL:
         gurobiModel_->getEnv().set(GRB_IntParam_PreDual, 0);
         break;
-    case PRE_SOLVER_DUAL:
+    case PreSolver::PRE_SOLVER_DUAL:
         gurobiModel_->getEnv().set(GRB_IntParam_PreDual, 1);
         break;
     }
@@ -235,16 +239,16 @@ void GurobiCallback::setLPSolver(
     const LPSolver lpSolver
 ) {
     switch(lpSolver) {
-    case LP_SOLVER_PRIMAL_SIMPLEX:
+    case LPSolver::LP_SOLVER_PRIMAL_SIMPLEX:
         gurobiModel_->getEnv().set(GRB_IntParam_NodeMethod, 0);
         break;
-    case LP_SOLVER_DUAL_SIMPLEX:
+    case LPSolver::LP_SOLVER_DUAL_SIMPLEX:
         gurobiModel_->getEnv().set(GRB_IntParam_NodeMethod, 1);
         break;
-    case LP_SOLVER_BARRIER:
+    case LPSolver::LP_SOLVER_BARRIER:
         gurobiModel_->getEnv().set(GRB_IntParam_NodeMethod, 2);
         break;
-    case LP_SOLVER_SIFTING:
+    case LPSolver::LP_SOLVER_SIFTING:
         gurobiModel_->getEnv().set(GRB_IntParam_NodeMethod, 1); // dual simplex
         gurobiModel_->getEnv().set(GRB_IntParam_SiftMethod, 1); // moderate, 2 = aggressive
         break;
@@ -314,6 +318,7 @@ double GurobiCallback::relativeGap() const {
 }
 
 template<class VariableIndexIterator, class CoefficientIterator>
+inline
 void GurobiCallback::addConstraint(
     VariableIndexIterator viBegin,
     VariableIndexIterator viEnd,
@@ -342,8 +347,8 @@ void GurobiCallback::addConstraint(
 }
 
 template<class Iterator>
-void
-GurobiCallback::setStart(
+inline
+void GurobiCallback::setStart(
     Iterator valueIterator
 )
 {
