@@ -36,6 +36,7 @@ endif()
 # HDF5
 ##############################################################################
 find_package(HDF5 1.8.0)
+include_directories(${HDF5_INCLUDE_DIR})
 
 ##############################################################################
 # Gurobi
@@ -129,6 +130,10 @@ if(GUROBI_FOUND)
     add_executable(test-graph-multicut-ilp src/andres/graph/unit-test/multicut/ilp.cxx ${headers})
     target_link_libraries(test-graph-multicut-ilp ${CMAKE_THREAD_LIBS_INIT} ${GUROBI_CPP_LIBRARY} ${GUROBI_LIBRARY})
     add_test(test-graph-multicut-ilp test-graph-multicut-ilp)
+
+    add_executable(test-graph-multicut-ilp-callback src/andres/graph/unit-test/multicut/ilp-callback.cxx ${headers})
+    target_link_libraries(test-graph-multicut-ilp-callback ${CMAKE_THREAD_LIBS_INIT} ${GUROBI_CPP_LIBRARY} ${GUROBI_LIBRARY})
+    add_test(test-graph-multicut-ilp-callback test-graph-multicut-ilp-callback)
 endif()
 
 if(DOXYGEN_FOUND)

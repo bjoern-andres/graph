@@ -1,42 +1,40 @@
 #pragma once
-#ifndef ANDRES_RELAX_GUROBI_HXX
-#define ANDRES_RELAX_GUROBI_HXX
+#ifndef ANDRES_LP_GUROBI_HXX
+#define ANDRES_LP_GUROBI_HXX
 
 #include <limits>
 
 #include "gurobi_c++.h"
 
 namespace andres {
-namespace relax {
+namespace lp {
 
-template<class T = double>
 class Gurobi {
 public:
-    typedef T value_type;
-    enum PreSolver {PRE_SOLVER_AUTO, PRE_SOLVER_PRIMAL, PRE_SOLVER_DUAL, PRE_SOLVER_NONE};
-    enum LPSolver {LP_SOLVER_PRIMAL_SIMPLEX, LP_SOLVER_DUAL_SIMPLEX, LP_SOLVER_BARRIER, LP_SOLVER_SIFTING};
+    enum class PreSolver {PRE_SOLVER_AUTO, PRE_SOLVER_PRIMAL, PRE_SOLVER_DUAL, PRE_SOLVER_NONE};
+    enum class LPSolver {LP_SOLVER_PRIMAL_SIMPLEX, LP_SOLVER_DUAL_SIMPLEX, LP_SOLVER_BARRIER, LP_SOLVER_SIFTING};
 
     Gurobi();
     ~Gurobi();
     void setNumberOfThreads(const size_t);
-    void setAbsoluteGap(const value_type);
-    void setRelativeGap(const value_type);
+    void setAbsoluteGap(const double);
+    void setRelativeGap(const double);
     void setVerbosity(const bool);
     void setLPSolver(const LPSolver);
     void setPreSolver(const PreSolver, const int = -1);
-    void initModel(const size_t, const value_type*);
+    void initModel(const size_t, const double*);
     template<class Iterator>
         void setStart(Iterator);
     template<class VariableIndexIterator, class CoefficientIterator>
         void addConstraint(VariableIndexIterator, VariableIndexIterator,
-                           CoefficientIterator, const value_type, const value_type);
+                           CoefficientIterator, const double, const double);
     void optimize();
 
-    value_type variableValue(const size_t) const;
+    double variableValue(const size_t) const;
 
     size_t numberOfThreads() const;
-    value_type absoluteGap() const;
-    value_type relativeGap() const;
+    double absoluteGap() const;
+    double relativeGap() const;
 
 private:
     GRBEnv gurobiEnvironment_;
@@ -46,15 +44,14 @@ private:
     size_t nVariables_ { 0 };
 };
 
-template<class T>
 inline
-Gurobi<T>::Gurobi()
+Gurobi::Gurobi()
 {
     setVerbosity(false);
 }
 
-template<class T>
-Gurobi<T>::~Gurobi() {
+inline
+Gurobi::~Gurobi() {
     if (gurobiModel_ != nullptr)
         delete gurobiModel_;
 
@@ -62,33 +59,29 @@ Gurobi<T>::~Gurobi() {
         delete[] gurobiVariables_;
 }
 
-template<class T>
-inline void
-Gurobi<T>::setNumberOfThreads(
+inline
+void Gurobi::setNumberOfThreads(
     const size_t numberOfThreads
 ) {
     gurobiEnvironment_.set(GRB_IntParam_Threads, numberOfThreads);
 }
 
-template<class T>
-inline void
-Gurobi<T>::setAbsoluteGap(
-    const T gap
+inline
+void Gurobi::setAbsoluteGap(
+    const double gap
 ) {
     gurobiEnvironment_.set(GRB_DoubleParam_MIPGapAbs, gap);
 }
 
-template<class T>
-inline void
-Gurobi<T>::setRelativeGap(
-    const T gap
+inline
+void Gurobi::setRelativeGap(
+    const double gap
 ) {
     gurobiEnvironment_.set(GRB_DoubleParam_MIPGap, gap);
 }
 
-template<class T>
-inline void
-Gurobi<T>::setVerbosity(
+inline
+void Gurobi::setVerbosity(
     const bool verbosity
 ) {
     if(verbosity) {
@@ -99,23 +92,22 @@ Gurobi<T>::setVerbosity(
     }
 }
 
-template<class T>
-inline void
-Gurobi<T>::setPreSolver(
+inline
+void Gurobi::setPreSolver(
     const PreSolver preSolver,
     const int passes
 ) {
     switch(preSolver) {
-    case PRE_SOLVER_NONE:
+    case PreSolver::PRE_SOLVER_NONE:
         gurobiEnvironment_.set(GRB_IntParam_Presolve, 0);
         return;
-    case PRE_SOLVER_AUTO:
+    case PreSolver::PRE_SOLVER_AUTO:
         gurobiEnvironment_.set(GRB_IntParam_PreDual, -1);
         break;
-    case PRE_SOLVER_PRIMAL:
+    case PreSolver::PRE_SOLVER_PRIMAL:
         gurobiEnvironment_.set(GRB_IntParam_PreDual, 0);
         break;
-    case PRE_SOLVER_DUAL:
+    case PreSolver::PRE_SOLVER_DUAL:
         gurobiEnvironment_.set(GRB_IntParam_PreDual, 1);
         break;
     }
@@ -133,33 +125,31 @@ Gurobi<T>::setPreSolver(
     */
 }
 
-template<class T>
-inline void
-Gurobi<T>::setLPSolver(
+inline
+void Gurobi::setLPSolver(
     const LPSolver lpSolver
 ) {
     switch(lpSolver) {
-    case LP_SOLVER_PRIMAL_SIMPLEX:
+    case LPSolver::LP_SOLVER_PRIMAL_SIMPLEX:
         gurobiEnvironment_.set(GRB_IntParam_NodeMethod, 0);
         break;
-    case LP_SOLVER_DUAL_SIMPLEX:
+    case LPSolver::LP_SOLVER_DUAL_SIMPLEX:
         gurobiEnvironment_.set(GRB_IntParam_NodeMethod, 1);
         break;
-    case LP_SOLVER_BARRIER:
+    case LPSolver::LP_SOLVER_BARRIER:
         gurobiEnvironment_.set(GRB_IntParam_NodeMethod, 2);
         break;
-    case LP_SOLVER_SIFTING:
+    case LPSolver::LP_SOLVER_SIFTING:
         gurobiEnvironment_.set(GRB_IntParam_NodeMethod, 1); // dual simplex
         gurobiEnvironment_.set(GRB_IntParam_SiftMethod, 1); // moderate, 2 = aggressive
         break;
     }
 }
 
-template<class T>
-inline void
-Gurobi<T>::initModel(
+inline
+void Gurobi::initModel(
     const size_t numberOfVariables,
-    const T* coefficients
+    const double* coefficients
 )
 {
     if (gurobiModel_ != nullptr)
@@ -183,47 +173,42 @@ Gurobi<T>::initModel(
     gurobiModel_->setObjective(gurobiObjective_);
 }
 
-template<class T>
-inline void
-Gurobi<T>::optimize() {
+inline
+void Gurobi::optimize() {
     gurobiModel_->optimize();
 }
 
-template<class T>
 inline
-T Gurobi<T>::variableValue(
+double Gurobi::variableValue(
     const size_t variableIndex
 ) const
 {
     return gurobiVariables_[variableIndex].get(GRB_DoubleAttr_X);
 }
 
-template<class T>
-inline size_t
-Gurobi<T>::numberOfThreads() const {
+inline
+size_t Gurobi::numberOfThreads() const {
     return gurobiEnvironment_.get(GRB_IntParam_Threads);
 }
 
-template<class T>
-inline T
-Gurobi<T>::absoluteGap() const {
+inline
+double Gurobi::absoluteGap() const {
     return gurobiEnvironment_.get(GRB_DoubleParam_MIPGapAbs);
 }
 
-template<class T>
-inline T
-Gurobi<T>::relativeGap() const {
+inline
+double Gurobi::relativeGap() const {
     return gurobiEnvironment_.get(GRB_DoubleParam_MIPGap);
 }
 
-template<class T>
 template<class VariableIndexIterator, class CoefficientIterator>
-void Gurobi<T>::addConstraint(
+inline
+void Gurobi::addConstraint(
     VariableIndexIterator viBegin,
     VariableIndexIterator viEnd,
     CoefficientIterator coefficient,
-    const T lowerBound,
-    const T upperBound
+    const double lowerBound,
+    const double upperBound
 ) {
     GRBLinExpr expression;
     for(; viBegin != viEnd; ++viBegin, ++coefficient) {
@@ -234,21 +219,20 @@ void Gurobi<T>::addConstraint(
         gurobiModel_->addConstr(expression, GRB_EQUAL, exact);
     }
     else {
-        if(lowerBound != -std::numeric_limits<value_type>::infinity()) {
+        if(lowerBound != -std::numeric_limits<double>::infinity()) {
             GRBLinExpr lower(lowerBound);
             gurobiModel_->addConstr(expression, GRB_GREATER_EQUAL, lower);
         }
-        if(upperBound != std::numeric_limits<value_type>::infinity()) {
+        if(upperBound != std::numeric_limits<double>::infinity()) {
             GRBLinExpr upper(upperBound);
             gurobiModel_->addConstr(expression, GRB_LESS_EQUAL, upper);
         }
     }
 }
 
-template<class T>
 template<class Iterator>
-void
-Gurobi<T>::setStart(
+inline
+void Gurobi::setStart(
     Iterator valueIterator
 )
 {
@@ -261,4 +245,4 @@ Gurobi<T>::setStart(
 } // namespace ilp
 } // namespace andres
 
-#endif // #ifndef ANDRES_RELAX_GUROBI_HXX
+#endif // #ifndef ANDRES_LP_GUROBI_HXX
