@@ -6,7 +6,9 @@
 #include <andres/functional.hxx>
 #include <andres/lp/gurobi.hxx>
 #include <andres/ilp/gurobi.hxx>
+#include <andres/ilp/gurobi-callback.hxx>
 #include <andres/graph/multicut-lifted/ilp.hxx>
+#include <andres/graph/multicut-lifted/ilp-callback.hxx>
 #include <andres/graph/multicut-lifted/lp.hxx>
 #include <andres/graph/multicut-lifted/greedy-additive.hxx>
 #include <andres/graph/multicut-lifted/kernighan-lin.hxx>
@@ -22,7 +24,8 @@ enum class Method {
     GAEC,
     Kernighan_Lin,
     LP,
-    ILP
+    ILP,
+    ILPC
 };
 
 enum class Initialization {
@@ -53,7 +56,7 @@ try
     TCLAP::ValueArg<std::string> argInputHDF5FileName("i", "input-hdf5-file", "File to load multicut problem from", true, parameters.inputHDF5FileName, "INPUT_HDF5_FILE", tclap);
     TCLAP::ValueArg<std::string> argOutputHDF5FileName("o", "output-hdf-file", "hdf file (output)", false, parameters.outputHDF5FileName, "OUTPUT_HDF5_FILE", tclap);
     TCLAP::ValueArg<std::string> argLabelingHDF5FileName("l", "labeling-hdf-file", "hdf file specifying initial node labelings (input)", false, parameters.labelingHDF5FileName, "LABELING_HDF5_FILE", tclap);
-    TCLAP::ValueArg<std::string> argOptimizationMethod("m", "optimization-method", "optimization method to use {zeros, ones, ILP, LP, GAEC, KL}", false, "KL", "OPTIMIZATION_METHOD", tclap);
+    TCLAP::ValueArg<std::string> argOptimizationMethod("m", "optimization-method", "optimization method to use {zeros, ones, ILP, ILPC, LP, GAEC, KL}", false, "KL", "OPTIMIZATION_METHOD", tclap);
     TCLAP::ValueArg<std::string> argInitializationMethod("I", "initialization-method", "initialization method to use {zeros, ones, GAEC}", false, "zeros", "INITIALIZATION_METHOD", tclap);
     TCLAP::SwitchArg argNonProbabilistic("p", "non-probabilistic", "Assume inputs are not probabilities. By default, all inputs are assumed to be Logistic Probabilities. (Default: disabled).",tclap);
 
@@ -76,6 +79,8 @@ try
         parameters.optimizationMethod = Method::LP;
     else if (argOptimizationMethod.getValue() == "ILP")
         parameters.optimizationMethod = Method::ILP;
+    else if (argOptimizationMethod.getValue() == "ILPC")
+        parameters.optimizationMethod = Method::ILPC;
     else if(argOptimizationMethod.getValue() == "KL")
     {
         parameters.optimizationMethod = Method::Kernighan_Lin;
@@ -133,6 +138,10 @@ void solveLiftedMulticutProblem(
         andres::graph::hdf5::closeFile(fileHandle);
     }
 
+    std::cout << "Number of vertices: " << original_graph.numberOfVertices() << std::endl;
+    std::cout << "Number of non-lifted edges: " << original_graph.numberOfEdges() << std::endl;
+    std::cout << "Number of edges: " << lifted_graph.numberOfEdges() << std::endl;
+
     if (parameters.probabilistic)
         std::transform(
             edge_values.begin(),
@@ -176,14 +185,16 @@ void solveLiftedMulticutProblem(
     else if (parameters.optimizationMethod == Method::Zeros)
         std::fill(edge_labels.begin(), edge_labels.end(), 0);
     else if (parameters.optimizationMethod == Method::ILP)
-        andres::graph::multicut_lifted::ilp<andres::ilp::Gurobi<>>(original_graph, lifted_graph, edge_values, edge_labels, edge_labels);
+        andres::graph::multicut_lifted::ilp<andres::ilp::Gurobi>(original_graph, lifted_graph, edge_values, edge_labels, edge_labels);
+    else if (parameters.optimizationMethod == Method::ILPC)
+        andres::graph::multicut_lifted::ilp_callback<andres::ilp::GurobiCallback>(original_graph, lifted_graph, edge_values, edge_labels, edge_labels);
     else if (parameters.optimizationMethod == Method::GAEC)
         andres::graph::multicut_lifted::greedyAdditiveEdgeContraction(original_graph, lifted_graph, edge_values, edge_labels);
     else if (parameters.optimizationMethod == Method::Kernighan_Lin)
         andres::graph::multicut_lifted::kernighanLin(original_graph, lifted_graph, edge_values, edge_labels, edge_labels);
     else if (parameters.optimizationMethod == Method::LP)
     {
-        auto values = andres::graph::multicut_lifted::lp<andres::relax::Gurobi<>>(original_graph, lifted_graph, edge_values);
+        auto values = andres::graph::multicut_lifted::lp<andres::lp::Gurobi>(original_graph, lifted_graph, edge_values);
 
         t.stop();
 

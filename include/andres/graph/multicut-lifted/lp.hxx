@@ -40,15 +40,15 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
     class DinicFlow
     {
     public:
-        DinicFlow(int n) :
+        DinicFlow(size_t n) :
             dist_(n), q_(n), work_(n), g_(n)
         {}
 
         // Adds bidirectional edge
-        void addEdge(int s, int t, int cap)
+        void addEdge(size_t s, size_t t, ptrdiff_t cap)
         {
-            Edge a = { t, static_cast<int>(g_[t].size()), 0, cap };
-            Edge b = { s, static_cast<int>(g_[s].size()), 0, cap };
+            Edge a = { t, g_[t].size(), 0, cap };
+            Edge b = { s, g_[s].size(), 0, cap };
 
             g_[s].push_back(a);
             g_[t].push_back(b);
@@ -60,7 +60,7 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
                 v.clear();
         }
 
-        int maxFlow(int src, int dest)
+        size_t maxFlow(size_t src, size_t dest)
         {
             src_ = src;
             dest_ = dest;
@@ -69,13 +69,13 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
                 for (auto& e : adj)
                     e.f = 0;
             
-            int result = 0;
+            size_t result = 0;
 
             while (bfs())
             {
                 std::fill(work_.begin(), work_.end(), 0);
 
-                while (auto delta = dfs(src_, std::numeric_limits<int>::max()))
+                while (auto delta = dfs(src_, std::numeric_limits<ptrdiff_t>::max()))
                     result += delta;
             }
 
@@ -83,11 +83,11 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
         }
 
         // return edges (as pairs of vertices) of the Min Cut
-        std::set<std::pair<int, int>> getMinCut()
+        std::set<std::pair<size_t, size_t>> getMinCut()
         {
             std::fill(work_.begin(), work_.end(), 0);
 
-            std::stack<int> S;
+            std::stack<size_t> S;
 
             work_[src_] = 1;
             S.push(src_);
@@ -105,9 +105,9 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
                     }
             }
 
-            std::set<std::pair<int, int>> ret;
+            std::set<std::pair<size_t, size_t>> ret;
 
-            for (int i = 0; i < g_.size(); ++i)
+            for (size_t i = 0; i < g_.size(); ++i)
                 for (auto& e : g_[i])
                     if (work_[i] != work_[e.to])
                         ret.insert(std::make_pair(std::min(i, e.to), std::max(i, e.to)));
@@ -118,8 +118,8 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
     private:
         struct Edge
         {
-            int to, rev;
-            int f, cap;
+            size_t to, rev;
+            ptrdiff_t f, cap;
         };
 
         bool bfs()
@@ -128,17 +128,17 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
 
             dist_[src_] = 0;
 
-            int qt = 0;
+            size_t qt = 0;
             q_[qt++] = src_;
 
-            for (int qh = 0; qh < qt; qh++)
+            for (size_t qh = 0; qh < qt; qh++)
             {
                 auto u = q_[qh];
 
-                for (int j = 0; j < g_[u].size(); j++)
+                for (size_t j = 0; j < g_[u].size(); j++)
                 {
-                    Edge &e = g_[u][j];
-                    auto v = e.to;
+                    auto& e = g_[u][j];
+                    auto  v = e.to;
                     
                     if (dist_[v] < 0 && e.f < e.cap)
                     {
@@ -151,19 +151,19 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
             return dist_[dest_] >= 0;
         }
 
-        int dfs(int u, int f)
+        size_t dfs(size_t u, ptrdiff_t f)
         {
             if (u == dest_)
                 return f;
 
-            for (int &i = work_[u]; i < (int) g_[u].size(); i++)
+            for (auto& i = work_[u]; i < g_[u].size(); i++)
             {
-                Edge &e = g_[u][i];
+                auto& e = g_[u][i];
 
                 if (e.cap <= e.f) 
                     continue;
 
-                int v = e.to;
+                auto v = e.to;
 
                 if (dist_[v] == dist_[u] + 1)
                 {
@@ -182,8 +182,9 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
             return 0;
         }
 
-        int src_, dest_;
-        std::vector<int> dist_, q_, work_;
+        size_t src_, dest_;
+        std::vector<int> dist_;
+        std::vector<size_t> q_, work_;
         std::vector<std::vector<Edge>> g_;
     };
 
