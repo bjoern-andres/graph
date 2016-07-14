@@ -68,7 +68,7 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
             for (auto& adj : g_)
                 for (auto& e : adj)
                     e.f = 0;
-            
+
             size_t result = 0;
 
             while (bfs())
@@ -213,7 +213,7 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
             auto v0 = lifted_graph.vertexOfEdge(edge_in_lifted_graph[i], 0);
             auto v1 = lifted_graph.vertexOfEdge(edge_in_lifted_graph[i], 1);
 
-            flow.addEdge(v0, v1, 100000.0*(1.0 - vars[i]));
+            flow.addEdge(v0, v1, 10000000.0*(1.0 - vars[i]));
         }
 
         // search for violated non-chordal cycles and add corresp. inequalities
@@ -272,7 +272,7 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
             {
                 // find min cut only for lifted edges
 
-                auto flow_value = static_cast<double>(flow.maxFlow(lv0, lv1)) / 100000.0;
+                auto flow_value = static_cast<double>(flow.maxFlow(lv0, lv1)) / 10000000.0;
 
                 if (1.0 - std::min(std::max(.0, lp.variableValue(edge)), 1.0) > flow_value + tolerance)
                 {
