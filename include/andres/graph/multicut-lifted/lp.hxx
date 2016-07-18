@@ -213,7 +213,7 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
             auto v0 = lifted_graph.vertexOfEdge(edge_in_lifted_graph[i], 0);
             auto v1 = lifted_graph.vertexOfEdge(edge_in_lifted_graph[i], 1);
 
-            flow.addEdge(v0, v1, 10000000.0*(1.0 - vars[i]));
+            flow.addEdge(v0, v1, 100000000000.0*(1.0 - vars[i]));
         }
 
         // search for violated non-chordal cycles and add corresp. inequalities
@@ -238,7 +238,7 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
                         continue;
 
                     auto e = lifted_graph.findEdge(*it1, *it2);
-                    if (e.first && std::min(std::max(.0, lp.variableValue(e.second)), 1.0) > distances[*it2] - distances[*it1] + tolerance)
+                    if (std::min(std::max(.0, lp.variableValue(e.second)), 1.0) > distances[*it2] - distances[*it1] + tolerance)
                     {
                         chordless = false;
                         break;
@@ -271,8 +271,30 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
             if (!original_graph.findEdge(lv0, lv1).first)
             {
                 // find min cut only for lifted edges
+                // find cut(s) for both vertices of an edge - considerably improves convergence
 
-                auto flow_value = static_cast<double>(flow.maxFlow(lv0, lv1)) / 10000000.0;
+                auto flow_value = static_cast<double>(flow.maxFlow(lv0, lv1)) / 100000000000.0;
+
+                if (1.0 - std::min(std::max(.0, lp.variableValue(edge)), 1.0) > flow_value + tolerance)
+                {
+                    ptrdiff_t sz = 0;
+                    for (auto& p : flow.getMinCut())
+                    {
+                        coefficients[sz] = -1.0;
+                        variables[sz] = lifted_graph.findEdge(p.first, p.second).second;
+
+                        ++sz;
+                    }
+
+                    coefficients[sz] = 1.0;
+                    variables[sz] = edge;
+
+                    lp.addConstraint(variables.begin(), variables.begin() + sz + 1, coefficients.begin(), 1.0 - sz, std::numeric_limits<double>::infinity());    
+
+                    ++nCut;
+                }
+
+                flow_value = static_cast<double>(flow.maxFlow(lv1, lv0)) / 100000000000.0;
 
                 if (1.0 - std::min(std::max(.0, lp.variableValue(edge)), 1.0) > flow_value + tolerance)
                 {
@@ -302,7 +324,7 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
         for (size_t i = 0; i < lifted_graph.numberOfEdges(); ++i)
             objValue += lp.variableValue(i)*edgeCosts[i];
 
-        std::cerr << t.get_elapsed_seconds() << " " << objValue << " " << nCycle << " " << nPath << " " << nCut << " " << t_separation.get_elapsed_seconds() << std::endl;
+        std::cerr << t.get_elapsed_seconds() << " " << std::setprecision(5) << objValue << " " << nCycle << " " << nPath << " " << nCut << " " << t_separation.get_elapsed_seconds() << std::endl;
 
         t.start();
 

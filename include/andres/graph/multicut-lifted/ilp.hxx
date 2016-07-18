@@ -100,7 +100,7 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
                             continue;
 
                         auto e = lifted_graph.findEdge(*it1, *it2);
-                        if (e.first && ilp.label(e.second) > .5)
+                        if (/*e.first && */ilp.label(e.second) > .5)
                         {
                             chordless = false;
                             break;
@@ -138,11 +138,43 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
 
                 std::stack<size_t> S;
                 S.push(lv0);
-                
                 visited[lv0] = 1;
 
                 ptrdiff_t sz = 0;
+                while (!S.empty())
+                {
+                    auto v = S.top();
+                    S.pop();
 
+                    for (auto it = original_graph.adjacenciesFromVertexBegin(v); it != original_graph.adjacenciesFromVertexEnd(v); ++it)
+                        if (components.labels_[it->vertex()] != label)
+                        {
+                            coefficients[sz] = -1;
+                            variables[sz] = edge_in_lifted_graph[it->edge()];
+                            
+                            ++sz;
+                        }
+                        else if (!visited[it->vertex()])
+                        {
+                            S.push(it->vertex());
+                            visited[it->vertex()] = 1;
+                        }
+                }
+
+                coefficients[sz] = 1;
+                variables[sz] = edge;
+
+                ilp.addConstraint(variables.begin(), variables.begin() + sz + 1, coefficients.begin(), 1.0 - sz, std::numeric_limits<double>::infinity());    
+
+                ++nCut;
+
+
+                label = components.labels_[lv1];
+
+                S.push(lv1);
+                visited[lv1] = 1;
+
+                sz = 0;
                 while (!S.empty())
                 {
                     auto v = S.top();

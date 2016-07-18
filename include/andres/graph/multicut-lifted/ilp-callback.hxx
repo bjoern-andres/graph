@@ -114,7 +114,7 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
                                 continue;
 
                             auto e = lifted_graph_.findEdge(*it1, *it2);
-                            if (e.first && this->label(e.second) > .5)
+                            if (this->label(e.second) > .5)
                             {
                                 chordless = false;
                                 break;
@@ -145,18 +145,50 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
                 {
                     // if cut inequality is violated
 
-                    // do a simple DFS to find all the edges, that leave the partition, which is essentially a cut
+                    // do a DFS to find all the edges, that leave the partition, which is essentially a cut
                     auto label = components_.labels_[lv0];
 
                     std::fill(visited_.begin(), visited_.end(), 0);
 
                     std::stack<size_t> S;
                     S.push(lv0);
-                    
                     visited_[lv0] = 1;
 
                     ptrdiff_t sz = 0;
+                    while (!S.empty())
+                    {
+                        auto v = S.top();
+                        S.pop();
 
+                        for (auto it = original_graph_.adjacenciesFromVertexBegin(v); it != original_graph_.adjacenciesFromVertexEnd(v); ++it)
+                            if (components_.labels_[it->vertex()] != label)
+                            {
+                                coefficients_[sz] = -1;
+                                variables_[sz] = edge_in_lifted_graph_[it->edge()];
+                                
+                                ++sz;
+                            }
+                            else if (!visited_[it->vertex()])
+                            {
+                                S.push(it->vertex());
+                                visited_[it->vertex()] = 1;
+                            }
+                    }
+
+                    coefficients_[sz] = 1;
+                    variables_[sz] = edge;
+
+                    this->addLazyConstraint(variables_.begin(), variables_.begin() + sz + 1, coefficients_.begin(), 1.0 - sz, std::numeric_limits<double>::infinity());    
+
+                    ++nCut;
+
+
+                    label = components_.labels_[lv1];
+
+                    S.push(lv1);
+                    visited_[lv1] = 1;
+
+                    sz = 0;
                     while (!S.empty())
                     {
                         auto v = S.top();
