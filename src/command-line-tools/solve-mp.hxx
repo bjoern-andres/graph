@@ -11,6 +11,7 @@
 
 #include <andres/graph/multicut/ilp.hxx>
 #include <andres/graph/multicut/lp.hxx>
+#include <andres/graph/multicut/ilp-callback.hxx>
 #include <andres/graph/multicut/greedy-additive.hxx>
 #include <andres/graph/multicut/greedy-fixation.hxx>
 #include <andres/graph/multicut/kernighan-lin.hxx>
@@ -27,6 +28,7 @@ enum class Method {
     GF,
     KL,
     ILP,
+    ILPC,
     LP
 };
 
@@ -60,7 +62,7 @@ parseCommandLine(
         TCLAP::ValueArg<string> argOutputHDF5FileName("o", "output-hdf-file", "hdf file (output)", true, parameters.outputHDF5FileName, "OUTPUT_HDF5_FILE", tclap);
         TCLAP::ValueArg<string> argLabelingHDF5FileName("l", "labeling-hdf-file", "hdf file specifying initial node labelings (input)", false, parameters.labelingHDF5FileName, "LABELING_HDF5_FILE", tclap);
 
-        TCLAP::ValueArg<string> argOptimizationMethod("m", "optimization-method", "optimization method to use {LP, ILP, GAEC, GF, LGAEC, KL, LKL, OKL, CGC, zeros, ones}", false, "KL", "OPTIMIZATION_METHOD", tclap);
+        TCLAP::ValueArg<string> argOptimizationMethod("m", "optimization-method", "optimization method to use {LP, ILP, ILPC, GAEC, GF, KL, zeros, ones}", false, "KL", "OPTIMIZATION_METHOD", tclap);
         TCLAP::ValueArg<string> argInitializationMethod("I", "initialization-method", "initialization method to use {zeros, ones, GAEC, GF}", false, "zeros", "INITIALIZATION_METHOD", tclap);
         
         tclap.parse(argc, argv);
@@ -93,6 +95,8 @@ parseCommandLine(
             parameters.optimizationMethod_ = Method::KL;
         else if (argOptimizationMethod.getValue() == "ILP")
             parameters.optimizationMethod_ = Method::ILP;
+        else if (argOptimizationMethod.getValue() == "ILPC")
+            parameters.optimizationMethod_ = Method::ILPC;
         else if (argOptimizationMethod.getValue() == "LP")
             parameters.optimizationMethod_ = Method::LP;
         else if(argInitializationMethod.getValue() == "ones")
@@ -110,8 +114,7 @@ parseCommandLine(
 
 template<typename GraphType>
 void solveMulticutProblem(
-    const Parameters& parameters,
-    ostream& stream = std::cout
+    const Parameters& parameters
 )
 {
     GraphType graph;
@@ -172,6 +175,8 @@ void solveMulticutProblem(
     else if (parameters.optimizationMethod_ == Method::KL)
         andres::graph::multicut::kernighanLin(graph, edge_values, edge_labels, edge_labels);
     else if (parameters.optimizationMethod_ == Method::ILP)
+        andres::graph::multicut::ilp<andres::ilp::Gurobi>(graph, edge_values, edge_labels, edge_labels);
+    else if (parameters.optimizationMethod_ == Method::ILPC)
         andres::graph::multicut::ilp<andres::ilp::Gurobi>(graph, edge_values, edge_labels, edge_labels);
     else if (parameters.optimizationMethod_ == Method::LP)
     {
