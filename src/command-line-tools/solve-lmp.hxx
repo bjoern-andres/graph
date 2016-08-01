@@ -213,7 +213,7 @@ void solveLiftedMulticutProblem(
         }
 
         std::cout << "Number of clusters: N/A\n";
-        std::cout << "Energy value: " << energy_value << std::endl;
+        std::cout << "Energy value: " << std::fixed << std::setprecision(10) << energy_value << std::endl;
         std::cout << "Running time: " << t.to_string() << std::endl;
 
         return;

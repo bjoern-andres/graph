@@ -6,6 +6,7 @@
 #include <deque>
 #include <stack>
 #include <algorithm>
+#include <iomanip>
 
 #include <andres/graph/paths.hxx>
 #include <andres/graph/components.hxx>
@@ -85,7 +86,7 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
             auto lv0 = lifted_graph.vertexOfEdge(edge, 0);
             auto lv1 = lifted_graph.vertexOfEdge(edge, 1);
 
-            if (ilp.label(edge) == 1 && components.areConnected(lv0, lv1))
+            if (ilp.label(edge) > .5 && components.areConnected(lv0, lv1))
             {
                 // if cycle/path inequality is violated
 
@@ -100,7 +101,7 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
                             continue;
 
                         auto e = lifted_graph.findEdge(*it1, *it2);
-                        if (/*e.first && */ilp.label(e.second) > .5)
+                        if (e.first && ilp.label(e.second) > .5)
                         {
                             chordless = false;
                             break;
@@ -127,7 +128,7 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
                 else
                     ++nPath;
             }
-            else if (ilp.label(edge) == 0 && !components.areConnected(lv0, lv1))
+            else if (ilp.label(edge) < .5 && !components.areConnected(lv0, lv1))
             {
                 // if cut inequality is violated
 
@@ -211,24 +212,11 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
         for (size_t i = 0; i < lifted_graph.numberOfEdges(); ++i)
             objValue += ilp.label(i)*edgeCosts[i];
 
-        std::cerr << t.get_elapsed_seconds() << " " << objValue << " " << nCycle << " " << nPath << " " << nCut << " " << t_separation.get_elapsed_seconds() << std::endl;
+        std::cerr << std::fixed << t.get_elapsed_seconds() << " " << std::setprecision(10) << objValue << " " << nCycle << " " << nPath << " " << nCut << " " << t_separation.get_elapsed_seconds() << std::endl;
 
         t.start();
 
         return nCycle + nPath + nCut;
-    };
-
-    auto repairSolution = [&] ()
-    {
-        for(size_t edge = 0; edge < lifted_graph.numberOfEdges(); ++edge)
-        {
-            auto v0 = lifted_graph.vertexOfEdge(edge, 0);
-            auto v1 = lifted_graph.vertexOfEdge(edge, 1);
-
-            outputLabels[edge] = components.areConnected(v0, v1) ? 0 : 1;
-        }
-
-        ilp.setStart(outputLabels.begin());
     };
 
     t.start();
@@ -244,23 +232,23 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
     ilp.initModel(lifted_graph.numberOfEdges(), edgeCosts.data());
     ilp.setStart(inputLabels.begin());
 
-    for(size_t i = 0; numberOfIterations == 0 || i < numberOfIterations; ++i)
+    for (size_t i = 0; numberOfIterations == 0 || i < numberOfIterations; ++i)
     {
-        if (i != 0)
-        {
-            repairSolution();
-
-            if (!visitor(outputLabels))
-                break;
-        }
-
         ilp.optimize();
 
         if (addCycleInequalities() == 0)
             break;
     }
 
-    repairSolution();
+    components.build(original_graph, SubgraphWithCut(ilp, edge_in_lifted_graph));
+
+    for (size_t edge = 0; edge < lifted_graph.numberOfEdges(); ++edge)
+    {
+        auto v0 = lifted_graph.vertexOfEdge(edge, 0);
+        auto v1 = lifted_graph.vertexOfEdge(edge, 1);
+
+        outputLabels[edge] = components.areConnected(v0, v1) ? 0 : 1;
+    }
 }
 
 }

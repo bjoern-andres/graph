@@ -6,6 +6,7 @@
 #include <deque>
 #include <stack>
 #include <algorithm>
+#include <iomanip>
 
 #include <andres/graph/paths.hxx>
 #include <andres/graph/components.hxx>
@@ -114,7 +115,7 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
                                 continue;
 
                             auto e = lifted_graph_.findEdge(*it1, *it2);
-                            if (this->label(e.second) > .5)
+                            if (e.first && this->label(e.second) > .5)
                             {
                                 chordless = false;
                                 break;
@@ -221,7 +222,7 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
             t_separation.stop();
             t_.stop();
 
-            std::cerr << t_.get_elapsed_seconds() << " " << this->objectiveBound_ << " " << this->objectiveBest_ << " " << nCycle << " " << nPath << " " << nCut << " " << t_separation.get_elapsed_seconds() << std::endl;
+            std::cerr <<std::fixed << t_.get_elapsed_seconds() << " " << std::setprecision(10) << this->objectiveBound_ << " " << std::setprecision(10) << this->objectiveBest_ << " " << nCycle << " " << nPath << " " << nCut << " " << t_separation.get_elapsed_seconds() << std::endl;
 
             t_.start();
         }
