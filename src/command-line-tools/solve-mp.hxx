@@ -58,7 +58,7 @@ parseCommandLine(
     try
     {
         TCLAP::CmdLine tclap("solve-multicut-problem", ' ', "1.0");
-        TCLAP::ValueArg<string> argInputHDF5FileName("i", "hdf5-input", "File to load multicut problem from", false, parameters.inputHDF5FileName, "INPUT_HDF5_FILE", tclap);
+        TCLAP::ValueArg<string> argInputHDF5FileName("i", "hdf5-input", "File to load multicut problem from", true, parameters.inputHDF5FileName, "INPUT_HDF5_FILE", tclap);
         TCLAP::ValueArg<string> argOutputHDF5FileName("o", "output-hdf-file", "hdf file (output)", true, parameters.outputHDF5FileName, "OUTPUT_HDF5_FILE", tclap);
         TCLAP::ValueArg<string> argLabelingHDF5FileName("l", "labeling-hdf-file", "hdf file specifying initial node labelings (input)", false, parameters.labelingHDF5FileName, "LABELING_HDF5_FILE", tclap);
 

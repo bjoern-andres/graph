@@ -134,6 +134,14 @@ if(GUROBI_FOUND)
     add_executable(test-graph-multicut-ilp-callback src/andres/graph/unit-test/multicut/ilp-callback.cxx ${headers})
     target_link_libraries(test-graph-multicut-ilp-callback ${CMAKE_THREAD_LIBS_INIT} ${GUROBI_CPP_LIBRARY} ${GUROBI_LIBRARY})
     add_test(test-graph-multicut-ilp-callback test-graph-multicut-ilp-callback)
+
+    add_executable(test-graph-multicut-lifted-ilp src/andres/graph/unit-test/multicut-lifted/ilp.cxx ${headers})
+    target_link_libraries(test-graph-multicut-lifted-ilp ${CMAKE_THREAD_LIBS_INIT} ${GUROBI_CPP_LIBRARY} ${GUROBI_LIBRARY})
+    add_test(test-graph-multicut-lifted-ilp test-graph-multicut-lifted-ilp)
+
+    add_executable(test-graph-multicut-lifted-ilp-callback src/andres/graph/unit-test/multicut-lifted/ilp-callback.cxx ${headers})
+    target_link_libraries(test-graph-multicut-lifted-ilp-callback ${CMAKE_THREAD_LIBS_INIT} ${GUROBI_CPP_LIBRARY} ${GUROBI_LIBRARY})
+    add_test(test-graph-multicut-lifted-ilp-callback test-graph-multicut-lifted-ilp-callback)
 endif()
 
 if(DOXYGEN_FOUND)
