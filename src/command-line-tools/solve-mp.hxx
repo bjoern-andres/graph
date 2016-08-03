@@ -3,15 +3,20 @@
 #include <stdexcept>
 #include <iostream>
 #include <numeric>
+#include <string>
 
 #include <tclap/CmdLine.h>
 
-#include <andres/ilp/gurobi.hxx>
-#include <andres/lp/gurobi.hxx>
+#ifdef WITH_GUROBI
+    #include <andres/ilp/gurobi.hxx>
+    #include <andres/ilp/gurobi-callback.hxx>
+    #include <andres/lp/gurobi.hxx>
 
-#include <andres/graph/multicut/ilp.hxx>
-#include <andres/graph/multicut/lp.hxx>
-#include <andres/graph/multicut/ilp-callback.hxx>
+    #include <andres/graph/multicut/ilp.hxx>
+    #include <andres/graph/multicut/lp.hxx>
+    #include <andres/graph/multicut/ilp-callback.hxx>
+#endif
+
 #include <andres/graph/multicut/greedy-additive.hxx>
 #include <andres/graph/multicut/greedy-fixation.hxx>
 #include <andres/graph/multicut/kernighan-lin.hxx>
@@ -26,10 +31,13 @@ enum class Method {
     Ones,
     GAEC,
     GF,
-    KL,
+    KL
+#ifdef WITH_GUROBI
+    ,
     ILP,
     ILPC,
     LP
+#endif
 };
 
 enum class Initialization {
@@ -41,9 +49,9 @@ enum class Initialization {
 };
 
 struct Parameters {
-    string inputHDF5FileName;
-    string outputHDF5FileName;
-    string labelingHDF5FileName;
+    std::string inputHDF5FileName;
+    std::string outputHDF5FileName;
+    std::string labelingHDF5FileName;
     Method optimizationMethod_;
     Initialization initialization;
 };
@@ -58,12 +66,12 @@ parseCommandLine(
     try
     {
         TCLAP::CmdLine tclap("solve-multicut-problem", ' ', "1.0");
-        TCLAP::ValueArg<string> argInputHDF5FileName("i", "hdf5-input", "File to load multicut problem from", true, parameters.inputHDF5FileName, "INPUT_HDF5_FILE", tclap);
-        TCLAP::ValueArg<string> argOutputHDF5FileName("o", "output-hdf-file", "hdf file (output)", true, parameters.outputHDF5FileName, "OUTPUT_HDF5_FILE", tclap);
-        TCLAP::ValueArg<string> argLabelingHDF5FileName("l", "labeling-hdf-file", "hdf file specifying initial node labelings (input)", false, parameters.labelingHDF5FileName, "LABELING_HDF5_FILE", tclap);
+        TCLAP::ValueArg<std::string> argInputHDF5FileName("i", "hdf5-input", "File to load multicut problem from", true, parameters.inputHDF5FileName, "INPUT_HDF5_FILE", tclap);
+        TCLAP::ValueArg<std::string> argOutputHDF5FileName("o", "output-hdf-file", "hdf file (output)", true, parameters.outputHDF5FileName, "OUTPUT_HDF5_FILE", tclap);
+        TCLAP::ValueArg<std::string> argLabelingHDF5FileName("l", "labeling-hdf-file", "hdf file specifying initial node labelings (input)", false, parameters.labelingHDF5FileName, "LABELING_HDF5_FILE", tclap);
 
-        TCLAP::ValueArg<string> argOptimizationMethod("m", "optimization-method", "optimization method to use {LP, ILP, ILPC, GAEC, GF, KL, zeros, ones}", false, "KL", "OPTIMIZATION_METHOD", tclap);
-        TCLAP::ValueArg<string> argInitializationMethod("I", "initialization-method", "initialization method to use {zeros, ones, GAEC, GF}", false, "zeros", "INITIALIZATION_METHOD", tclap);
+        TCLAP::ValueArg<std::string> argOptimizationMethod("m", "optimization-method", "optimization method to use {LP, ILP, ILPC, GAEC, GF, KL, zeros, ones}", false, "KL", "OPTIMIZATION_METHOD", tclap);
+        TCLAP::ValueArg<std::string> argInitializationMethod("I", "initialization-method", "initialization method to use {zeros, ones, GAEC, GF}", false, "zeros", "INITIALIZATION_METHOD", tclap);
         
         tclap.parse(argc, argv);
 
@@ -93,15 +101,17 @@ parseCommandLine(
             parameters.optimizationMethod_ = Method::GF;
         else if(argOptimizationMethod.getValue() == "KL")
             parameters.optimizationMethod_ = Method::KL;
+#ifdef WITH_GUROBI
         else if (argOptimizationMethod.getValue() == "ILP")
             parameters.optimizationMethod_ = Method::ILP;
         else if (argOptimizationMethod.getValue() == "ILPC")
             parameters.optimizationMethod_ = Method::ILPC;
         else if (argOptimizationMethod.getValue() == "LP")
             parameters.optimizationMethod_ = Method::LP;
-        else if(argInitializationMethod.getValue() == "ones")
+#endif
+        else if(argOptimizationMethod.getValue() == "ones")
             parameters.optimizationMethod_ = Method::Ones;
-        else if(argInitializationMethod.getValue() == "zeros")
+        else if(argOptimizationMethod.getValue() == "zeros")
             parameters.optimizationMethod_ = Method::Zeros;
         else
             throw std::runtime_error("Invalid optimization method specified");
@@ -174,10 +184,11 @@ void solveMulticutProblem(
         andres::graph::multicut::greedyFixation(graph, edge_values,  edge_labels);
     else if (parameters.optimizationMethod_ == Method::KL)
         andres::graph::multicut::kernighanLin(graph, edge_values, edge_labels, edge_labels);
+#ifdef WITH_GUROBI
     else if (parameters.optimizationMethod_ == Method::ILP)
         andres::graph::multicut::ilp<andres::ilp::Gurobi>(graph, edge_values, edge_labels, edge_labels);
     else if (parameters.optimizationMethod_ == Method::ILPC)
-        andres::graph::multicut::ilp<andres::ilp::Gurobi>(graph, edge_values, edge_labels, edge_labels);
+        andres::graph::multicut::ilp_callback<andres::ilp::GurobiCallback>(graph, edge_values, edge_labels, edge_labels);
     else if (parameters.optimizationMethod_ == Method::LP)
     {
         auto values = andres::graph::multicut::lp<andres::lp::Gurobi>(graph, edge_values);
@@ -204,6 +215,7 @@ void solveMulticutProblem(
 
         return;
     }
+#endif
     else
         throw std::runtime_error("Unsupported algorithm");
     

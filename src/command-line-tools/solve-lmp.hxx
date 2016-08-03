@@ -4,12 +4,16 @@
 #include <tclap/CmdLine.h>
 
 #include <andres/functional.hxx>
-#include <andres/lp/gurobi.hxx>
-#include <andres/ilp/gurobi.hxx>
-#include <andres/ilp/gurobi-callback.hxx>
-#include <andres/graph/multicut-lifted/ilp.hxx>
-#include <andres/graph/multicut-lifted/ilp-callback.hxx>
-#include <andres/graph/multicut-lifted/lp.hxx>
+
+#ifdef WITH_GUROBI
+    #include <andres/lp/gurobi.hxx>
+    #include <andres/ilp/gurobi.hxx>
+    #include <andres/ilp/gurobi-callback.hxx>
+    #include <andres/graph/multicut-lifted/ilp.hxx>
+    #include <andres/graph/multicut-lifted/ilp-callback.hxx>
+    #include <andres/graph/multicut-lifted/lp.hxx>
+#endif
+
 #include <andres/graph/multicut-lifted/greedy-additive.hxx>
 #include <andres/graph/multicut-lifted/kernighan-lin.hxx>
 
@@ -22,10 +26,13 @@ enum class Method {
     Zeros,
     Ones,
     GAEC,
-    Kernighan_Lin,
+    Kernighan_Lin
+#ifdef WITH_GUROBI
+    ,
     LP,
     ILP,
     ILPC
+#endif
 };
 
 enum class Initialization {
@@ -75,12 +82,14 @@ try
         parameters.optimizationMethod = Method::Zeros;
     else if (argOptimizationMethod.getValue() == "ones")
         parameters.optimizationMethod = Method::Ones;
+#ifdef WITH_GUROBI
     else if (argOptimizationMethod.getValue() == "LP")
         parameters.optimizationMethod = Method::LP;
     else if (argOptimizationMethod.getValue() == "ILP")
         parameters.optimizationMethod = Method::ILP;
     else if (argOptimizationMethod.getValue() == "ILPC")
         parameters.optimizationMethod = Method::ILPC;
+#endif
     else if(argOptimizationMethod.getValue() == "KL")
     {
         parameters.optimizationMethod = Method::Kernighan_Lin;
@@ -184,14 +193,15 @@ void solveLiftedMulticutProblem(
         std::fill(edge_labels.begin(), edge_labels.end(), 1);
     else if (parameters.optimizationMethod == Method::Zeros)
         std::fill(edge_labels.begin(), edge_labels.end(), 0);
-    else if (parameters.optimizationMethod == Method::ILP)
-        andres::graph::multicut_lifted::ilp<andres::ilp::Gurobi>(original_graph, lifted_graph, edge_values, edge_labels, edge_labels);
-    else if (parameters.optimizationMethod == Method::ILPC)
-        andres::graph::multicut_lifted::ilp_callback<andres::ilp::GurobiCallback>(original_graph, lifted_graph, edge_values, edge_labels, edge_labels);
     else if (parameters.optimizationMethod == Method::GAEC)
         andres::graph::multicut_lifted::greedyAdditiveEdgeContraction(original_graph, lifted_graph, edge_values, edge_labels);
     else if (parameters.optimizationMethod == Method::Kernighan_Lin)
         andres::graph::multicut_lifted::kernighanLin(original_graph, lifted_graph, edge_values, edge_labels, edge_labels);
+#ifdef WITH_GUROBI
+    else if (parameters.optimizationMethod == Method::ILP)
+        andres::graph::multicut_lifted::ilp<andres::ilp::Gurobi>(original_graph, lifted_graph, edge_values, edge_labels, edge_labels);
+    else if (parameters.optimizationMethod == Method::ILPC)
+        andres::graph::multicut_lifted::ilp_callback<andres::ilp::GurobiCallback>(original_graph, lifted_graph, edge_values, edge_labels, edge_labels);
     else if (parameters.optimizationMethod == Method::LP)
     {
         auto values = andres::graph::multicut_lifted::lp<andres::lp::Gurobi>(original_graph, lifted_graph, edge_values);
@@ -218,6 +228,7 @@ void solveLiftedMulticutProblem(
 
         return;
     }
+#endif
     else
         throw std::runtime_error("Unsupported algorithm");
     
