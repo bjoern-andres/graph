@@ -11,7 +11,6 @@
 #include <andres/graph/paths.hxx>
 #include <andres/graph/components.hxx>
 #include <andres/graph/shortest-paths.hxx>
-#include <levinkov/timer.hxx>
 
 
 namespace andres {
@@ -23,12 +22,8 @@ template<typename ILP, typename ORIGGRAPH, typename LIFTGRAPH, typename ECA, typ
 inline
 void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA const& edgeCosts, ELA const& inputLabels, ELA& outputLabels, size_t numberOfIterations = std::numeric_limits<size_t>::max())
 {
-    struct Visitor
+    struct EmptyVisitor
     {
-        bool operator()(ELA const& edge_labels) const
-        {
-            return true;
-        }
     } visitor;
 
     ilp<ILP>(original_graph, lifted_graph, edgeCosts, inputLabels, outputLabels, visitor, numberOfIterations);
@@ -40,9 +35,9 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
 {
     struct SubgraphWithCut
     {
-        SubgraphWithCut(ILP const& ilp, std::vector<size_t> const& edge_in_lifted_graph)
-            : ilp_(ilp), edge_in_lifted_graph_(edge_in_lifted_graph)
-            {}
+        SubgraphWithCut(ILP const& ilp, std::vector<size_t> const& edge_in_lifted_graph) :
+            ilp_(ilp), edge_in_lifted_graph_(edge_in_lifted_graph)
+        {}
 
         bool vertex(size_t v) const
         {
@@ -59,7 +54,6 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
     };
 
     ILP ilp;
-    levinkov::Timer t;
 
     std::vector<double> coefficients(lifted_graph.numberOfEdges());
     ComponentsBySearch<ORIGGRAPH> components;
@@ -71,9 +65,6 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
 
     auto addCycleInequalities = [&] ()
     {
-        levinkov::Timer t_separation;
-        t_separation.start();
-
         components.build(original_graph, SubgraphWithCut(ilp, edge_in_lifted_graph));
 
         // search for violated non-chordal cycles and add corresp. inequalities
@@ -83,8 +74,8 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
 
         for (ptrdiff_t edge = 0; edge < lifted_graph.numberOfEdges(); ++edge)
         {
-            auto lv0 = lifted_graph.vertexOfEdge(edge, 0);
-            auto lv1 = lifted_graph.vertexOfEdge(edge, 1);
+            auto const lv0 = lifted_graph.vertexOfEdge(edge, 0);
+            auto const lv1 = lifted_graph.vertexOfEdge(edge, 1);
 
             if (ilp.label(edge) > .5 && components.areConnected(lv0, lv1))
             {
@@ -100,7 +91,7 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
                         if (it1 == path.begin() && it2 == path.end() - 1)
                             continue;
 
-                        auto e = lifted_graph.findEdge(*it1, *it2);
+                        auto const e = lifted_graph.findEdge(*it1, *it2);
                         if (e.first && ilp.label(e.second) > .5)
                         {
                             chordless = false;
@@ -144,7 +135,7 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
                 ptrdiff_t sz = 0;
                 while (!S.empty())
                 {
-                    auto v = S.top();
+                    auto const v = S.top();
                     S.pop();
 
                     for (auto it = original_graph.adjacenciesFromVertexBegin(v); it != original_graph.adjacenciesFromVertexEnd(v); ++it)
@@ -178,7 +169,7 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
                 sz = 0;
                 while (!S.empty())
                 {
-                    auto v = S.top();
+                    auto const v = S.top();
                     S.pop();
 
                     for (auto it = original_graph.adjacenciesFromVertexBegin(v); it != original_graph.adjacenciesFromVertexEnd(v); ++it)
@@ -205,26 +196,19 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
             }
         }
 
-        t_separation.stop();
-        t.stop();
-
         double objValue = .0;
         for (size_t i = 0; i < lifted_graph.numberOfEdges(); ++i)
             objValue += ilp.label(i)*edgeCosts[i];
 
-        std::cerr << std::fixed << t.get_elapsed_seconds() << " " << std::setprecision(10) << objValue << " " << nCycle << " " << nPath << " " << nCut << " " << t_separation.get_elapsed_seconds() << std::endl;
-
-        t.start();
+        std::cerr << std::fixed << std::setprecision(10) << objValue << " " << nCycle << " " << nPath << " " << nCut << std::endl;
 
         return nCycle + nPath + nCut;
     };
 
-    t.start();
-
     for (size_t i = 0; i < original_graph.numberOfEdges(); ++i)
     {
-        auto v0 = original_graph.vertexOfEdge(i, 0);
-        auto v1 = original_graph.vertexOfEdge(i, 1);
+        auto const v0 = original_graph.vertexOfEdge(i, 0);
+        auto const v1 = original_graph.vertexOfEdge(i, 1);
 
         edge_in_lifted_graph[i] = lifted_graph.findEdge(v0, v1).second;
     }
@@ -244,8 +228,8 @@ void ilp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA con
 
     for (size_t edge = 0; edge < lifted_graph.numberOfEdges(); ++edge)
     {
-        auto v0 = lifted_graph.vertexOfEdge(edge, 0);
-        auto v1 = lifted_graph.vertexOfEdge(edge, 1);
+        auto const v0 = lifted_graph.vertexOfEdge(edge, 0);
+        auto const v1 = lifted_graph.vertexOfEdge(edge, 1);
 
         outputLabels[edge] = components.areConnected(v0, v1) ? 0 : 1;
     }

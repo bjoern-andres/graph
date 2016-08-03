@@ -11,7 +11,6 @@
 #include <andres/graph/paths.hxx>
 #include <andres/graph/components.hxx>
 #include <andres/graph/shortest-paths.hxx>
-#include <levinkov/timer.hxx>
 
 
 namespace andres {
@@ -23,12 +22,8 @@ template<typename ILP, typename ORIGGRAPH, typename LIFTGRAPH, typename ECA, typ
 inline
 void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA const& edgeCosts, ELA const& inputLabels, ELA& outputLabels, size_t timeLimitSeconds = 86400)
 {
-    struct Visitor
+    struct EmptyVisitor
     {
-        bool operator()(ELA const& edge_labels) const
-        {
-            return true;
-        }
     } visitor;
 
     ilp_callback<ILP>(original_graph, lifted_graph, edgeCosts, inputLabels, outputLabels, visitor, timeLimitSeconds);
@@ -40,9 +35,9 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
 {
     struct SubgraphWithCut
     {
-        SubgraphWithCut(ILP const& ilp, std::vector<size_t> const& edge_in_lifted_graph)
-            : ilp_(ilp), edge_in_lifted_graph_(edge_in_lifted_graph)
-            {}
+        SubgraphWithCut(ILP const& ilp, std::vector<size_t> const& edge_in_lifted_graph) :
+            ilp_(ilp), edge_in_lifted_graph_(edge_in_lifted_graph)
+        {}
 
         bool vertex(size_t v) const
         {
@@ -57,27 +52,23 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
         ILP const& ilp_;
         std::vector<size_t> const& edge_in_lifted_graph_;
     };
-
     
-    levinkov::Timer t;
-
     class Callback: public ILP::Callback
     {
     public:
-        Callback(ILP& solver, ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, levinkov::Timer& t) :
+        Callback(ILP& solver, ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph) :
             ILP::Callback(solver),
             original_graph_(original_graph),
             lifted_graph_(lifted_graph),
             coefficients_(lifted_graph.numberOfEdges()),
             variables_(lifted_graph.numberOfEdges()),
             visited_(original_graph.numberOfVertices()),
-            edge_in_lifted_graph_(original_graph.numberOfEdges()),
-            t_(t)
+            edge_in_lifted_graph_(original_graph.numberOfEdges())
         {
             for (size_t i = 0; i < original_graph.numberOfEdges(); ++i)
             {
-                auto v0 = original_graph.vertexOfEdge(i, 0);
-                auto v1 = original_graph.vertexOfEdge(i, 1);
+                auto const v0 = original_graph.vertexOfEdge(i, 0);
+                auto const v1 = original_graph.vertexOfEdge(i, 1);
 
                 edge_in_lifted_graph_[i] = lifted_graph.findEdge(v0, v1).second;
             }
@@ -85,9 +76,6 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
 
         void separateAndAddLazyConstraints() override
         {
-            levinkov::Timer t_separation;
-            t_separation.start();
-
             components_.build(original_graph_, SubgraphWithCut(*this, edge_in_lifted_graph_));
 
             // search for violated non-chordal cycles and add corresp. inequalities
@@ -97,8 +85,8 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
 
             for (ptrdiff_t edge = 0; edge < lifted_graph_.numberOfEdges(); ++edge)
             {
-                auto lv0 = lifted_graph_.vertexOfEdge(edge, 0);
-                auto lv1 = lifted_graph_.vertexOfEdge(edge, 1);
+                auto const lv0 = lifted_graph_.vertexOfEdge(edge, 0);
+                auto const lv1 = lifted_graph_.vertexOfEdge(edge, 1);
 
                 if (this->label(edge) == 1 && components_.areConnected(lv0, lv1))
                 {
@@ -114,7 +102,7 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
                             if (it1 == path_.begin() && it2 == path_.end() - 1)
                                 continue;
 
-                            auto e = lifted_graph_.findEdge(*it1, *it2);
+                            auto const e = lifted_graph_.findEdge(*it1, *it2);
                             if (e.first && this->label(e.second) > .5)
                             {
                                 chordless = false;
@@ -158,7 +146,7 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
                     ptrdiff_t sz = 0;
                     while (!S.empty())
                     {
-                        auto v = S.top();
+                        auto const v = S.top();
                         S.pop();
 
                         for (auto it = original_graph_.adjacenciesFromVertexBegin(v); it != original_graph_.adjacenciesFromVertexEnd(v); ++it)
@@ -192,7 +180,7 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
                     sz = 0;
                     while (!S.empty())
                     {
-                        auto v = S.top();
+                        auto const v = S.top();
                         S.pop();
 
                         for (auto it = original_graph_.adjacenciesFromVertexBegin(v); it != original_graph_.adjacenciesFromVertexEnd(v); ++it)
@@ -219,20 +207,15 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
                 }
             }
 
-            t_separation.stop();
-            t_.stop();
-
-            std::cerr <<std::fixed << t_.get_elapsed_seconds() << " " << std::setprecision(10) << this->objectiveBound_ << " " << std::setprecision(10) << this->objectiveBest_ << " " << nCycle << " " << nPath << " " << nCut << " " << t_separation.get_elapsed_seconds() << std::endl;
-
-            t_.start();
+            std::cerr << std::fixed << std::setprecision(10) << this->objectiveBound_ << " " << std::setprecision(10) << this->objectiveBest_ << " " << nCycle << " " << nPath << " " << nCut << std::endl;
         }
 
     private:
         struct SubgraphWithCut
         {
-            SubgraphWithCut(Callback& callback, std::vector<size_t> const& edge_in_lifted_graph)
-                : callback_(callback), edge_in_lifted_graph_(edge_in_lifted_graph)
-                {}
+            SubgraphWithCut(Callback& callback, std::vector<size_t> const& edge_in_lifted_graph) :
+                callback_(callback), edge_in_lifted_graph_(edge_in_lifted_graph)
+            {}
 
             bool vertex(size_t v) const
             {
@@ -251,8 +234,6 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
         ORIGGRAPH const& original_graph_;
         LIFTGRAPH const& lifted_graph_;
 
-        levinkov::Timer& t_;
-
         std::vector<double> coefficients_;
         ComponentsBySearch<ORIGGRAPH> components_;
         std::vector<ptrdiff_t> buffer_;
@@ -262,8 +243,6 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
         std::vector<char> visited_;
     };
 
-    t.start();
-
     ILP ilp;
 
     ilp.setRelativeGap(0.0);
@@ -271,7 +250,7 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
     ilp.setTimeLimit(timeLimitSeconds);
     ilp.addVariables(edgeCosts.size(), edgeCosts.data());
 
-    Callback callback(ilp, original_graph, lifted_graph, t);
+    Callback callback(ilp, original_graph, lifted_graph);
     ilp.setCallback(callback);
 
     ilp.optimize();
@@ -279,8 +258,8 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
     std::vector<size_t> edge_in_lifted_graph(original_graph.numberOfEdges());
     for (size_t i = 0; i < original_graph.numberOfEdges(); ++i)
     {
-        auto v0 = original_graph.vertexOfEdge(i, 0);
-        auto v1 = original_graph.vertexOfEdge(i, 1);
+        auto const v0 = original_graph.vertexOfEdge(i, 0);
+        auto const v1 = original_graph.vertexOfEdge(i, 1);
 
         edge_in_lifted_graph[i] = lifted_graph.findEdge(v0, v1).second;
     }
@@ -290,8 +269,8 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
 
     for (size_t edge = 0; edge < lifted_graph.numberOfEdges(); ++edge)
     {
-        auto v0 = lifted_graph.vertexOfEdge(edge, 0);
-        auto v1 = lifted_graph.vertexOfEdge(edge, 1);
+        auto const v0 = lifted_graph.vertexOfEdge(edge, 0);
+        auto const v1 = lifted_graph.vertexOfEdge(edge, 1);
 
         outputLabels[edge] = components.areConnected(v0, v1) ? 0 : 1;
     }

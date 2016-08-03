@@ -8,7 +8,6 @@
 #include <stack>
 
 #include <andres/graph/shortest-paths.hxx>
-#include <levinkov/timer.hxx>
 
 
 namespace andres {
@@ -19,12 +18,8 @@ template<typename LP, typename ORIGGRAPH, typename LIFTGRAPH, typename ECA>
 inline
 std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA const& edgeCosts, size_t numberOfIterations = std::numeric_limits<size_t>::max())
 {
-    struct Visitor
+    struct EmptyVisitor
     {
-        bool operator()() const
-        {
-            return true;
-        }
     } visitor;
 
     return lp<LP>(original_graph, lifted_graph, edgeCosts, visitor, numberOfIterations);
@@ -189,7 +184,6 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
     };
 
     LP lp;
-    levinkov::Timer t;
     
     std::vector<double> coefficients(lifted_graph.numberOfEdges());
     std::vector<double> distances(lifted_graph.numberOfVertices()); 
@@ -201,18 +195,18 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
 
     auto separateAndAddInequalities = [&] ()
     {
-        levinkov::Timer t_separation;
-        t_separation.start();
-
         DinicFlow flow(original_graph.numberOfVertices());
 
         for (size_t i = 0; i < vars.size(); ++i)
         {
             vars[i] = std::min(std::max(.0, lp.variableValue(edge_in_lifted_graph[i])), 1.0);
 
-            auto v0 = lifted_graph.vertexOfEdge(edge_in_lifted_graph[i], 0);
-            auto v1 = lifted_graph.vertexOfEdge(edge_in_lifted_graph[i], 1);
+            auto const v0 = lifted_graph.vertexOfEdge(edge_in_lifted_graph[i], 0);
+            auto const v1 = lifted_graph.vertexOfEdge(edge_in_lifted_graph[i], 1);
 
+            // as MaxLow can be computed only for intergral edge weights, we lose a bit of precision doing the following
+            // if your weights are very small, you might want to increase the constant (everywhere in this file),
+            // in order not to run into precision problems
             flow.addEdge(v0, v1, 100000000000.0*(1.0 - vars[i]));
         }
 
@@ -223,8 +217,8 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
 
         for (size_t edge = 0; edge < lifted_graph.numberOfEdges(); ++edge)
         {
-            auto lv0 = lifted_graph.vertexOfEdge(edge, 0);
-            auto lv1 = lifted_graph.vertexOfEdge(edge, 1);
+            auto const lv0 = lifted_graph.vertexOfEdge(edge, 0);
+            auto const lv1 = lifted_graph.vertexOfEdge(edge, 1);
 
             // search for shortest path
             double distance;
@@ -237,7 +231,7 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
                     if (it1 == path.begin() && it2 == path.end() - 1)
                         continue;
 
-                    auto e = lifted_graph.findEdge(*it1, *it2);
+                    auto const e = lifted_graph.findEdge(*it1, *it2);
                     if (e.first && std::min(std::max(.0, lp.variableValue(e.second)), 1.0) > distances[*it2] - distances[*it1] + tolerance)
                     {
                         chordless = false;
@@ -317,26 +311,19 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
             }
         }
 
-        t_separation.stop();
-        t.stop();
-
         double objValue = .0;
         for (size_t i = 0; i < lifted_graph.numberOfEdges(); ++i)
             objValue += lp.variableValue(i)*edgeCosts[i];
 
-        std::cerr << std::fixed << t.get_elapsed_seconds() << " " << std::setprecision(10) << objValue << " " << nCycle << " " << nPath << " " << nCut << " " << t_separation.get_elapsed_seconds() << std::endl;
-
-        t.start();
+        std::cerr << std::fixed << std::setprecision(10) << objValue << " " << nCycle << " " << nPath << " " << nCut << std::endl;
 
         return nCycle + nPath + nCut;
     };
 
-    t.start();
-
     for (size_t i = 0; i < original_graph.numberOfEdges(); ++i)
     {
-        auto v0 = original_graph.vertexOfEdge(i, 0);
-        auto v1 = original_graph.vertexOfEdge(i, 1);
+        auto const v0 = original_graph.vertexOfEdge(i, 0);
+        auto const v1 = original_graph.vertexOfEdge(i, 1);
 
         edge_in_lifted_graph[i] = lifted_graph.findEdge(v0, v1).second;
     }
@@ -345,9 +332,6 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
 
     for (size_t i = 0; numberOfIterations == 0 || i < numberOfIterations; ++i)
     {
-        if (!visitor())
-            break;
-
         lp.optimize();
 
         if (separateAndAddInequalities() == 0)
@@ -355,7 +339,6 @@ std::vector<double> lp(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_
     }
 
     std::vector<double> edge_values(lifted_graph.numberOfEdges());
-
     for (size_t i = 0; i < lifted_graph.numberOfEdges(); ++i)
         edge_values[i] = lp.variableValue(i);
 
