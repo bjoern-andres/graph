@@ -36,12 +36,8 @@ template<typename ILP, typename GRAPH, typename ECA, typename ELA>
 inline
 void ilp_callback(GRAPH const& graph, ECA const& edgeCosts, ELA const& inputLabels, ELA& outputLabels, size_t timeLimitSeconds = 86400)
 {
-    struct Visitor
+    struct EmptyVisitor
     {
-        bool operator()(ELA const& edge_labels) const
-        {
-            return true;
-        }
     } visitor;
 
     ilp_callback<ILP>(graph, edgeCosts, inputLabels, outputLabels, visitor, timeLimitSeconds);
@@ -53,9 +49,9 @@ void ilp_callback(GRAPH const& graph, ECA const& edgeCosts, ELA const& inputLabe
 {
     struct SubgraphWithCut
     {
-        SubgraphWithCut(ILP const& ilp)
-            : ilp_(ilp) 
-            {}
+        SubgraphWithCut(ILP const& ilp) :
+            ilp_(ilp) 
+        {}
 
         bool vertex(size_t v) const
         {
@@ -91,8 +87,8 @@ void ilp_callback(GRAPH const& graph, ECA const& edgeCosts, ELA const& inputLabe
             for (size_t edge = 0; edge < graph_.numberOfEdges(); ++edge) 
                 if (this->label(edge) > .5)
                 {
-                    auto v0 = graph_.vertexOfEdge(edge, 0);
-                    auto v1 = graph_.vertexOfEdge(edge, 1);
+                    auto const v0 = graph_.vertexOfEdge(edge, 0);
+                    auto const v1 = graph_.vertexOfEdge(edge, 1);
 
                     if (components.areConnected(v0, v1))
                     { 
@@ -104,27 +100,25 @@ void ilp_callback(GRAPH const& graph, ECA const& edgeCosts, ELA const& inputLabe
                             continue;
 
                         // add inequality
-                        auto sz = path.size();
-
-                        for (size_t j = 0; j < sz - 1; ++j)
+                        for (size_t j = 0; j < path.size() - 1; ++j)
                         {
                             variables[j] = static_cast<double>(graph_.findEdge(path[j], path[j + 1]).second);
                             coefficients[j] = 1.0;
                         }
 
-                        variables[sz-1] = static_cast<double>(edge);
-                        coefficients[sz-1] = -1.0;
+                        variables[path.size() - 1] = static_cast<double>(edge);
+                        coefficients[path.size() - 1] = -1.0;
 
-                        this->addLazyConstraint(variables.begin(), variables.begin() + sz, coefficients.begin(), 0, std::numeric_limits<double>::infinity());
+                        this->addLazyConstraint(variables.begin(), variables.begin() + path.size(), coefficients.begin(), 0, std::numeric_limits<double>::infinity());
                     }
                 }
         }
     private:
         struct SubgraphWithCut
         {
-            SubgraphWithCut(Callback& callback)
-                : callback_(callback) 
-                {}
+            SubgraphWithCut(Callback& callback) :
+                callback_(callback) 
+            {}
 
             bool vertex(size_t v) const
             {
@@ -159,8 +153,8 @@ void ilp_callback(GRAPH const& graph, ECA const& edgeCosts, ELA const& inputLabe
 
     for (size_t edge = 0; edge < graph.numberOfEdges(); ++edge)
     {
-        auto v0 = graph.vertexOfEdge(edge, 0);
-        auto v1 = graph.vertexOfEdge(edge, 1);
+        auto const v0 = graph.vertexOfEdge(edge, 0);
+        auto const v1 = graph.vertexOfEdge(edge, 1);
 
         outputLabels[edge] = components.areConnected(v0, v1) ? 0 : 1;
     }
@@ -173,12 +167,8 @@ template<typename ILP, typename GRAPH_VISITOR, typename ECA, typename ELA>
 inline
 void ilp_callback(CompleteGraph<GRAPH_VISITOR> const& graph, ECA const& edgeCosts, ELA const& inputLabels, ELA& outputLabels, size_t timeLimitSeconds = 86400)
 {
-    struct Visitor
+    struct EmptyVisitor
     {
-        bool operator()(ELA const& edge_labels) const
-        {
-            return true;
-        }
     } visitor;
 
     ilp_callback<ILP>(graph, edgeCosts, inputLabels, outputLabels, visitor);
@@ -224,8 +214,8 @@ void ilp_callback(CompleteGraph<GRAPH_VISITOR> const& graph, ECA const& edgeCost
                 {
                     variables[2] = edge;
 
-                    auto v0 = graph_.vertexOfEdge(edge, 0);
-                    auto v1 = graph_.vertexOfEdge(edge, 1);
+                    auto const v0 = graph_.vertexOfEdge(edge, 0);
+                    auto const v1 = graph_.vertexOfEdge(edge, 1);
 
                     for (size_t i = 0; i < graph_.numberOfVertices(); ++i)
                     {
@@ -267,8 +257,8 @@ void ilp_callback(CompleteGraph<GRAPH_VISITOR> const& graph, ECA const& edgeCost
 
     for (size_t edge = 0; edge < graph.numberOfEdges(); ++edge)
     {
-        auto v0 = graph.vertexOfEdge(edge, 0);
-        auto v1 = graph.vertexOfEdge(edge, 1);
+        auto const v0 = graph.vertexOfEdge(edge, 0);
+        auto const v1 = graph.vertexOfEdge(edge, 1);
 
         outputLabels[edge] = components.areConnected(v0, v1) ? 0 : 1;
     }

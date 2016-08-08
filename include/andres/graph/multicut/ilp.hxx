@@ -33,10 +33,8 @@ ilp(
     ELA& outputLabels,
     size_t numberOfIterations = std::numeric_limits<size_t>::max()
 ) {
-    struct Visitor {
-        bool operator()(ELA const& edge_labels) const {
-            return true;
-        }
+    struct EmptyVisitor
+    {
     } visitor;
 
     ilp<ILP>(graph, edgeCosts, inputLabels, outputLabels, visitor, numberOfIterations);
@@ -52,15 +50,23 @@ ilp(
     VIS& visitor,
     size_t numberOfIterations = std::numeric_limits<size_t>::max()
 ) {
-    struct SubgraphWithCut {
-        SubgraphWithCut(const ILP& ilp)
-            : ilp_(ilp) 
-            {}
+    struct SubgraphWithCut
+    {
+        SubgraphWithCut(const ILP& ilp) :
+            ilp_(ilp) 
+        {}
+        
         bool vertex(const size_t v) const
-            { return true; }
+        {
+            return true;
+        }
+
         bool edge(const size_t e) const
-            { return ilp_.label(e) < .5; }
-        const ILP& ilp_;
+        {
+            return ilp_.label(e) < .5;
+        }
+        
+        ILP const& ilp_;
     };
 
     ComponentsBySearch<GRAPH> components;
@@ -80,8 +86,8 @@ ilp(
         for (size_t edge = 0; edge < graph.numberOfEdges(); ++edge) 
             if (ilp.label(edge) > .5)
             {
-                auto v0 = graph.vertexOfEdge(edge, 0);
-                auto v1 = graph.vertexOfEdge(edge, 1);
+                auto const v0 = graph.vertexOfEdge(edge, 0);
+                auto const v1 = graph.vertexOfEdge(edge, 1);
 
                 if (components.areConnected(v0, v1))
                 { 
@@ -93,8 +99,6 @@ ilp(
                         continue;
 
                     // add inequality
-                    auto sz = path.size();
-
                     for (size_t j = 0; j < path.size() - 1; ++j)
                     {
                         variables[j] = graph.findEdge(path[j], path[j + 1]).second;
@@ -113,39 +117,26 @@ ilp(
         return nCycle;
     };
 
-    auto repairSolution = [&] ()
-    {
-        for (size_t edge = 0; edge < graph.numberOfEdges(); ++edge)
-        {
-            auto v0 = graph.vertexOfEdge(edge, 0);
-            auto v1 = graph.vertexOfEdge(edge, 1);
-
-            outputLabels[edge] = components.areConnected(v0, v1) ? 0 : 1;
-        }
-
-        ilp.setStart(outputLabels.begin());
-    };
-
     ilp.initModel(graph.numberOfEdges(), edgeCosts.data());
     ilp.setStart(inputLabels.begin());
 
     for (size_t i = 0; numberOfIterations == 0 || i < numberOfIterations; ++i)
     {
-        if (i != 0)
-        {
-            repairSolution();
-
-            if (!visitor(outputLabels))
-                break;
-        }
-
         ilp.optimize();
 
         if (addCycleInequalities() == 0)
             break;
     }
 
-    repairSolution();
+    components.build(graph, SubgraphWithCut(ilp));
+
+    for (size_t edge = 0; edge < graph.numberOfEdges(); ++edge)
+    {
+        auto const v0 = graph.vertexOfEdge(edge, 0);
+        auto const v1 = graph.vertexOfEdge(edge, 1);
+
+        outputLabels[edge] = components.areConnected(v0, v1) ? 0 : 1;
+    }
 }
 
 /// Algorithm for the Set Partition Problem.
@@ -162,12 +153,8 @@ ilp(
     ELA& outputLabels,
     size_t numberOfIterations = std::numeric_limits<size_t>::max()
 ) {
-    struct Visitor
+    struct EmptyVisitor
     {
-        bool operator()() const
-        {
-            return true;
-        }
     } visitor;
 
     ilp<ILP>(graph, edgeCosts, inputLabels, outputLabels, visitor, numberOfIterations);
@@ -183,15 +170,23 @@ ilp(
     VIS& visitor,
     size_t numberOfIterations = std::numeric_limits<size_t>::max()
 ) {
-    struct SubgraphWithCut {
-        SubgraphWithCut(const ILP& ilp)
-            : ilp_(ilp) 
-            {}
+    struct SubgraphWithCut
+    {
+        SubgraphWithCut(const ILP& ilp) :
+            ilp_(ilp) 
+        {}
+
         bool vertex(const size_t v) const
-            { return true; }
+        {
+            return true;
+        }
+        
         bool edge(const size_t e) const
-            { return ilp_.label(e) < .5; }
-        const ILP& ilp_;
+        {
+            return ilp_.label(e) < .5;
+        }
+        
+        ILP const& ilp_;
     };
 
     ILP ilp;
@@ -207,8 +202,8 @@ ilp(
             {
                 variables[2] = edge;
 
-                auto v0 = graph.vertexOfEdge(edge, 0);
-                auto v1 = graph.vertexOfEdge(edge, 1);
+                auto const v0 = graph.vertexOfEdge(edge, 0);
+                auto const v1 = graph.vertexOfEdge(edge, 1);
 
                 for (size_t i = 0; i < graph.numberOfVertices(); ++i)
                 {
@@ -239,9 +234,6 @@ ilp(
 
     for (size_t i = 0; numberOfIterations == 0 || i < numberOfIterations; ++i)
     {
-        if (!visitor())
-            break;
-
         ilp.optimize();
 
         if (addCycleInequalities() == 0)
@@ -253,8 +245,8 @@ ilp(
 
     for (size_t edge = 0; edge < graph.numberOfEdges(); ++edge)
     {
-        auto v0 = graph.vertexOfEdge(edge, 0);
-        auto v1 = graph.vertexOfEdge(edge, 1);
+        auto const v0 = graph.vertexOfEdge(edge, 0);
+        auto const v1 = graph.vertexOfEdge(edge, 1);
 
         outputLabels[edge] = components.areConnected(v0, v1) ? 0 : 1;
     }

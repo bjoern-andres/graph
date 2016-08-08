@@ -6,7 +6,6 @@
 #include <deque>
 #include <algorithm>
 
-#include <andres/graph/complete-graph.hxx>
 #include <andres/graph/shortest-paths.hxx>
 
 
@@ -18,12 +17,8 @@ template<typename LP, typename GRAPH, typename ECA>
 inline
 std::vector<double> lp(GRAPH const& graph, ECA const& edgeCosts, size_t numberOfIterations = std::numeric_limits<size_t>::max())
 {
-    struct Visitor
+    struct EmptyVisitor
     {
-        bool operator()() const
-        {
-            return true;
-        }
     } visitor;
 
     return lp<LP>(graph, edgeCosts, visitor, numberOfIterations);
@@ -55,8 +50,8 @@ std::vector<double> lp(GRAPH const& graph, ECA const& edgeCosts, VIS& visitor, s
         size_t nCycle = 0;
         for (size_t edge = 0; edge < graph.numberOfEdges(); ++edge) 
         {
-            auto v0 = graph.vertexOfEdge(edge, 0);
-            auto v1 = graph.vertexOfEdge(edge, 1);
+            auto const v0 = graph.vertexOfEdge(edge, 0);
+            auto const v1 = graph.vertexOfEdge(edge, 1);
 
             // search for shortest path
             double distance;
@@ -69,7 +64,7 @@ std::vector<double> lp(GRAPH const& graph, ECA const& edgeCosts, VIS& visitor, s
                     if (it1 == path.begin() && it2 == path.end() - 1)
                         continue;
 
-                    auto e = graph.findEdge(*it1, *it2);
+                    auto const e = graph.findEdge(*it1, *it2);
                     if (e.first && std::min(std::max(.0, lp.variableValue(e.second)), 1.0) > distances[*it2] - distances[*it1] + tolerance)
                     {
                         chordless = false;
@@ -105,9 +100,6 @@ std::vector<double> lp(GRAPH const& graph, ECA const& edgeCosts, VIS& visitor, s
 
     for (size_t i = 0; numberOfIterations == 0 || i < numberOfIterations; ++i)
     {
-        if (!visitor())
-            break;
-
         lp.optimize();
 
         if (addCycleInequalities() == 0)
@@ -115,7 +107,6 @@ std::vector<double> lp(GRAPH const& graph, ECA const& edgeCosts, VIS& visitor, s
     }
 
     std::vector<double> edge_values(graph.numberOfEdges());
-
     for (size_t i = 0; i < graph.numberOfEdges(); ++i)
         edge_values[i] = lp.variableValue(i);
 

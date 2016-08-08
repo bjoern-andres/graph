@@ -44,6 +44,7 @@ include_directories(${HDF5_INCLUDE_DIR})
 find_package(GUROBI)
 if(GUROBI_FOUND)
     include_directories(${GUROBI_INCLUDE_DIR})
+    add_definitions("-DWITH_GUROBI")
 endif()
 
 ##############################################################################
@@ -134,24 +135,19 @@ if(GUROBI_FOUND)
     add_executable(test-graph-multicut-ilp-callback src/andres/graph/unit-test/multicut/ilp-callback.cxx ${headers})
     target_link_libraries(test-graph-multicut-ilp-callback ${CMAKE_THREAD_LIBS_INIT} ${GUROBI_CPP_LIBRARY} ${GUROBI_LIBRARY})
     add_test(test-graph-multicut-ilp-callback test-graph-multicut-ilp-callback)
+
+    add_executable(test-graph-multicut-lifted-ilp src/andres/graph/unit-test/multicut-lifted/ilp.cxx ${headers})
+    target_link_libraries(test-graph-multicut-lifted-ilp ${CMAKE_THREAD_LIBS_INIT} ${GUROBI_CPP_LIBRARY} ${GUROBI_LIBRARY})
+    add_test(test-graph-multicut-lifted-ilp test-graph-multicut-lifted-ilp)
+
+    add_executable(test-graph-multicut-lifted-ilp-callback src/andres/graph/unit-test/multicut-lifted/ilp-callback.cxx ${headers})
+    target_link_libraries(test-graph-multicut-lifted-ilp-callback ${CMAKE_THREAD_LIBS_INIT} ${GUROBI_CPP_LIBRARY} ${GUROBI_LIBRARY})
+    add_test(test-graph-multicut-lifted-ilp-callback test-graph-multicut-lifted-ilp-callback)
 endif()
 
 if(DOXYGEN_FOUND)
     configure_file("${graph_SOURCE_DIR}/doxygen/doxyfile-graph.in" "${graph_BINARY_DIR}/doxyfile-graph" @ONLY IMMEDIATE)
     add_custom_target(doc-graph ALL COMMAND ${DOXYGEN} "${graph_BINARY_DIR}/doxyfile-graph")
-endif()
-
-if((COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11) AND GUROBI_FOUND AND HDF5_FOUND)
-    include_directories(src)
-
-    add_executable(solve-mp src/command-line-tools/solve-mp.cxx ${headers})
-    target_link_libraries(solve-mp ${HDF5_LIBRARIES} ${GUROBI_LIBRARIES})
-
-    add_executable(solve-mp-complete-graph src/command-line-tools/solve-mp-complete-graph.cxx ${headers})
-    target_link_libraries(solve-mp-complete-graph ${HDF5_LIBRARIES} ${GUROBI_LIBRARIES})
-
-    add_executable(solve-mp-grid-graph src/command-line-tools/solve-mp-grid-graph.cxx ${headers})
-    target_link_libraries(solve-mp-grid-graph ${HDF5_LIBRARIES} ${GUROBI_LIBRARIES})
 endif()
 
 if((COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11) AND HDF5_FOUND)
@@ -165,6 +161,15 @@ if((COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11) AND HDF5_FOUND)
 
     add_executable(lift-mp-grid-graph src/command-line-tools/lift-mp-grid-graph.cxx ${headers})
     target_link_libraries(lift-mp-grid-graph ${HDF5_LIBRARIES})
+
+    add_executable(solve-mp src/command-line-tools/solve-mp.cxx ${headers})
+    target_link_libraries(solve-mp ${HDF5_LIBRARIES} ${GUROBI_LIBRARIES})
+
+    add_executable(solve-mp-complete-graph src/command-line-tools/solve-mp-complete-graph.cxx ${headers})
+    target_link_libraries(solve-mp-complete-graph ${HDF5_LIBRARIES} ${GUROBI_LIBRARIES})
+
+    add_executable(solve-mp-grid-graph src/command-line-tools/solve-mp-grid-graph.cxx ${headers})
+    target_link_libraries(solve-mp-grid-graph ${HDF5_LIBRARIES} ${GUROBI_LIBRARIES})
 
     add_executable(solve-lmp src/command-line-tools/solve-lmp.cxx ${headers})
     target_link_libraries(solve-lmp ${HDF5_LIBRARIES} ${GUROBI_LIBRARIES})
