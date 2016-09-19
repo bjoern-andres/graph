@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <cstddef>
 #include <iterator>
 #include <vector>
@@ -100,7 +101,7 @@ void greedyFixation(
 
         bool operator <(Edge const& other) const
         {
-            return fabs(w) < fabs(other.w);
+            return std::abs(w) < std::abs(other.w);
         }
     };
 
@@ -132,7 +133,7 @@ void greedyFixation(
 
         if (!original_graph_cp.edgeExists(edge.a, edge.b) || edge.edition < edge_editions[edge.a][edge.b])
             continue;
-        
+
         if (edge.w > typename EVA::value_type() && !original_graph_cp.isCutEdge(edge.a, edge.b))
         {
             auto stable_vertex = edge.a;

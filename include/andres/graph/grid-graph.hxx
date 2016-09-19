@@ -9,6 +9,7 @@
 #include <iterator>
 #include <array>
 #include <initializer_list>
+#include <type_traits>
 
 #include "adjacency.hxx"
 #include "visitor.hxx"
@@ -53,7 +54,7 @@ public:
                 std::random_access_iterator_tag,
                 const AdjacencyType
             >  {
-    public:        
+    public:
         typedef GridGraph<DIMENSION, Visitor> GraphType;
         typedef std::iterator <
                 std::random_access_iterator_tag,
@@ -191,9 +192,9 @@ public:
     size_type shape(const size_type) const;
 
     size_type vertex(const VertexCoordinate&) const;
-    void vertex(const size_type, VertexCoordinate&) const;
+    void vertex(size_type, VertexCoordinate&) const;
     size_type edge(const EdgeCoordinate&) const;
-    void edge(const size_type, EdgeCoordinate&) const;
+    void edge(size_type, EdgeCoordinate&) const;
 
 private:
     size_type vertexFromVertex(const VertexCoordinate&, const size_type, size_type&, bool&) const;
@@ -1408,5 +1409,3 @@ GridGraph<D, VISITOR>::EdgeIterator::operator[](
 } // namespace andres
 
 #endif // #ifndef ANDRES_GRAPH_GRID_GRAPH_HXX
-
-

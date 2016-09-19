@@ -12,7 +12,6 @@ namespace andres {
 namespace graph {
 namespace hdf5 {
 
-template<>
 template<class VISITOR>
 struct GraphTraitsHDF5<CompleteGraph<VISITOR> > {
     static const int ID;

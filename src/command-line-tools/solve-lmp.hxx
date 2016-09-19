@@ -1,3 +1,4 @@
+#include <numeric>
 #include <stdexcept>
 #include <iostream>
 
@@ -75,7 +76,7 @@ try
 
     if (!argOptimizationMethod.isSet())
         throw std::runtime_error("No optimization method specified");
-    
+
     if (argOptimizationMethod.getValue() == "GAEC")
         parameters.optimizationMethod = Method::GAEC;
     else if (argOptimizationMethod.getValue() == "zeros")
@@ -101,7 +102,7 @@ try
         {
             if(argInitializationMethod.isSet())
                 throw std::runtime_error("Either initialization method or initial labeling must be specified.");
-            
+
             parameters.labelingHDF5FileName = argLabelingHDF5FileName.getValue();
             parameters.initialization = Initialization::Input_Labeling;
         }
@@ -139,7 +140,7 @@ void solveLiftedMulticutProblem(
     {
         auto fileHandle = andres::graph::hdf5::openFile(parameters.inputHDF5FileName);
 
-        andres::graph::hdf5::load(fileHandle, "graph", original_graph);        
+        andres::graph::hdf5::load(fileHandle, "graph", original_graph);
         andres::graph::hdf5::load(fileHandle, "graph-lifted", lifted_graph);
 
         std::vector<size_t> shape;
@@ -161,7 +162,7 @@ void solveLiftedMulticutProblem(
 
     // Solve Lifted Multicut problem
     std::vector<char> edge_labels(lifted_graph.numberOfEdges());
-    
+
     Timer t;
     t.start();
 
@@ -208,12 +209,12 @@ void solveLiftedMulticutProblem(
 
         t.stop();
 
-        auto energy_value = inner_product(edge_values.begin(), edge_values.end(), values.begin(), .0);
+        auto energy_value = std::inner_product(edge_values.begin(), edge_values.end(), values.begin(), .0);
 
         if (!parameters.outputHDF5FileName.empty())
         {
             auto file = andres::graph::hdf5::createFile(parameters.outputHDF5FileName);
-            
+
             andres::graph::hdf5::save(file, "graph", original_graph);
             andres::graph::hdf5::save(file, "energy-value", energy_value);
             andres::graph::hdf5::save(file, "running-time", t.get_elapsed_seconds());
@@ -231,13 +232,13 @@ void solveLiftedMulticutProblem(
 #endif
     else
         throw std::runtime_error("Unsupported algorithm");
-    
+
     t.stop();
-    
+
     stream << "saving decomposition into file: " << parameters.outputHDF5FileName << std::endl;
     {
         auto file = andres::graph::hdf5::createFile(parameters.outputHDF5FileName);
-        
+
         andres::graph::hdf5::save(file, "graph", original_graph);
 
         std::vector<size_t> vertex_labels(lifted_graph.numberOfVertices());
@@ -245,7 +246,7 @@ void solveLiftedMulticutProblem(
 
         andres::graph::hdf5::save(file, "labels", { vertex_labels.size() }, vertex_labels.data());
 
-        auto energy_value = inner_product(edge_values.begin(), edge_values.end(), edge_labels.begin(), .0);
+        auto energy_value = std::inner_product(edge_values.begin(), edge_values.end(), edge_labels.begin(), .0);
 
         andres::graph::hdf5::save(file, "energy-value", energy_value);
         andres::graph::hdf5::save(file, "running-time", t.get_elapsed_seconds());
@@ -253,7 +254,7 @@ void solveLiftedMulticutProblem(
         std::vector<char> true_edge_labels(lifted_graph.numberOfEdges());
         vertexToEdgeLabels(original_graph, lifted_graph, vertex_labels, true_edge_labels);
 
-        auto true_energy_value = inner_product(edge_values.begin(), edge_values.end(), true_edge_labels.begin(), .0);        
+        auto true_energy_value = std::inner_product(edge_values.begin(), edge_values.end(), true_edge_labels.begin(), .0);
 
         andres::graph::hdf5::save(file, "true-energy-value", true_energy_value);
 

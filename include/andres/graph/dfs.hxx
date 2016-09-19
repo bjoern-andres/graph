@@ -25,7 +25,7 @@ public:
     DepthFirstSearchData(const GRAPH& graph)
         :   visited_(graph.numberOfVertices())
         {}
-    size_type add(const size_type v)
+    void add(const size_type v)
         { stack_.push(v); }
     void clearStack()
         { stack_ = std::stack<size_type>(); }
@@ -140,18 +140,18 @@ depthFirstSearch(
         if (!data.visited(v))
         {
             data.visited(v) = 1;
-            
+
             bool proceed;
             bool addNeighbors;
 
             callback(v, proceed, addNeighbors);
-            
+
             if (!proceed)
             {
                 data.clearStack();
                 return;
             }
-            
+
             if (addNeighbors)
             {
                 auto e_it = g.edgesFromVertexBegin(v);
