@@ -9,7 +9,6 @@
 #include <iterator>
 #include <array>
 #include <initializer_list>
-#include <type_traits>
 
 #include "adjacency.hxx"
 #include "visitor.hxx"
