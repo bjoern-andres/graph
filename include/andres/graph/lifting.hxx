@@ -4,7 +4,8 @@
 
 #include <cassert>
 #include <cstddef>
-#include <cmath>
+#include <cstdlib> // std::abs
+#include <cmath> // std::abs since c++17
 #include <stdexcept>
 #include <iterator> // std::iterator_traits
 #include <algorithm> // std::fill
@@ -118,7 +119,7 @@ lift(
             {
                 const std::size_t offsetX = (metric == LiftingMetric::PathLength) ?
                                             distanceUpperBound - offsetY:
-                                            ::floor(::sqrt(distanceUpperBoundSquared - offsetY * offsetY));
+                                            std::floor(std::sqrt(distanceUpperBoundSquared - offsetY * offsetY));
 
                 const std::size_t col0 = cv[0] < offsetX ? 0 : cv[0] - offsetX;
                 std::size_t colN = cv[0] + offsetX;
@@ -129,7 +130,8 @@ lift(
                 {
                     if (metric == LiftingMetric::PathLength)
                     {
-                        const std::size_t distance = std::abs(x - cv[0]) + std::abs(yPlus - 1 - cv[1]);
+                        const std::size_t distance = std::abs(static_cast<long>(x - cv[0]))
+                            + std::abs(static_cast<long>(yPlus - 1 - cv[1]));
 
                         if (distance > distanceLowerBound)
                         {
@@ -189,7 +191,7 @@ lift(
             {
                 const std::size_t offsetX = (metric == LiftingMetric::PathLength) ?
                                             distanceUpperBound - offsetY :
-                                            ::floor(::sqrt(distanceUpperBoundSquared - offsetY * offsetY));
+                                            std::floor(std::sqrt(distanceUpperBoundSquared - offsetY * offsetY));
 
                 const std::size_t col0 = cv[0] < offsetX ? 0 : cv[0] - offsetX;
                 std::size_t colN = cv[0] + offsetX;

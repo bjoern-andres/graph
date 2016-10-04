@@ -64,6 +64,28 @@ void testLiftGridGraphPathLengthMetric() {
             andres::graph::Graph<> graphLifted;
             andres::graph::lift(graph, graphLifted, distanceUpperBound, distanceLowerBound); // tested by function testLiftGraph
 
+            /*
+            std::cout << "lb=" << distanceLowerBound
+                << ", up=" << distanceUpperBound
+                << std::endl;
+            for(size_t v = 0; v < gridGraph.numberOfVertices(); ++v) {
+                andres::graph::GridGraph<2>::VertexCoordinate vc;
+                gridGraph.vertex(v, vc);
+                std::cout << "neighbors of node "
+                    << "(" << vc[0] << ", " << vc[1] << ")" << std::endl;
+                for(auto it = graphLifted.verticesFromVertexBegin(v); it != graphLifted.verticesFromVertexEnd(v); ++it) {
+                    gridGraph.vertex(*it, vc);
+                    std::cout << "(" << vc[0] << ", " << vc[1] << ") ";
+                }
+                std::cout << std::endl;
+                for(auto it = gridGraphLifted.verticesFromVertexBegin(v); it != gridGraphLifted.verticesFromVertexEnd(v); ++it) {
+                    gridGraph.vertex(*it, vc);
+                    std::cout << "(" << vc[0] << ", " << vc[1] << ") ";
+                }
+                std::cout << std::endl;
+            }
+            */
+
             test(gridGraphLifted.numberOfVertices() == gridGraph.numberOfVertices());
             test(gridGraphLifted.numberOfEdges() == graphLifted.numberOfEdges());
             for(size_type v = 0; v < graphLifted.numberOfVertices(); ++v)
