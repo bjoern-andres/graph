@@ -6,7 +6,7 @@
 #include <iterator>
 #include <vector>
 #include <type_traits>
-        
+
 #include <andres/graph/grid-graph.hxx>
 
 
@@ -49,9 +49,9 @@ public:
 /// Implementation by Margret Keuper <keuper@mpi-inf.mpg.de>
 /// of the algorithm defined in:
 ///
-/// J.A. Sethian. Level Set Methods and Fast Marching Methods. In: 
-/// Evolving Interfaces in Computational Geometry, Fluid Mechanics, 
-/// Computer Vision and Materials Science. Cambridge University Press, 
+/// J.A. Sethian. Level Set Methods and Fast Marching Methods. In:
+/// Evolving Interfaces in Computational Geometry, Fluid Mechanics,
+/// Computer Vision and Materials Science. Cambridge University Press,
 /// 1999.
 ///
 /// \param inputGraph input graph.
@@ -102,7 +102,7 @@ fastMarching(
     typedef typename InputGraph::EdgeCoordinate EdgeCoordinate;
     typedef typename std::iterator_traits<TARGET_EDGE_VALUE_ITERATOR>::value_type Value;
     typedef typename detail::my_make_signed<Value>::type signedValue;
-    if(interpolationOrder < 0 || interpolationOrder > 1) {
+    if(interpolationOrder > 1) {
         throw std::runtime_error("specified interpolation order not implemented.");
     }
 
@@ -113,10 +113,10 @@ fastMarching(
     const Value infinity = std::numeric_limits<Value>::has_infinity
         ? std::numeric_limits<Value>::infinity()
         : std::numeric_limits<Value>::max();
-    
+
     // make explicit, for each vertex:
     // - if it is a neighbor of sourceVertex in the targret graph
-    // - if so, what the index of the connecting edge is (-1 if none) 
+    // - if so, what the index of the connecting edge is (-1 if none)
     // initialize isVertexFrozen is a Boolean vector with
     // - size targetGraph.numberOfVertices()
     // - isVertexFrozen[v] == 1 iff, for the edge e = (sourceVertex, v) in the target graph, targetEdgeValues[e] < infinity
@@ -124,24 +124,24 @@ fastMarching(
 
     // buffers.targetEdgeOfVertexWithSource_.resize(targetGraph.numberOfVertices());
     std::fill(
-        buffers.targetEdgeOfVertexWithSource_.begin(), 
-        buffers.targetEdgeOfVertexWithSource_.end(), 
+        buffers.targetEdgeOfVertexWithSource_.begin(),
+        buffers.targetEdgeOfVertexWithSource_.end(),
         maxEdge + 1
     );
-    
+
     size_type numberOfVerticesLeft = targetGraph.numberOfEdgesFromVertex(sourceVertex);
 
     // buffers.isVertexFrozen_.resize(targetGraph.numberOfVertices());
     std::fill(buffers.isVertexFrozen_.begin(), buffers.isVertexFrozen_.end(), 0);
-    
+
     // buffers.distances_.resize(targetGraph.numberOfVertices());
     std::fill(buffers.distances_.begin(), buffers.distances_.end(), infinity);
-    
+
     buffers.distances_[sourceVertex] = 0;
- 
+
     for (auto it = targetGraph.adjacenciesFromVertexBegin(sourceVertex); it != targetGraph.adjacenciesFromVertexEnd(sourceVertex); ++it)
         buffers.targetEdgeOfVertexWithSource_[it->vertex()] = it->edge();
-    
+
     struct elem
     {
         size_type v;
@@ -171,7 +171,7 @@ fastMarching(
 
         auto frozenVertex = trial.top().v;
         auto minArrivalTime = trial.top().minArrivalTime;
-        
+
         trial.pop();
 
         buffers.isVertexFrozen_[frozenVertex] = 1;
@@ -185,11 +185,11 @@ fastMarching(
             }
 
             --numberOfVerticesLeft;
-            
+
             if (numberOfVerticesLeft == 0)
                 return; // all target edge values of interest computed (exactly)
         }
-        
+
         // For each neighbor u of frozenVertex do unless isFrozen[u]
         // 1. Calculate arrival-time
         // 2. Insert u into trial set or update arrival time of u if already in the trial set.
@@ -205,20 +205,20 @@ fastMarching(
                 // Compute Arrival time
                 std::array<Value, 2> d;
                 std::array<Value, 2> T = {{infinity,infinity}};
-                
+
                 EdgeCoordinate veCoord;
                 for (size_type au_id = 0; au_id < inputGraph.numberOfEdgesFromVertex(u); ++au_id)
                 {
                     const Adjacency& au = inputGraph.adjacencyFromVertex(u, au_id);
                     const size_type v = au.vertex();
                     const size_type ve = au.edge();
-                    
+
                     inputGraph.edge(ve, veCoord);
 
                     const size_type dimension = veCoord.dimension_; // Dimension along which the edge runs (0=horiz)
                     const Value edgeWeight = inputEdgeValues[ve];
                     const Value vDistance = buffers.distances_[v];
-                    
+
                     if (vDistance == infinity)
                         continue; // Otherwise addition overflows
 
@@ -235,14 +235,14 @@ fastMarching(
                 if (T[0] < infinity)
                     if (T[1] < infinity)
                         at = std::min(T[1] + d[1], T[0] + d[0]);
-                    else 
+                    else
                         at = T[0] + d[0];
                 else
-                    if (T[1] < infinity) 
+                    if (T[1] < infinity)
                         at = T[1] + d[1];
                     else
                         at = T[1];//set to infinity in this case
-        
+
                 if (interpolationOrder == 1)
                 {
                     const Value inverseSpeed = 1;  // unexposed algorithm parameter. if large causality is violated.
@@ -254,7 +254,7 @@ fastMarching(
                         const signedValue summand = (dy2*T[0] + dx2*T[1])/denom;
                         const signedValue nom = inverseSpeed*dx2*dy2 - dy2*T[0]*T[0] - dx2*T[1]*T[1];
                         const signedValue squared = nom/denom + summand*summand;
-                        
+
                         if(squared >= 0)
                             at = std::min(at, static_cast<Value>(summand + std::sqrt(squared)));
                     }

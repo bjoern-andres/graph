@@ -110,7 +110,7 @@ void kernighanLin(
 
     // interatively update bipartition in order to minimize the total cost of the multicut
     for (std::size_t k = 0; k < settings.numberOfOuterIterations; ++k)
-    {        
+    {
         auto energy_decrease = .0;
 
         std::vector<std::unordered_set<std::size_t>> edges(numberOfComponents);
@@ -152,12 +152,12 @@ void kernighanLin(
                 continue;
 
             bool flag = true;
-            
+
             while (flag && !visitor.time_limit_exceeded())
             {
                 std::vector<std::size_t> new_set;
                 energy_decrease += twocut_lifted::kernighanLin(original_graph, lifted_graph, edgeCosts, partitions[i], new_set, twocut_buffers, twocut_settings);
-                
+
                 flag = !new_set.empty();
 
                 if (!new_set.empty())
@@ -167,9 +167,9 @@ void kernighanLin(
 
         if (energy_decrease == .0)
             break;
-        
+
         std::stack<std::size_t> S;
-        
+
         std::fill(visited.begin(), visited.end(), 0);
 
         // do connected component labeling on the original graph
@@ -211,7 +211,7 @@ void kernighanLin(
             if (twocut_buffers.referenced_by[v0] != twocut_buffers.referenced_by[v1])
                 new_energy_value += edgeCosts[i];
         }
-        
+
         // if the new true energy is higher, than the current one, revert the changes and terminate
         if (new_energy_value >= current_energy_value - settings.epsilon)
         {
@@ -225,7 +225,7 @@ void kernighanLin(
 
             break;
         }
-        
+
         // otherwise, form new partitions
         partitions.clear();
         partitions.resize(numberOfComponents);
@@ -233,7 +233,7 @@ void kernighanLin(
         for (std::size_t i = 0; i < original_graph.numberOfVertices(); ++i)
         {
             twocut_buffers.vertex_labels[i] = twocut_buffers.referenced_by[i];
-            
+
             partitions[twocut_buffers.vertex_labels[i]].push_back(i);
         }
 
@@ -316,9 +316,9 @@ void kernighanLin(
     const KernighanLinSettings settings = KernighanLinSettings())
 {
     struct Visitor {
-        constexpr bool operator()(std::vector<std::size_t>& vertex_labels)
+        constexpr bool operator()(std::vector<std::size_t>& vertex_labels) const
             { return true; }
-        constexpr bool time_limit_exceeded()
+        constexpr bool time_limit_exceeded() const
             { return false; }
     } visitor;
 

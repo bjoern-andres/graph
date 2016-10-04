@@ -13,7 +13,6 @@ namespace andres {
 namespace graph {
 namespace hdf5 {
 
-template<>
 template<class VISITOR>
 struct GraphTraitsHDF5<Digraph<VISITOR> > {
     static const int ID;
@@ -36,7 +35,7 @@ save(
 ) {
     HandleCheck<ANDRES_GRAPH_HDF5_DEBUG> handleCheck;
     hid_t groupHandle = openGroup(parentHandle, graphName,true);
-    
+
     try {
         save(groupHandle, "graph-type-id", GraphTraitsHDF5<Digraph<VISITOR> >::ID);
         save(groupHandle, "multiple-edges-enabled", static_cast<unsigned char>(graph.multipleEdgesEnabled()));
@@ -70,9 +69,9 @@ load(
 ) {
     HandleCheck<ANDRES_GRAPH_HDF5_DEBUG> handleCheck;
     hid_t groupHandle = openGroup(parentHandle, graphName);
-    
+
     std::string sError;
-    
+
     try {
         int id = 0;
         load(groupHandle, "graph-type-id", id);

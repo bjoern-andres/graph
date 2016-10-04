@@ -32,7 +32,7 @@ lift(
 
     if(outputGraph.numberOfVertices() != 0)
         throw std::runtime_error("output graph is not empty.");
-    
+
     outputGraph.insertVertices(inputGraph.numberOfVertices());
 
     BreadthFirstSearchData<size_type> breadthFirstSearchData(inputGraph.numberOfVertices());
@@ -48,13 +48,13 @@ lift(
             {
                 proceed = true;
                 add = false;
-                
+
                 if (depth <= distanceUpperBound)
                 {
                     if (depth + 1 <= distanceUpperBound)
                     {
                         add = true;
-                        visited.push_back(w);        
+                        visited.push_back(w);
                     }
 
                     if (depth > distanceLowerBound)
@@ -74,7 +74,7 @@ lift(
         breadthFirstSearchData.depth(v) = BreadthFirstSearchData<size_type>::NOT_VISITED;
         for (auto w : visited)
             breadthFirstSearchData.depth(w) = BreadthFirstSearchData<size_type>::NOT_VISITED;
-        
+
         visited.clear();
     }
 }
@@ -124,12 +124,12 @@ lift(
                 std::size_t colN = cv[0] + offsetX;
                 if(colN > inputGraph.shape(0) - 1)
                     colN = inputGraph.shape(0) - 1;
-                
+
                 for (std::size_t x = col0; x <= colN; ++x)
                 {
                     if (metric == LiftingMetric::PathLength)
                     {
-                        const std::size_t distance = ::abs(x - cv[0]) + ::abs(yPlus - 1 - cv[1]);
+                        const std::size_t distance = std::abs(x - cv[0]) + std::abs(yPlus - 1 - cv[1]);
 
                         if (distance > distanceLowerBound)
                         {
@@ -160,7 +160,7 @@ lift(
 
             if (colN > inputGraph.shape(0) - 1)
                 colN = inputGraph.shape(0) - 1;
-            
+
             if (cv[0] > distanceLowerBound)
                 for (std::size_t x = col0; x <= cv[0] - distanceLowerBound - 1; ++x)
                 {
@@ -180,7 +180,7 @@ lift(
         {
             const std::size_t row0 = cv[1] + 1;
             std::size_t rowN = cv[1] + distanceUpperBound;
-            
+
             if (cv[1] + distanceUpperBound > inputGraph.shape(1) - 1)
                 rowN = inputGraph.shape(1) - 1;
 
@@ -190,7 +190,7 @@ lift(
                 const std::size_t offsetX = (metric == LiftingMetric::PathLength) ?
                                             distanceUpperBound - offsetY :
                                             ::floor(::sqrt(distanceUpperBoundSquared - offsetY * offsetY));
-                
+
                 const std::size_t col0 = cv[0] < offsetX ? 0 : cv[0] - offsetX;
                 std::size_t colN = cv[0] + offsetX;
 
@@ -201,8 +201,8 @@ lift(
                 {
                     if (metric == LiftingMetric::PathLength)
                     {
-                        const std::size_t distance = ::abs(x - cv[0]) + ::abs(y - cv[1]);
-                        
+                        const std::size_t distance = std::abs(x - cv[0]) + std::abs(y - cv[1]);
+
                         if (distance > distanceLowerBound)
                         {
                             const size_type w = inputGraph.vertex({{x, y}});

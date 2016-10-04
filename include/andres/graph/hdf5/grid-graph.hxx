@@ -14,7 +14,6 @@ namespace andres {
 namespace graph {
 namespace hdf5 {
 
-template<>
 template<unsigned char D, class VISITOR>
 struct GraphTraitsHDF5<GridGraph<D, VISITOR> > {
     static const int ID;
@@ -65,7 +64,7 @@ load(
 ) {
     HandleCheck<ANDRES_GRAPH_HDF5_DEBUG> handleCheck;
     hid_t groupHandle = openGroup(parentHandle, graphName);
-    
+
     std::string sError;
     try {
         int id;
