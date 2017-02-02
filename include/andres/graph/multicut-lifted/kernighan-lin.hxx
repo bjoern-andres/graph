@@ -305,7 +305,7 @@ auto kernighanLin(
         return partitions;
     };
 
-    auto project_onto_feasable_set = [&original_graph, &lifted_graph] (std::vector<size_t> const& vertex_labels)
+    auto project_onto_feasable_set = [&original_graph] (std::vector<size_t> const& vertex_labels)
     {
         std::stack<size_t> S;
         std::vector<char> visited(original_graph.numberOfVertices());
