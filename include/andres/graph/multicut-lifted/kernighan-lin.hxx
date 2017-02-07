@@ -409,12 +409,16 @@ auto kernighanLin(
     }
 
     auto last_good_vertex_labels = buffer.vertex_labels;
-
-    // 1 if i-th partitioned changed since last iteration, 0 otherwise
-    std::vector<char> changed(partitions.size(), 1);
+    auto vertex_labels_for_changed_thing = buffer.vertex_labels;
 
     for (size_t k = 0; k < settings.numberOfOuterIterations; ++k)
     {
+        // 1 if i-th partitioned changed since last iteration, 0 otherwise
+        std::vector<char> changed(partitions.size(), 1);
+
+        if (k > 0)
+            changed = mark_partitions_that_changed_shape(vertex_labels_for_changed_thing, buffer.vertex_labels);
+
         std::vector<std::set<size_t>> edges(partitions.size());
         for (size_t e = 0; e < original_graph.numberOfEdges(); ++e)
         {
@@ -448,7 +452,7 @@ auto kernighanLin(
 
 
         if (k > 0)
-            changed = mark_partitions_that_changed_shape(last_good_vertex_labels, buffer.vertex_labels);
+            changed = mark_partitions_that_changed_shape(vertex_labels_for_changed_thing, buffer.vertex_labels);
         else
             changed.resize(partitions.size(), 1);
 
@@ -497,7 +501,7 @@ auto kernighanLin(
         if (didnt_change)
             break;
 
-        changed = mark_partitions_that_changed_shape(last_good_vertex_labels, buffer.vertex_labels);
+        vertex_labels_for_changed_thing = last_good_vertex_labels;
 
         last_good_vertex_labels = buffer.vertex_labels;
 
