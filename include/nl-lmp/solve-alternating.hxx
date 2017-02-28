@@ -2,10 +2,6 @@
 #ifndef NL_LMP_SOLVE_ALTERNATING_HXX
 #define NL_LMP_SOLVE_ALTERNATING_HXX
 
-#include "andres/graph/complete-graph.hxx"
-#include "andres/graph/multicut-lifted/kernighan-lin.hxx"
-#include "andres/graph/multicut/kernighan-lin.hxx"
-
 #include "detail/update-class-labels.hxx"
 #include "detail/call-multicut-solver.hxx"
 
