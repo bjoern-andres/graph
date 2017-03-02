@@ -5,7 +5,6 @@
 #include <andres/graph/components.hxx>
 #include <andres/graph/paths.hxx>
 #include <andres/graph/shortest-paths.hxx>
-#include <levinkov/timer.hxx>
 
 #include "problem.hxx"
 #include "solution.hxx"
@@ -83,10 +82,9 @@ Solution ilp_callback(Problem<GRAPH> const& problem, Solution const& input, VISI
     class Callback: public ILP::Callback
     {
     public:
-        Callback(ILP& solver, Problem<GRAPH> const& problem, levinkov::Timer& t, VISITOR& visitor) :
+        Callback(ILP& solver, Problem<GRAPH> const& problem, VISITOR& visitor) :
             ILP::Callback(solver), problem_(problem),
             offsetY_(problem.numberOfVertices()*problem.numberOfClasses()),
-            t_(t),
             visitor_(visitor)
         {
 
@@ -94,17 +92,10 @@ Solution ilp_callback(Problem<GRAPH> const& problem, Solution const& input, VISI
 
         void separateAndAddLazyConstraints() override
         {
-            t_.stop();
-
-            std::cerr << t_.get_elapsed_seconds()
-                << '\t' << this->objectiveBound_
+            std::cerr << '\t' << this->objectiveBound_
                 << '\t' << this->objectiveBest_
                 << '\t' << this->objective()
                 << std::flush;
-            
-            visitor_(t_.get_elapsed_seconds(), this->objectiveBound_, this->objectiveBest_, this->objective());
-
-            t_.start();
 
             size_t n = 0;
 
@@ -178,8 +169,6 @@ Solution ilp_callback(Problem<GRAPH> const& problem, Solution const& input, VISI
             //     }
             // }
 
-            t_.stop();
-
             std::cerr << '\t' << n << std::endl;
 
             if (n == 0)
@@ -201,11 +190,7 @@ Solution ilp_callback(Problem<GRAPH> const& problem, Solution const& input, VISI
                             break;
                         }
                 }
-
-                visitor_(solution, t_.get_elapsed_seconds());
             }
-
-            t_.start();
         }
     private:
         struct SubgraphWithCut
@@ -237,12 +222,8 @@ Solution ilp_callback(Problem<GRAPH> const& problem, Solution const& input, VISI
         size_t const offsetY_;
 
         VISITOR& visitor_;
-
-        levinkov::Timer& t_;
     };
 
-    levinkov::Timer t;
-    t.start();
 
     ILP ilp;
 
@@ -447,7 +428,7 @@ Solution ilp_callback(Problem<GRAPH> const& problem, Solution const& input, VISI
         std::cout << n << std::endl;
     }
 
-    Callback callback(ilp, problem, t, visitor);
+    Callback callback(ilp, problem, visitor);
     ilp.setCallback(callback);
 
     ilp.optimize();
