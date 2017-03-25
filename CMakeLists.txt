@@ -119,6 +119,9 @@ if(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
     add_executable(test-graph-multicut-greedy-additive src/andres/graph/unit-test/multicut/greedy-additive.cxx ${headers})
     add_test(test-graph-multicut-greedy-additive test-graph-multicut-greedy-additive)
 
+    add_executable(test-graph-bipartite-matching src/andres/graph/unit-test/bipartite-matching.cxx ${headers})
+    add_test(test-graph-bipartite-matching test-graph-bipartite-matching)
+
     if(HDF5_FOUND)
         include_directories(PUBLIC ${HDF5_INCLUDE_DIRS})
         add_executable(test-hdf5 src/andres/graph/unit-test/hdf5.cxx ${headers})
