@@ -101,7 +101,7 @@ fastMarching(
     typedef typename InputGraph::AdjacencyType Adjacency;
     typedef typename InputGraph::EdgeCoordinate EdgeCoordinate;
     typedef typename std::iterator_traits<TARGET_EDGE_VALUE_ITERATOR>::value_type Value;
-    typedef typename detail::my_make_signed<Value>::type signedValue;
+    typedef typename ::detail::my_make_signed<Value>::type signedValue;
     if(interpolationOrder > 1) {
         throw std::runtime_error("specified interpolation order not implemented.");
     }

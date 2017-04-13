@@ -196,7 +196,7 @@ public:
 
     static_assert(std::is_same<pointer,value_type*>::value,"Iterator pointer type mismatch.");
     static_assert(std::is_same<reference,value_type&>::value,"Iterator pointer type mismatch.");
-    
+
     void operator()(iterator begin,iterator end) {
         difference_type d = std::distance(begin,end);
         assert(d>0);
@@ -223,7 +223,7 @@ void testIteratorCompile(G& g, size_t pivot) {
     typedef typename GridGraph::AdjacencyIterator AdjacencyIterator ;
     typedef typename GridGraph::VertexIterator VertexIterator;
     typedef typename GridGraph::EdgeIterator EdgeIterator;
-    
+
     {
         VertexIterator begin = g.verticesFromVertexBegin(pivot);
         VertexIterator end = g.verticesFromVertexEnd(pivot);
@@ -509,9 +509,9 @@ void testConstructionAndNumbers() {
     // Simple examples
     {
         GridGraphType gridGraph({6,5});
-        VertexCoordinate originCoordinate({{0,0}});
+        VertexCoordinate originCoordinate{{0,0}};
         size_t originIndex(0);
-        VertexCoordinate tenthCoordinate({{3,1}});
+        VertexCoordinate tenthCoordinate{{3,1}};
         size_t tenthIndex(9);
         test(originIndex == gridGraph.vertex(originCoordinate));
         test(tenthIndex == gridGraph.vertex(tenthCoordinate));
