@@ -36,7 +36,7 @@ public:
         if (v1 < v0)
             std::swap(c0, c1);
 
-        return pairwiseCutCosts_[liftedGraph().findEdge(v0, v1).second](c0, c1);
+        return pairwiseCutCosts_[edge_cost_index(liftedGraph().findEdge(v0, v1).second, c0, c1)];
     }
 
     // by using this method you agree to all consequences due to possible wrong indexing...
@@ -45,7 +45,7 @@ public:
         if (v1 < v0)
             std::swap(c0, c1);
 
-        return pairwiseCutCosts_[edge_index](c0, c1);
+        return pairwiseCutCosts_[edge_cost_index(edge_index, c0, c1)];
     }
 
     double getPairwiseJoinCost(size_t v0, size_t v1, size_t c0, size_t c1) const
@@ -53,7 +53,7 @@ public:
         if (v1 < v0)
             std::swap(c0, c1);
 
-        return pairwiseJoinCosts_[liftedGraph().findEdge(v0, v1).second](c0, c1);
+        return pairwiseJoinCosts_[edge_cost_index(liftedGraph().findEdge(v0, v1).second, c0, c1)];
     }
 
     // by using this method you agree to all consequences due to possible wrong indexing...
@@ -62,7 +62,7 @@ public:
         if (v1 < v0)
             std::swap(c0, c1);
 
-        return pairwiseJoinCosts_[edge_index](c0, c1);
+        return pairwiseJoinCosts_[edge_cost_index(edge_index, c0, c1)];
     }
 
     GraphType const& originalGraph() const
@@ -99,13 +99,14 @@ public:
             original_graph_.insertEdge(v0, v1);
 
         auto edge_index = lifted_graph_.insertEdge(v0, v1);
-        if (edge_index == pairwiseCutCosts_.size())
-        {
-            pairwiseCutCosts_.push_back(andres::Marray<double>({ numberOfClasses(), numberOfClasses() }));
-            pairwiseJoinCosts_.push_back(andres::Marray<double>({ numberOfClasses(), numberOfClasses() }));
-        }
+        if (edge_cost_index(edge_index, c0, c1) >= pairwiseCutCosts_.size())
+            for (size_t i = 0; i < numberOfClasses() * numberOfClasses(); ++i)
+            {
+                pairwiseCutCosts_.push_back(.0);
+                pairwiseJoinCosts_.push_back(.0);
+            }
 
-        pairwiseCutCosts_[edge_index](c0, c1) = value;
+        pairwiseCutCosts_[edge_cost_index(edge_index, c0, c1)] = value;
     }
 
     // by using this method you agree to all consequences due to possible wrong indexing...
@@ -114,7 +115,7 @@ public:
         if (v1 < v0)
             std::swap(c0, c1);
 
-        pairwiseCutCosts_[edge_index](c0, c1) = value;
+        pairwiseCutCosts_[edge_cost_index(edge_index, c0, c1)] = value;
     }
 
     void setPairwiseJoinCost(size_t v0, size_t v1, size_t c0, size_t c1, double value, bool add_edge_into_original_graph = true)
@@ -126,13 +127,14 @@ public:
             original_graph_.insertEdge(v0, v1);
 
         auto edge_index = lifted_graph_.insertEdge(v0, v1);
-        if (edge_index == pairwiseCutCosts_.size())
-        {
-            pairwiseCutCosts_.push_back(andres::Marray<double>({ numberOfClasses(), numberOfClasses() }));
-            pairwiseJoinCosts_.push_back(andres::Marray<double>({ numberOfClasses(), numberOfClasses() }));
-        }
+        if (edge_cost_index(edge_index, c0, c1) >= pairwiseCutCosts_.size())
+            for (size_t i = 0; i < numberOfClasses() * numberOfClasses(); ++i)
+            {
+                pairwiseCutCosts_.push_back(.0);
+                pairwiseJoinCosts_.push_back(.0);
+            }
 
-        pairwiseJoinCosts_[edge_index](c0, c1) = value;
+        pairwiseJoinCosts_[edge_cost_index(edge_index, c0, c1)] = value;
     }
 
     // by using this method you agree to all consequences due to possible wrong indexing...
@@ -141,18 +143,25 @@ public:
         if (v1 < v0)
             std::swap(c0, c1);
 
-        pairwiseJoinCosts_[edge_index](c0, c1) = value;
+        pairwiseJoinCosts_[edge_cost_index(edge_index, c0, c1)] = value;
     }
 
 private:
+    size_t edge_cost_index(size_t edge_index, size_t c0, size_t c1) const
+    {
+        return edge_index * numberOfClasses() * numberOfClasses() + c0 * numberOfClasses() + c1;
+    }
+
     GraphType original_graph_;
     LiftedGraphType lifted_graph_;
 
-    std::vector<andres::Marray<double>> pairwiseCutCosts_;
-    std::vector<andres::Marray<double>> pairwiseJoinCosts_;
+    std::vector<double> pairwiseCutCosts_;
+    std::vector<double> pairwiseJoinCosts_;
 
     andres::Marray<double> unaryCosts_;
 };
+
+
 
 template<typename GRAPHVISITOR>
 class Problem<andres::graph::CompleteGraph<GRAPHVISITOR>>
@@ -167,14 +176,8 @@ public:
 
         unaryCosts_.resize({ graph_.numberOfVertices(), numberOfClasses });
 
-        pairwiseCutCosts_.resize(graph_.numberOfEdges());
-        pairwiseJoinCosts_.resize(graph_.numberOfEdges());
-
-        for (size_t e = 0; e < graph_.numberOfEdges(); ++e)
-        {
-            pairwiseCutCosts_[e].resize({ numberOfClasses, numberOfClasses });
-            pairwiseJoinCosts_[e].resize({ numberOfClasses, numberOfClasses });
-        }
+        pairwiseCutCosts_.resize(graph_.numberOfEdges() * numberOfClasses * numberOfClasses);
+        pairwiseJoinCosts_.resize(graph_.numberOfEdges() * numberOfClasses * numberOfClasses);
     }
 
     double getUnaryCost(size_t v, size_t c) const
@@ -187,7 +190,7 @@ public:
         if (v1 < v0)
             std::swap(c0, c1);
 
-        return pairwiseCutCosts_[graph_.findEdge(v0, v1).second](c0, c1);
+        return pairwiseCutCosts_[edge_cost_index(graph_.findEdge(v0, v1).second, c0, c1)];
     }
 
     // by using this method you agree to all consequences due to possible wrong indexing...
@@ -196,7 +199,7 @@ public:
         if (v1 < v0)
             std::swap(c0, c1);
 
-        return pairwiseCutCosts_[edge_index](c0, c1);
+        return pairwiseCutCosts_[edge_cost_index(edge_index, c0, c1)];
     }
 
     double getPairwiseJoinCost(size_t v0, size_t v1, size_t c0, size_t c1) const
@@ -204,7 +207,7 @@ public:
         if (v1 < v0)
             std::swap(c0, c1);
 
-        return pairwiseJoinCosts_[graph_.findEdge(v0, v1).second](c0, c1);
+        return pairwiseJoinCosts_[edge_cost_index(graph_.findEdge(v0, v1).second, c0, c1)];
     }
 
     // by using this method you agree to all consequences due to possible wrong indexing...
@@ -213,7 +216,7 @@ public:
         if (v1 < v0)
             std::swap(c0, c1);
 
-        return pairwiseJoinCosts_[edge_index](c0, c1);
+        return pairwiseJoinCosts_[edge_cost_index(edge_index, c0, c1)];
     }
 
     GraphType const& originalGraph() const
@@ -251,7 +254,7 @@ public:
         if (v1 < v0)
             std::swap(c0, c1);
 
-        pairwiseCutCosts_[graph_.findEdge(v0, v1).second](c0, c1) = value;
+        pairwiseCutCosts_[edge_cost_index(graph_.findEdge(v0, v1).second, c0, c1)] = value;
     }
 
     // by using this method you agree to all consequences due to possible wrong indexing...
@@ -260,7 +263,7 @@ public:
         if (v1 < v0)
             std::swap(c0, c1);
 
-        pairwiseCutCosts_[edge_index](c0, c1) = value;
+        pairwiseCutCosts_[edge_cost_index(edge_index, c0, c1)] = value;
     }
 
     // for complete graph these methods do nothing
@@ -270,7 +273,7 @@ public:
         if (v1 < v0)
             std::swap(c0, c1);
 
-        pairwiseJoinCosts_[graph_.findEdge(v0, v1).second](c0, c1) = value;
+        pairwiseJoinCosts_[edge_cost_index(graph_.findEdge(v0, v1).second, c0, c1)] = value;
     }
 
     void setPairwiseJoinCost(size_t v0, size_t v1, size_t c0, size_t c1, double value, size_t edge_index)
@@ -278,14 +281,19 @@ public:
         if (v1 < v0)
             std::swap(c0, c1);
 
-        pairwiseJoinCosts_[edge_index](c0, c1) = value;
+        pairwiseJoinCosts_[edge_cost_index(edge_index, c0, c1)] = value;
     }
 
 private:
+    size_t edge_cost_index(size_t edge_index, size_t c0, size_t c1) const
+    {
+        return edge_index * numberOfClasses() * numberOfClasses() + c0 * numberOfClasses() + c1;
+    }
+
     GraphType graph_;
 
-    std::vector<andres::Marray<double>> pairwiseCutCosts_;
-    std::vector<andres::Marray<double>> pairwiseJoinCosts_;
+    std::vector<double> pairwiseCutCosts_;
+    std::vector<double> pairwiseJoinCosts_;
     andres::Marray<double> unaryCosts_;
 };
 
