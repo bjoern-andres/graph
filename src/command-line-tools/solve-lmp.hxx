@@ -261,8 +261,8 @@ void solveLiftedMulticutProblem(
         andres::graph::hdf5::closeFile(file);
 
         std::cout << "Number of clusters: " << *max_element(vertex_labels.begin(), vertex_labels.end()) + 1 << std::endl;
-        std::cout << "Energy value: " << energy_value << std::endl;
+        std::cout << "Energy value: " << std::fixed << std::setprecision(10) << energy_value << std::endl;
         std::cout << "Running time: " << t.to_string() << std::endl;
-        std::cout << "True energy value: " << true_energy_value << std::endl;
+        std::cout << "True energy value: " << std::fixed << std::setprecision(10) << true_energy_value << std::endl;
     }
 }
