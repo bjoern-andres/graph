@@ -20,6 +20,8 @@ namespace graph {
 namespace multicut_lifted
 {
 
+// Solver for the minimum cost lifted multicut problem for arbitrary graphs.
+//
 template<typename ILP, typename ORIGGRAPH, typename LIFTGRAPH, typename ECA, typename ELA>
 inline
 void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph, ECA const& edgeCosts, ELA const& inputLabels, ELA& outputLabels, size_t timeLimitSeconds = 86400)
@@ -230,66 +232,14 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
             }
         }
 
-        // void thresholdRelaxedSolution() override
-        // {
-        //     auto nComponents = components_.build(original_graph_, ThresholdSubgraph(*this, edge_index_lifted_, .25));
-            
-        //     double feasibleSolutionCost = 0;    
-
-        //     for (size_t edge = 0; edge < lifted_graph_.numberOfEdges(); ++edge)
-        //     {
-        //         // threshold values
-        //         if (this->relaxedLabel(edge) < .25)
-        //         {
-        //             this->setLabel(edge, 0);
-
-        //             // add cost if label 0 is invalid
-        //             if (!components_.areConnected(lifted_graph_.vertexOfEdge(edge,0),lifted_graph_.vertexOfEdge(edge,1)))
-        //                 feasibleSolutionCost += edgeCosts_[edge];
-        //         }
-        //         else
-        //         {
-        //             this->setLabel(edge, 1.0);
-
-        //             // only add cost if label 1 is valid
-        //             if (!components_.areConnected(lifted_graph_.vertexOfEdge(edge,0),lifted_graph_.vertexOfEdge(edge,1)))
-        //                 feasibleSolutionCost += edgeCosts_[edge];
-        //         }                  
-        //     }
-
-        //     // retrieve better feasible solution in next callback
-        //     if (feasibleSolutionCost < this->objectiveBest_)
-        //         this->feasibleHeuristic_ = true;
-        // }
-
-        // void computeFeasibleSolution() override
-        // {
-        //     std::cout << "Fine. (feasible-1) Time: " << this->getDoubleInfo(GRB_CB_RUNTIME) << std::endl;
-        //     components_.build(original_graph_, ThresholdSubgraph(*this, edge_index_lifted_, .25));
-        //     std::cout << "Fine. (feasible-2) Time: " << this->getDoubleInfo(GRB_CB_RUNTIME) << std::endl;
-                
-        //     for (size_t edge = 0; edge < lifted_graph_.numberOfEdges(); ++edge)
-        //     {
-        //         if (components_.areConnected(lifted_graph_.vertexOfEdge(edge,0),lifted_graph_.vertexOfEdge(edge,1)))
-        //             this->setLabel(edge, 0);
-        //         else
-        //             this->setLabel(edge, 1.0);                    
-        //     }
-        //     std::cout << "Fine. (feasible-3) Time: " << this->getDoubleInfo(GRB_CB_RUNTIME) << std::endl;
-        // }
-
         void separateAndAddLazyConstraints() override
         {
             // connected component labeling of the original graph
             auto nComponents = components_.build(original_graph_, SubgraphWithCut(*this, edge_index_lifted_));
 
-            // std::cout << nComponents << " " << std::flush;
-
             // MinCut setup
             DinicFlow flow(original_graph_.numberOfVertices());
             std::vector<double> vars(original_graph_.numberOfEdges());
-
-
             for (size_t i = 0; i < vars.size(); ++i)
             {
                 vars[i] = this->label(edge_index_lifted_[i]);
@@ -313,10 +263,6 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
             std::vector<double> cost(lifted_graph_.numberOfVertices());
             std::vector<size_t> dist(lifted_graph_.numberOfVertices());
 
-            // std::map<std::pair<size_t,size_t>,std::vector<size_t>>  min_cuts;
-
-            double violationCost = 0;
-
             // iterate over all edges of the super graph
             for (ptrdiff_t edge = 0; edge < lifted_graph_.numberOfEdges(); ++edge)
             {
@@ -326,18 +272,15 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
                 // edge violates cycle/path inequality
                 if (this->label(edge) > .5 && components_.areConnected(lv0, lv1))
                 {
-                    violationCost -= edgeCosts_[edge];
+                    // The following is a specialized implementation of a bidirectional BFS to compute a shortest
+                    // path from lv0 to lv1. The search is based on the connectivity defined by the connected
+                    // component labeling of the original graph but takes shortcuts via edges of the super graph.
 
-                    // The following is an implementation of a bidirectional BFS wrt to the topology defined by the
-                    // connected component labeling of the original graph that takes shortcuts via edges of the
-                    // super graph to compute a shortest path from lv0 to lv1.
-
-                    // the current version also maximizes the sum of edge costs among all shortest paths
-                    // (this roughly doubles the number of explored nodes in the search, but increases the strength
-                    // of the separated inequalities wrt to the costs of the objective)
+                    // The current version also maximizes the sum of edge costs among all shortest (# of hops) paths
+                    // (this roughly doubles the number of explored nodes in the BFS, but increases the strength
+                    // of the separated inequalities wrt to the costs of the objective).
 
                     std::fill(parent.begin(), parent.end(), 0);
-
                     std::fill(cost.begin(), cost.end(), 0);
                     std::fill(dist.begin(), dist.end(), 0);
 
@@ -421,7 +364,7 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
                         }
                     }
 
-                    // for debugging...
+                    // DEBUG:
                     if (!found_path)
                     {
                         std::cout << "Warning: no path found for edge " << edge << std::endl;
@@ -474,8 +417,6 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
                 // edge violates cut inequality
                 else if (this->label(edge) < .5 && !components_.areConnected(lv0, lv1))
                 {
-                    violationCost += edgeCosts_[edge];
-
                     // search for triangle inequality with lifted edge on right hand side and best associated cost
                     bool add_triangle = false;
                     double best_cost = std::numeric_limits<double>::infinity();
@@ -525,11 +466,9 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
                         coefficients_[2] = -1.0;
 
                         this->addLazyConstraint(variables_.begin(), variables_.begin() + 3, coefficients_.begin(), 0, std::numeric_limits<double>::infinity());    
-
                         ++nGenCycle;
-
                         continue;
-                    }
+                    }                        
 
                     // search for minimum size cut-set separating lv0 and lv1
                     ptrdiff_t sz = 0;
@@ -549,79 +488,6 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
                     this->addLazyConstraint(variables_.begin(), variables_.begin() + sz + 1, coefficients_.begin(), 1.0 - sz, std::numeric_limits<double>::infinity());    
 
                     ++nCut;
-
-                    // alternatively one could perform a simple graph search from lv0 and/or lv1, which generally returns too large cut-sets however
-                    
-                    // auto label = components_.labels_[lv0];
-
-                    // std::fill(visited_.begin(), visited_.end(), 0);
-
-                    // std::stack<size_t> S;
-                    // S.push(lv0);
-                    // visited_[lv0] = 1;
-
-                    // ptrdiff_t sz = 0;
-                    // while (!S.empty())
-                    // {
-                    //     auto const v = S.top();
-                    //     S.pop();
-
-                    //     for (auto it = original_graph_.adjacenciesFromVertexBegin(v); it != original_graph_.adjacenciesFromVertexEnd(v); ++it)
-                    //         if (components_.labels_[it->vertex()] != label)
-                    //         {
-                    //             coefficients_[sz] = -1;
-                    //             variables_[sz] = edge_index_lifted_[it->edge()];
-                                
-                    //             ++sz;
-                    //         }
-                    //         else if (!visited_[it->vertex()])
-                    //         {
-                    //             S.push(it->vertex());
-                    //             visited_[it->vertex()] = 1;
-                    //         }
-                    // }
-
-                    // coefficients_[sz] = 1;
-                    // variables_[sz] = edge;
-
-                    // this->addLazyConstraint(variables_.begin(), variables_.begin() + sz + 1, coefficients_.begin(), 1.0 - sz, std::numeric_limits<double>::infinity());    
-
-                    // ++nCut;
-
-
-                    // label = components_.labels_[lv1];
-
-                    // S.push(lv1);
-                    // visited_[lv1] = 1;
-
-                    // sz = 0;
-                    // while (!S.empty())
-                    // {
-                    //     auto const v = S.top();
-                    //     S.pop();
-
-                    //     for (auto it = original_graph_.adjacenciesFromVertexBegin(v); it != original_graph_.adjacenciesFromVertexEnd(v); ++it)
-                    //         if (components_.labels_[it->vertex()] != label)
-                    //         {
-                    //             coefficients_[sz] = -1;
-                    //             variables_[sz] = edge_index_lifted_[it->edge()];
-                                
-                    //             ++sz;
-                    //         }
-                    //         else if (!visited_[it->vertex()])
-                    //         {
-                    //             S.push(it->vertex());
-                    //             visited_[it->vertex()] = 1;
-                    //         }
-                    // }
-
-                    // coefficients_[sz] = 1;
-                    // variables_[sz] = edge;
-
-                    // this->addLazyConstraint(variables_.begin(), variables_.begin() + sz + 1, coefficients_.begin(), 1.0 - sz, std::numeric_limits<double>::infinity());    
-
-                    // ++nCut;
-
                 }
             }
 
@@ -650,27 +516,6 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
             std::vector<size_t> const& edge_index_lifted_;
         };
 
-        // struct ThresholdSubgraph
-        // {
-        //     ThresholdSubgraph(Callback& callback, std::vector<size_t> const& edge_index_lifted, double tau) :
-        //         callback_(callback), edge_index_lifted_(edge_index_lifted), tau_(tau)
-        //     {}
-
-        //     bool vertex(size_t v) const
-        //     {
-        //         return true;
-        //     }
-
-        //     bool edge(size_t e) const
-        //     {
-        //         return callback_.relaxedLabel(edge_index_lifted_[e]) < tau_;
-        //     }
-
-        //     Callback& callback_;
-        //     std::vector<size_t> const& edge_index_lifted_;
-        //     double tau_;
-        // };
-
         ORIGGRAPH const& original_graph_;
         LIFTGRAPH const& lifted_graph_;
         ECA const& edgeCosts_;
@@ -690,8 +535,6 @@ void ilp_callback(ORIGGRAPH const& original_graph, LIFTGRAPH const& lifted_graph
     ilp.setAbsoluteGap(0.0);
     ilp.setTimeLimit(timeLimitSeconds);
     ilp.addVariables(edgeCosts.size(), edgeCosts.data());
-
-    ilp.setTimeLimit(20000);
 
     Callback callback(ilp, original_graph, lifted_graph, edgeCosts);
     ilp.setCallback(callback);
