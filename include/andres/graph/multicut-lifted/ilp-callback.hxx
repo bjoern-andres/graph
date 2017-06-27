@@ -7,8 +7,6 @@
 #include <stack>
 #include <algorithm>
 #include <iomanip>
-#include <map>
-#include <utility>
 
 #include <andres/graph/paths.hxx>
 #include <andres/graph/components.hxx>
