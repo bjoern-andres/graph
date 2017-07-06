@@ -35,7 +35,6 @@ enum class Method {
 #ifdef WITH_GUROBI
     ,
     ILP,
-    ILPC,
     LP
 #endif
 };
@@ -70,7 +69,7 @@ parseCommandLine(
         TCLAP::ValueArg<std::string> argOutputHDF5FileName("o", "output-hdf-file", "hdf file (output)", true, parameters.outputHDF5FileName, "OUTPUT_HDF5_FILE", tclap);
         TCLAP::ValueArg<std::string> argLabelingHDF5FileName("l", "labeling-hdf-file", "hdf file specifying initial node labelings (input)", false, parameters.labelingHDF5FileName, "LABELING_HDF5_FILE", tclap);
 
-        TCLAP::ValueArg<std::string> argOptimizationMethod("m", "optimization-method", "optimization method to use {LP, ILP, ILPC, GAEC, GF, KL, zeros, ones}", false, "KL", "OPTIMIZATION_METHOD", tclap);
+        TCLAP::ValueArg<std::string> argOptimizationMethod("m", "optimization-method", "optimization method to use {LP, ILP, GAEC, GF, KL, zeros, ones}", false, "KL", "OPTIMIZATION_METHOD", tclap);
         TCLAP::ValueArg<std::string> argInitializationMethod("I", "initialization-method", "initialization method to use {zeros, ones, GAEC, GF}", false, "zeros", "INITIALIZATION_METHOD", tclap);
         
         tclap.parse(argc, argv);
@@ -104,8 +103,6 @@ parseCommandLine(
 #ifdef WITH_GUROBI
         else if (argOptimizationMethod.getValue() == "ILP")
             parameters.optimizationMethod_ = Method::ILP;
-        else if (argOptimizationMethod.getValue() == "ILPC")
-            parameters.optimizationMethod_ = Method::ILPC;
         else if (argOptimizationMethod.getValue() == "LP")
             parameters.optimizationMethod_ = Method::LP;
 #endif
@@ -186,8 +183,6 @@ void solveMulticutProblem(
         andres::graph::multicut::kernighanLin(graph, edge_values, edge_labels, edge_labels);
 #ifdef WITH_GUROBI
     else if (parameters.optimizationMethod_ == Method::ILP)
-        andres::graph::multicut::ilp<andres::ilp::Gurobi>(graph, edge_values, edge_labels, edge_labels);
-    else if (parameters.optimizationMethod_ == Method::ILPC)
         andres::graph::multicut::ilp_callback<andres::ilp::GurobiCallback>(graph, edge_values, edge_labels, edge_labels);
     else if (parameters.optimizationMethod_ == Method::LP)
     {

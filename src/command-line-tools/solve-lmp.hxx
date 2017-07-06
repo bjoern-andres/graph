@@ -31,8 +31,7 @@ enum class Method {
 #ifdef WITH_GUROBI
     ,
     LP,
-    ILP,
-    ILPC
+    ILP
 #endif
 };
 
@@ -64,7 +63,7 @@ try
     TCLAP::ValueArg<std::string> argInputHDF5FileName("i", "input-hdf5-file", "File to load multicut problem from", true, parameters.inputHDF5FileName, "INPUT_HDF5_FILE", tclap);
     TCLAP::ValueArg<std::string> argOutputHDF5FileName("o", "output-hdf-file", "hdf file (output)", false, parameters.outputHDF5FileName, "OUTPUT_HDF5_FILE", tclap);
     TCLAP::ValueArg<std::string> argLabelingHDF5FileName("l", "labeling-hdf-file", "hdf file specifying initial node labelings (input)", false, parameters.labelingHDF5FileName, "LABELING_HDF5_FILE", tclap);
-    TCLAP::ValueArg<std::string> argOptimizationMethod("m", "optimization-method", "optimization method to use {zeros, ones, ILP, ILPC, LP, GAEC, KL}", false, "KL", "OPTIMIZATION_METHOD", tclap);
+    TCLAP::ValueArg<std::string> argOptimizationMethod("m", "optimization-method", "optimization method to use {zeros, ones, ILP, LP, GAEC, KL}", false, "KL", "OPTIMIZATION_METHOD", tclap);
     TCLAP::ValueArg<std::string> argInitializationMethod("I", "initialization-method", "initialization method to use {zeros, ones, GAEC}", false, "zeros", "INITIALIZATION_METHOD", tclap);
     TCLAP::SwitchArg argNonProbabilistic("p", "non-probabilistic", "Assume inputs are not probabilities. By default, all inputs are assumed to be Logistic Probabilities. (Default: disabled).",tclap);
 
@@ -88,8 +87,6 @@ try
         parameters.optimizationMethod = Method::LP;
     else if (argOptimizationMethod.getValue() == "ILP")
         parameters.optimizationMethod = Method::ILP;
-    else if (argOptimizationMethod.getValue() == "ILPC")
-        parameters.optimizationMethod = Method::ILPC;
 #endif
     else if(argOptimizationMethod.getValue() == "KL")
     {
@@ -200,8 +197,6 @@ void solveLiftedMulticutProblem(
         andres::graph::multicut_lifted::kernighanLin(original_graph, lifted_graph, edge_values, edge_labels, edge_labels);
 #ifdef WITH_GUROBI
     else if (parameters.optimizationMethod == Method::ILP)
-        andres::graph::multicut_lifted::ilp<andres::ilp::Gurobi>(original_graph, lifted_graph, edge_values, edge_labels, edge_labels);
-    else if (parameters.optimizationMethod == Method::ILPC)
         andres::graph::multicut_lifted::ilp_callback<andres::ilp::GurobiCallback>(original_graph, lifted_graph, edge_values, edge_labels, edge_labels);
     else if (parameters.optimizationMethod == Method::LP)
     {
@@ -261,8 +256,8 @@ void solveLiftedMulticutProblem(
         andres::graph::hdf5::closeFile(file);
 
         std::cout << "Number of clusters: " << *max_element(vertex_labels.begin(), vertex_labels.end()) + 1 << std::endl;
-        std::cout << "Energy value: " << energy_value << std::endl;
+        std::cout << "Energy value: " << std::fixed << std::setprecision(10) << energy_value << std::endl;
         std::cout << "Running time: " << t.to_string() << std::endl;
-        std::cout << "True energy value: " << true_energy_value << std::endl;
+        std::cout << "True energy value: " << std::fixed << std::setprecision(10) << true_energy_value << std::endl;
     }
 }
