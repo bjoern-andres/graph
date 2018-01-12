@@ -130,8 +130,8 @@ lift(
                 {
                     if (metric == LiftingMetric::PathLength)
                     {
-                        const std::size_t distance = std::abs(static_cast<long>(x - cv[0]))
-                            + std::abs(static_cast<long>(yPlus - 1 - cv[1]));
+                        const std::size_t distance = std::abs(long(x) - long(cv[0]))
+                            + std::abs(long(yPlus) - 1 - long(cv[1]));
 
                         if (distance > distanceLowerBound)
                         {
@@ -203,7 +203,7 @@ lift(
                 {
                     if (metric == LiftingMetric::PathLength)
                     {
-                        const std::size_t distance = std::abs(x - cv[0]) + std::abs(y - cv[1]);
+                        const std::size_t distance = std::abs(long(x) - long(cv[0])) + std::abs(long(y) - long(cv[1]));
 
                         if (distance > distanceLowerBound)
                         {
