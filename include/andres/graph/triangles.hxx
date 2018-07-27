@@ -7,7 +7,7 @@
 namespace andres {
 namespace graph {
 
-// List all triangles of a graph
+// Efficiently list all triangles of a graph.
 // Output: Vector of vertex triples    
 //
 // Implementation of "forward" algorithm from [1]
@@ -23,18 +23,15 @@ std::vector<std::vector<size_t>> findTriangles(const GRAPH& graph)
     // get degrees of all vertices
     std::vector<size_t> vertices(graph.numberOfVertices());
     std::vector<size_t> index(graph.numberOfVertices());
-    std::vector<size_t> degree(graph.numberOfVertices());
+    std::vector<size_t> degrees(graph.numberOfVertices());
     for (size_t v = 0; v < graph.numberOfVertices(); v++)
     {
         vertices[v] = v;
-        size_t deg = 0;
-        for (auto it = graph.adjacenciesFromVertexBegin(v); it != graph.adjacenciesFromVertexEnd(v); it++)
-            deg++;
-        degree[v] = deg;
+        degrees[v] = graph.numberOfEdgesFromVertex(v);
     }
 
     // sort vertices according to degrees
-    std::sort(vertices.begin(), vertices.end(), [&] (const size_t& a, const size_t& b) {return (degree[a] < degree[b]);});
+    std::sort(vertices.begin(), vertices.end(), [&] (const size_t& a, const size_t& b) {return (degrees[a] < degrees[b]);});
 
     // determine mapping of vertices to indices
     for (size_t i = 0; i < graph.numberOfVertices(); i++)
