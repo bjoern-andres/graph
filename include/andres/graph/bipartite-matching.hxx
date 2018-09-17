@@ -478,7 +478,7 @@ BipartiteMatching<GRAPH, COST, EDGELABELS>::find_zero(
         for (auto it = graph_.adjacenciesFromVertexBegin(row);
              it != graph_.adjacenciesFromVertexEnd(row); ++it) {
             if (!col_cover_[it->vertex()] &&
-                std::abs(costs_[it->edge()]) <
+                std::abs(costs_[it->edge()]) <=
                     std::numeric_limits<value_type>::epsilon())
                 return { row, it->vertex() };
         }
