@@ -121,6 +121,9 @@ if(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
 
     add_executable(test-graph-bipartite-matching src/andres/graph/unit-test/bipartite-matching.cxx ${headers})
     add_test(test-graph-bipartite-matching test-graph-bipartite-matching)
+    
+    add_executable(test-graph-multicut-mutex-watershed src/andres/graph/unit-test/multicut/mutex-watershed.cxx ${headers})
+    add_test(test-graph-multicut-mutex-watersehd test-graph-multicut-mutex-watershed)
 
     if(HDF5_FOUND)
         include_directories(PUBLIC ${HDF5_INCLUDE_DIRS})
