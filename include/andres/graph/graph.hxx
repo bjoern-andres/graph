@@ -762,14 +762,16 @@ Graph<VISITOR>::eraseAdjacenciesForEdge(
 
     AdjacencyType adj(vertexIndex1, edgeIndex);
     RandomAccessSet<AdjacencyType>::iterator it = vertex0.find(adj);
-    assert(it != vertex0.end()); 
-    vertex0.erase(it);
+    assert(it != vertex0.end());
+    if (it != vertex0.end())
+        vertex0.erase(it);
     
     if(vertexIndex1 != vertexIndex0) { // if not a self-edge
         adj.vertex() = vertexIndex0;
         it = vertex1.find(adj);
         assert(it != vertex1.end()); 
-        vertex1.erase(it);
+        if (it != vertex1.end())
+            vertex1.erase(it);
     }
 }
 

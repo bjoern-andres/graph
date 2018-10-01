@@ -74,14 +74,14 @@ labelComponents(
     ITERATOR labeling
 ) {
     std::size_t label = 0;
-    std::vector<bool> visited(graph.numberOfVertices(), false);
+    std::vector<char> visited(graph.numberOfVertices());
     std::queue<std::size_t> queue;
     for(std::size_t v = 0; v < graph.numberOfVertices(); ++v) {
         if(mask.vertex(v)) {
             if(!visited[v]) {
                 labeling[v] = label; // label
                 queue.push(v);
-                visited[v] = true;
+                visited[v] = 1;
                 while(!queue.empty()) {
                     std::size_t w = queue.front();
                     queue.pop();
@@ -92,7 +92,7 @@ labelComponents(
                         && !visited[it->vertex()]) {
                             labeling[it->vertex()] = label; // label
                             queue.push(it->vertex());
-                            visited[it->vertex()] = true;
+                            visited[it->vertex()] = 1;
                         }
                     }
                 }
