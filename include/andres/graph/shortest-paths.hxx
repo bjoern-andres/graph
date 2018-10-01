@@ -54,6 +54,18 @@ spsp(
     std::deque<std::size_t>&,
     std::vector<std::ptrdiff_t>&
 );
+
+template<class GRAPH, class SUBGRAPH_MASK>
+bool
+spsp(
+    const GRAPH&,
+    const SUBGRAPH_MASK&,
+    const std::size_t,
+    const std::size_t,
+    std::deque<std::size_t>&,
+    std::vector<std::ptrdiff_t>&,
+    std::size_t
+);
     
 template<
     class GRAPH,
@@ -605,7 +617,7 @@ spsp(
 /// \return true if a (shortest) path was found, false otherwise.
 ///
 template<class GRAPH, class SUBGRAPH_MASK>
-bool
+inline bool
 spsp(
     const GRAPH& g,
     const SUBGRAPH_MASK& mask,
@@ -617,6 +629,19 @@ spsp(
     std::vector<std::ptrdiff_t> parents = std::vector<std::ptrdiff_t>();
     return spsp(g, mask, vs, vt, path, parents);
 
+}
+
+template<class GRAPH, class SUBGRAPH_MASK>
+inline bool 
+spsp(
+    const GRAPH& g,
+    const SUBGRAPH_MASK& mask,
+    const std::size_t vs,
+    const std::size_t vt,
+    std::deque<std::size_t>& path,
+    std::vector<std::ptrdiff_t>& parents
+) {
+    return spsp(g, mask, vs, vt, path, parents, g.numberOfEdges());
 }
 
 /// Search for a shortest path from one to another vertex in an **unweighted subgraph** using breadth-first-search.
@@ -635,14 +660,15 @@ spsp(
 /// \return true if a (shortest) path was found, false otherwise.
 ///
 template<class GRAPH, class SUBGRAPH_MASK>
-bool 
+inline bool 
 spsp(
     const GRAPH& g, 
     const SUBGRAPH_MASK& mask,
     const std::size_t vs,
     const std::size_t vt,
     std::deque<std::size_t>& path,
-    std::vector<std::ptrdiff_t>& parents// = std::vector<std::ptrdiff_t>()
+    std::vector<std::ptrdiff_t>& parents,
+    std::size_t max_length = std::numeric_limits<size_t>::max()
 ) {
     path.clear();
     if(!mask.vertex(vs) || !mask.vertex(vt)) {
@@ -659,7 +685,11 @@ spsp(
     std::queue<std::size_t> queues[2];
     queues[0].push(vs);
     queues[1].push(vt);
+    size_t length = 0;
     for(std::size_t q = 0; true; q = 1 - q) { // infinite loop, alternating queues
+        length++;
+        if (length > max_length)
+            return false;
         const std::size_t numberOfNodesAtFront = queues[q].size();
         for(std::size_t n = 0; n < numberOfNodesAtFront; ++n) {
             const std::size_t v = queues[q].front();
@@ -935,7 +965,7 @@ template<
     class PARENT_ITERATOR,
     class VISITOR
 >
-void 
+inline void 
 sssp(
     const GRAPH& g, 
     const SUBGRAPH_MASK& mask,
@@ -1115,7 +1145,7 @@ spspEdges(
 /// \return true if a (shortest) path was found, false otherwise.
 ///
 template<class GRAPH, class SUBGRAPH_MASK>
-bool
+inline bool
 spspEdges(
     const GRAPH& g,
     const SUBGRAPH_MASK& mask,
@@ -1512,7 +1542,7 @@ class DISTANCE_ITERATOR,
 class PARENT_ITERATOR,
 class VISITOR
 >
-void
+inline void
 ssspEdges(
     const GRAPH& g,
     const SUBGRAPH_MASK& mask,
