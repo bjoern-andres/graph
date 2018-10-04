@@ -2,18 +2,18 @@
 #ifndef ANDRES_GRAPH_TRIANGLES_HXX
 #define ANDRES_GRAPH_TRIANGLES_HXX
 
-#include <list>
-
 namespace andres {
 namespace graph {
 
-// Efficiently list all triangles of a graph.
-// Output: Vector of vertex triples    
-//
-// Implementation of "forward" algorithm from [1]
+// Efficiently list all triangles of a graph
+// with the "forward" algorithm from [1].
 //
 // [1] Schank, Wagner. Finding, Counting and Listing all
 // Triangles in Large Graphs, An Experimental Study. 2005
+//
+// Implementation by Jan-Hendrik Lange (c) 2018
+//
+// Output: Vector of vertex triples    
 //
 template<typename GRAPH>
 std::vector<std::vector<size_t>> findTriangles(const GRAPH& graph)
@@ -35,13 +35,10 @@ std::vector<std::vector<size_t>> findTriangles(const GRAPH& graph)
 
     // determine mapping of vertices to indices
     for (size_t i = 0; i < graph.numberOfVertices(); i++)
-    {
-        auto v = vertices[i];
-        index[v] = i;
-    }
+        index[vertices[i]] = i;
 
     // dynamic adjacency data
-    std::vector<std::list<size_t>> adj(graph.numberOfVertices());
+    std::vector<std::vector<size_t>> adj(graph.numberOfVertices());
 
     // MAIN LOOP
     for (size_t i = 0; i < graph.numberOfVertices(); i++)
