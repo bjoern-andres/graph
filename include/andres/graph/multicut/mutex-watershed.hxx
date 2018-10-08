@@ -1,150 +1,92 @@
 #pragma once
+#ifndef ANDRES_GRAPH_MULTICUT_MUTEX_WATERSHED_HXX
+#define ANDRES_GRAPH_MULTICUT_MUTEX_WATERSHED_HXX
 
-#include <numeric>
 #include "andres/partition.hxx"
-
 
 namespace andres {
 namespace graph {
 namespace multicut {
 
-namespace detail {
-
-template<class MUTEX_STORAGE>
-inline bool check_mutex(const std::size_t ru, const std::size_t rv,
-                        const MUTEX_STORAGE & mutexes) {
-    // get iterators to the mutex vectors of rep u and rep v
-    auto mutex_it_u = mutexes[ru].begin();
-    auto mutex_it_v = mutexes[rv].begin();
-
-    // check if the mutex vectors contain the same mutex edge
-    while (mutex_it_u != mutexes[ru].end() && mutex_it_v != mutexes[rv].end()) {
-        if (*mutex_it_u < *mutex_it_v) {
-            ++mutex_it_u;
-        } else  {
-            if (!(*mutex_it_v < *mutex_it_u)) {
-                return true;
-            }
-            ++mutex_it_v;
-        }
-    }
-    return false;
-}
-
-
-// insert 'dge_id' into the vectors containing mutexes of 'ru' and 'rv'
-template<class MUTEX_STORAGE>
-inline void insert_mutex(const std::size_t ru, const std::size_t rv,
-                         const std::size_t edge_id, MUTEX_STORAGE & mutexes) {
-    mutexes[ru].insert(std::upper_bound(mutexes[ru].begin(),
-                                        mutexes[ru].end(),
-                                        edge_id), edge_id);
-    mutexes[rv].insert(std::upper_bound(mutexes[rv].begin(),
-                                        mutexes[rv].end(),
-                                        edge_id), edge_id);
-}
-
-
-// merge the mutex edges by merging from 'root_from' to 'root_to'
-template<class MUTEX_STORAGE>
-inline void merge_mutexes(const std::size_t root_from, const std::size_t root_to,
-                          MUTEX_STORAGE & mutexes) {
-    if (mutexes[root_from].size() == 0) {
-        return;
-    }
-
-    if (mutexes[root_to].size() == 0){
-        mutexes[root_to] = mutexes[root_from];
-        return;
-    }
-
-    std::vector<std::size_t> merge_buffer;
-    merge_buffer.reserve(std::max(mutexes[root_from].size(), mutexes[root_to].size()));
-
-    std::merge(mutexes[root_from].begin(), mutexes[root_from].end(),
-               mutexes[root_to].begin(), mutexes[root_to].end(),
-               std::back_inserter(merge_buffer));
-
-    mutexes[root_to] = merge_buffer;
-    mutexes[root_from].clear();
-}
-
-}
-
-
-// mutex watershed graph clustering
+// Construct a heuristic solution for the Minimum Cost Multicut Problem
+// by the mutex watershed algorithm [1].
 //
-template<typename GRAPH, typename EVA, typename ELA>
-void mutexWatershed(
-    const GRAPH & graph,
-    const EVA & edge_values,
-    ELA & edge_labels
-) {
-    // sort the edge values in descending order
-    // according to their absolute value
-    const std::size_t n_edges = graph.numberOfEdges();
-    const std::size_t n_vertices = graph.numberOfVertices();
-
-    std::vector<std::size_t> indices(n_edges);
-    std::iota(indices.begin(), indices.end(), 0);
-    std::sort(indices.begin(), indices.end(), [&](const std::size_t a, const std::size_t b){
-        return std::abs(edge_values[a]) > std::abs(edge_values[b]);
+// [1] "The Mutex Watershed: Efficient, Parameter-Free Image Partitioning"
+//     S. Wolf, C. Pape, A. Bailoni, N. Rahaman, A. Kreshuk, U. Kothe, F. A. Hamprecht
+//     The European Conference on Computer Vision (ECCV), 2018
+//    
+// Modified implementation by Jan-Hendrik Lange (c) 2018
+//
+template<typename GRAPH, typename ECA, typename ELA>
+void mutexWatershed(GRAPH const& graph, ECA const& edge_costs, ELA& output_labels)
+{
+    // sort edges for decreasing absolute costs
+    std::vector<size_t> edges(graph.numberOfEdges());
+    std::iota(edges.begin(), edges.end(), 0);
+    std::sort(edges.begin(), edges.end(), [&](const size_t a, const size_t b){
+        return std::abs(edge_costs[a]) > std::abs(edge_costs[b]);
     });
 
-    // data-structure storing persistent cuts a.k.a. mutexes
-    typedef std::vector<std::vector<uint64_t>> MutexStorage;
-    MutexStorage mutexes(n_vertices);
+    std::vector<std::set<size_t>> mutexes(graph.numberOfVertices());
+    andres::Partition<size_t> partition(graph.numberOfVertices());
 
-    // union find
-    andres::Partition<std::size_t> partition(n_vertices);
+    /// MAIN LOOP
+    for (auto const e : edges)
+    {
+        auto u = graph.vertexOfEdge(e, 0);
+        auto v = graph.vertexOfEdge(e, 1);
 
-    // iterate over the sorted edges
-    for(const std::size_t edge_id : indices) {
+        auto ru = partition.find(u);
+        auto rv = partition.find(v);
 
-        // check whether this edge is a repulsive edge (a.k.a mutex edge)
-        // via the sign of its value
-        // skip indifferent edges
-        const auto edge_val = edge_values[edge_id];
-        if(edge_val == 0)
+        // if nodes are in the same component
+        if (ru == rv)
             continue;
-        const bool is_mutex_edge = edge_val < 0;
 
-        // find the representatives of nodes connected by the edge
-        const std::size_t u = graph.vertexOfEdge(edge_id, 0);
-        const std::size_t v = graph.vertexOfEdge(edge_id, 1);
-        std::size_t ru = partition.find(u);
-        std::size_t rv = partition.find(v);
-
-        // if the nodes are already connected, do nothing
-        if(ru == rv) {
+        // if mutex constraint is active
+        if (mutexes[ru].find(rv) != mutexes[ru].end())
             continue;
+
+        // otherwise insert mutex constraint for negative edge
+        if (edge_costs[e] < 0)
+        {
+            mutexes[ru].insert(rv);
+            mutexes[rv].insert(ru);
         }
-
-        // if we already have a mutex, we do not need to do anything
-        // (if this is a regular edge, we do not link, if it is a mutex edge
-        //  we do not need to insert the redundant mutex constraint)
-        if(detail::check_mutex(ru, rv, mutexes)) {
-            continue;
-        }
-
-        if(is_mutex_edge) {
-            detail::insert_mutex(ru, rv, edge_id, mutexes);
-        } else {
-            // merge nodes and their mutex constraints
+        // otherwise merge components for positive edge
+        else
+        {
             partition.merge(u, v);
-            // check  if we have to swap the roots
-            if(partition.find(ru) == rv) {
-                std::swap(ru, rv);
+            auto ruv = partition.find(ru);
+            // update mutex representatives
+            if (ruv != ru)
+            {
+                mutexes[ruv].insert(mutexes[ru].begin(), mutexes[ru].end());
+                for (auto & m : mutexes[ru])
+                {
+                    mutexes[m].erase(ru);
+                    mutexes[m].insert(ruv);
+                }  
             }
-            detail::merge_mutexes(rv, ru, mutexes);
+            if (ruv != rv)
+            {
+                mutexes[ruv].insert(mutexes[rv].begin(), mutexes[rv].end());
+                for (auto & m : mutexes[rv])
+                {
+                    mutexes[m].erase(rv);
+                    mutexes[m].insert(ruv);
+                }  
+            }
         }
     }
 
-    for (size_t i = 0; i < n_edges; ++i)
-        edge_labels[i] = partition.find(graph.vertexOfEdge(i, 0)) == partition.find(graph.vertexOfEdge(i, 1)) ? 0 : 1;
+    // determine output labels
+    for (size_t e = 0; e < graph.numberOfEdges(); e++)
+        output_labels[e] = partition.find(graph.vertexOfEdge(e, 0)) != partition.find(graph.vertexOfEdge(e, 1));
 }
 
+} // namespace multicut
+} // namespace graph
+} // namespace andres
 
-}
-}
-}
+#endif // #ifndef ANDRES_GRAPH_MULTICUT_MUTEX_WATERSHED_HXX
