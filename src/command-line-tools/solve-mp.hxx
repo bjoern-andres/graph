@@ -20,6 +20,9 @@
 #include <andres/graph/multicut/greedy-additive.hxx>
 #include <andres/graph/multicut/greedy-fixation.hxx>
 #include <andres/graph/multicut/kernighan-lin.hxx>
+#include <andres/graph/multicut/cycle-packing.hxx>
+#include <andres/graph/multicut/preprocessing.hxx>
+#include <andres/graph/multicut/mutex-watershed.hxx>
 
 #include "Timer.hpp"
 #include "utils.hxx"
@@ -31,7 +34,10 @@ enum class Method {
     Ones,
     GAEC,
     GF,
-    KL
+    KL,
+    ICP,
+    P,
+    MWS
 #ifdef WITH_GUROBI
     ,
     ILP,
@@ -43,6 +49,7 @@ enum class Initialization {
     Zeros,
     Ones,
     Input_Labeling,
+    MWS,
     GAEC,
     GF
 };
@@ -69,8 +76,8 @@ parseCommandLine(
         TCLAP::ValueArg<std::string> argOutputHDF5FileName("o", "output-hdf-file", "hdf file (output)", true, parameters.outputHDF5FileName, "OUTPUT_HDF5_FILE", tclap);
         TCLAP::ValueArg<std::string> argLabelingHDF5FileName("l", "labeling-hdf-file", "hdf file specifying initial node labelings (input)", false, parameters.labelingHDF5FileName, "LABELING_HDF5_FILE", tclap);
 
-        TCLAP::ValueArg<std::string> argOptimizationMethod("m", "optimization-method", "optimization method to use {LP, ILP, GAEC, GF, KL, zeros, ones}", false, "KL", "OPTIMIZATION_METHOD", tclap);
-        TCLAP::ValueArg<std::string> argInitializationMethod("I", "initialization-method", "initialization method to use {zeros, ones, GAEC, GF}", false, "zeros", "INITIALIZATION_METHOD", tclap);
+        TCLAP::ValueArg<std::string> argOptimizationMethod("m", "optimization-method", "optimization method to use {LP, ILP, GAEC, GF, KL, ICP, P, MWS, zeros, ones}", false, "KL", "OPTIMIZATION_METHOD", tclap);
+        TCLAP::ValueArg<std::string> argInitializationMethod("I", "initialization-method", "initialization method to use {zeros, ones, GAEC, GF, MWS}", false, "zeros", "INITIALIZATION_METHOD", tclap);
         
         tclap.parse(argc, argv);
 
@@ -91,6 +98,8 @@ parseCommandLine(
             parameters.initialization = Initialization::GAEC;
         else if(argInitializationMethod.getValue() == "GF")
             parameters.initialization = Initialization::GF;
+        else if(argInitializationMethod.getValue() == "MWS")
+            parameters.initialization = Initialization::MWS;
         else
             throw std::runtime_error("Invalid initialization method specified");
         
@@ -100,6 +109,12 @@ parseCommandLine(
             parameters.optimizationMethod_ = Method::GF;
         else if(argOptimizationMethod.getValue() == "KL")
             parameters.optimizationMethod_ = Method::KL;
+        else if(argOptimizationMethod.getValue() == "ICP")
+            parameters.optimizationMethod_ = Method::ICP;
+        else if(argOptimizationMethod.getValue() == "P")
+            parameters.optimizationMethod_ = Method::P;
+        else if(argOptimizationMethod.getValue() == "MWS")
+            parameters.optimizationMethod_ = Method::MWS;
 #ifdef WITH_GUROBI
         else if (argOptimizationMethod.getValue() == "ILP")
             parameters.optimizationMethod_ = Method::ILP;
@@ -150,6 +165,8 @@ void solveMulticutProblem(
         fill(edge_labels.begin(), edge_labels.end(), 0);
     else if (parameters.initialization == Initialization::Ones)
         fill(edge_labels.begin(), edge_labels.end(), 1);
+    else if (parameters.initialization == Initialization::MWS)
+        andres::graph::multicut::mutexWatershed(graph, edge_values, edge_labels);
     else if (parameters.initialization == Initialization::GAEC)
         andres::graph::multicut::greedyAdditiveEdgeContraction(graph, edge_values, edge_labels);
     else if (parameters.initialization == Initialization::GF)
@@ -175,12 +192,50 @@ void solveMulticutProblem(
         fill(edge_labels.begin(), edge_labels.end(), 0);
     else if (parameters.optimizationMethod_ == Method::Ones)
         fill(edge_labels.begin(), edge_labels.end(), 1);
+    else if (parameters.optimizationMethod_ == Method::MWS)
+        andres::graph::multicut::mutexWatershed(graph, edge_values, edge_labels);
     else if (parameters.optimizationMethod_ == Method::GAEC)
         andres::graph::multicut::greedyAdditiveEdgeContraction(graph, edge_values,  edge_labels);
     else if (parameters.optimizationMethod_ == Method::GF)
         andres::graph::multicut::greedyFixation(graph, edge_values,  edge_labels);
     else if (parameters.optimizationMethod_ == Method::KL)
         andres::graph::multicut::kernighanLin(graph, edge_values, edge_labels, edge_labels);
+    else if (parameters.optimizationMethod_ == Method::ICP)
+    {
+        std::cout << "--- Dual Heuristic ---" << std::endl;
+        auto output = andres::graph::multicut::iterativeCyclePacking(graph, edge_values);
+
+        auto lower_bound = std::get<0>(output);
+
+        t.stop();
+
+        std::cout << "Lower bound: " << lower_bound << std::endl;
+        std::cout << "Running time: " << t.to_string() << std::endl;
+        return;
+    }
+    else if (parameters.optimizationMethod_ == Method::P)
+    {
+        std::cout << "--- Preprocessing ---" << std::endl;
+        auto reduced_instance = andres::graph::multicut::preprocessing(graph, edge_values);
+        std::cout << "Number of vertices after preprocessing: " << std::get<0>(reduced_instance).numberOfVertices() << std::endl;
+        std::cout << "Number of edges after preprocessing: " << std::get<0>(reduced_instance).numberOfEdges() << std::endl;
+
+        auto reduced_graph = std::get<0>(reduced_instance);
+        auto reduced_edge_costs = std::get<1>(reduced_instance);
+        auto total_cost_offset = std::get<2>(reduced_instance);
+
+        t.stop();
+
+        auto file = andres::graph::hdf5::createFile(parameters.outputHDF5FileName);
+
+        andres::graph::hdf5::save(file, "graph", graph);
+        andres::graph::hdf5::save(file, "edge-values", { reduced_edge_costs.size() }, reduced_edge_costs.data());
+        andres::graph::hdf5::closeFile(file);
+
+        std::cout << "Cost of partial solution: " << total_cost_offset << std::endl;
+        std::cout << "Running time: " << t.to_string() << std::endl;
+        return;
+    }
 #ifdef WITH_GUROBI
     else if (parameters.optimizationMethod_ == Method::ILP)
         andres::graph::multicut::ilp_callback<andres::ilp::GurobiCallback>(graph, edge_values, edge_labels, edge_labels);
