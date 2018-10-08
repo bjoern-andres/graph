@@ -2,6 +2,9 @@
 #ifndef ANDRES_GRAPH_MULTICUT_MUTEX_WATERSHED_HXX
 #define ANDRES_GRAPH_MULTICUT_MUTEX_WATERSHED_HXX
 
+#include <numeric>
+#include <cmath>
+
 #include "andres/partition.hxx"
 
 namespace andres {

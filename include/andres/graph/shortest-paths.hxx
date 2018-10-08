@@ -668,7 +668,7 @@ spsp(
     const std::size_t vt,
     std::deque<std::size_t>& path,
     std::vector<std::ptrdiff_t>& parents,
-    std::size_t max_length = std::numeric_limits<size_t>::max()
+    std::size_t max_length
 ) {
     path.clear();
     if(!mask.vertex(vs) || !mask.vertex(vt)) {

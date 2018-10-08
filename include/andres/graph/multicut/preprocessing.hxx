@@ -2,6 +2,8 @@
 #ifndef ANDRES_GRAPH_MULTICUT_PREPROCESSING_HXX
 #define ANDRES_GRAPH_MULTICUT_PREPROCESSING_HXX
 
+#include <cmath>
+
 #include "andres/graph/components.hxx"
 #include "andres/graph/bridges.hxx"
 
