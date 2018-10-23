@@ -101,6 +101,9 @@ if(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
     add_executable(test-graph-bridges src/andres/graph/unit-test/bridges.cxx ${headers})
     add_test(test-graph-bridges test-graph-bridges)
 
+    add_executable(test-graph-triangles src/andres/graph/unit-test/triangles.cxx ${headers})
+    add_test(test-graph-triangles test-graph-triangles)
+
     add_executable(test-graph-minimum-spanning-tree src/andres/graph/unit-test/minimum-spanning-tree.cxx ${headers})
     add_test(test-graph-minimum-spanning-tree test-graph-minimum-spanning-tree)
 
@@ -125,6 +128,9 @@ if(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
     add_executable(test-graph-multicut-mutex-watershed src/andres/graph/unit-test/multicut/mutex-watershed.cxx ${headers})
     add_test(test-graph-multicut-mutex-watersehd test-graph-multicut-mutex-watershed)
 
+    add_executable(test-graph-multicut-preprocessing src/andres/graph/unit-test/multicut/preprocessing.cxx ${headers})
+    add_test(test-graph-multicut-preprocessing test-graph-multicut-preprocessing)
+
     if(HDF5_FOUND)
         include_directories(PUBLIC ${HDF5_INCLUDE_DIRS})
         add_executable(test-hdf5 src/andres/graph/unit-test/hdf5.cxx ${headers})
@@ -134,6 +140,7 @@ if(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
 endif(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
 
 if(GUROBI_FOUND)
+
     add_executable(test-graph-multicut-ilp src/andres/graph/unit-test/multicut/ilp.cxx ${headers})
     target_link_libraries(test-graph-multicut-ilp ${CMAKE_THREAD_LIBS_INIT} ${GUROBI_CPP_LIBRARY} ${GUROBI_LIBRARY})
     add_test(test-graph-multicut-ilp test-graph-multicut-ilp)
@@ -182,4 +189,5 @@ if((COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11) AND HDF5_FOUND)
 
     add_executable(solve-lmp-grid-graph src/command-line-tools/solve-lmp-grid-graph.cxx ${headers})
     target_link_libraries(solve-lmp-grid-graph ${HDF5_LIBRARIES} ${GUROBI_LIBRARIES})
+
 endif()

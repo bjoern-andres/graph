@@ -7,8 +7,8 @@ inline void test(const bool& pred) {
     if(!pred) throw std::runtime_error("Test failed.");
 }
 
-void testMws() {
-    // a simple weighted graph in which an optimal multicut is non-trivial
+void testMutexWatershed() {
+    // a simple weighted graph with a unique MWS solution
 
     andres::graph::Graph<> graph;
     graph.insertVertices(6);
@@ -22,33 +22,27 @@ void testMws() {
 
     std::vector<double> weights(7);
     weights[0] = 5;
-    weights[1] = -20;
-    weights[2] = 5;
-    weights[3] = 5;
+    weights[1] = -21;
+    weights[2] = 4;
+    weights[3] = 6;
     weights[4] = -20;
-    weights[5] = 5;
-    weights[6] = 5;
+    weights[5] = 7;
+    weights[6] = 8;
 
     std::vector<int> edge_labels(graph.numberOfEdges());
     andres::graph::multicut::mutexWatershed(graph, weights, edge_labels);
 
-    // the mutex watershed solution is different from the
-    // multicut solution due to degenerate weights
-    // We obtain:
-    // Set 0: 0, 1, 2, 4
-    // Set 1: 3
-    // Set 2: 5
-    test(edge_labels[0] == 0);
+    test(edge_labels[0] == 1);
     test(edge_labels[1] == 1);
-    test(edge_labels[2] == 0);
+    test(edge_labels[2] == 1);
     test(edge_labels[3] == 0);
     test(edge_labels[4] == 1);
-    test(edge_labels[5] == 1);
-    test(edge_labels[6] == 1);
+    test(edge_labels[5] == 0);
+    test(edge_labels[6] == 0);
 }
 
 int main()
 {
-    testMws();
+    testMutexWatershed();
     return 0;
 }

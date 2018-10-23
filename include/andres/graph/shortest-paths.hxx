@@ -54,6 +54,32 @@ spsp(
     std::deque<std::size_t>&,
     std::vector<std::ptrdiff_t>&
 );
+
+template<class GRAPH, class SUBGRAPH_MASK>
+bool
+spsp(
+    const GRAPH&,
+    const SUBGRAPH_MASK&,
+    const std::size_t,
+    const std::size_t,
+    std::deque<std::size_t>&,
+    std::vector<std::ptrdiff_t>&,
+    const std::size_t
+);
+
+template<class GRAPH, class SUBGRAPH_MASK>
+bool 
+spsp(
+    const GRAPH&,
+    const SUBGRAPH_MASK&,
+    const std::size_t,
+    const std::size_t,
+    std::deque<std::size_t>&,
+    std::vector<std::ptrdiff_t>&,
+    std::vector<std::size_t>&,
+    const std::size_t,
+    const std::size_t
+);
     
 template<
     class GRAPH,
@@ -605,7 +631,7 @@ spsp(
 /// \return true if a (shortest) path was found, false otherwise.
 ///
 template<class GRAPH, class SUBGRAPH_MASK>
-bool
+inline bool
 spsp(
     const GRAPH& g,
     const SUBGRAPH_MASK& mask,
@@ -617,6 +643,19 @@ spsp(
     std::vector<std::ptrdiff_t> parents = std::vector<std::ptrdiff_t>();
     return spsp(g, mask, vs, vt, path, parents);
 
+}
+
+template<class GRAPH, class SUBGRAPH_MASK>
+inline bool 
+spsp(
+    const GRAPH& g,
+    const SUBGRAPH_MASK& mask,
+    const std::size_t vs,
+    const std::size_t vt,
+    std::deque<std::size_t>& path,
+    std::vector<std::ptrdiff_t>& parents
+) {
+    return spsp(g, mask, vs, vt, path, parents, g.numberOfEdges());
 }
 
 /// Search for a shortest path from one to another vertex in an **unweighted subgraph** using breadth-first-search.
@@ -632,17 +671,19 @@ spsp(
 /// \param vt The target vertex.
 /// \param path A double-ended queue to which the path is written.
 /// \param parents An optional external buffer.
+/// \param max_length Upper bound on the shortest path length
 /// \return true if a (shortest) path was found, false otherwise.
 ///
 template<class GRAPH, class SUBGRAPH_MASK>
-bool 
+inline bool 
 spsp(
     const GRAPH& g, 
     const SUBGRAPH_MASK& mask,
     const std::size_t vs,
     const std::size_t vt,
     std::deque<std::size_t>& path,
-    std::vector<std::ptrdiff_t>& parents// = std::vector<std::ptrdiff_t>()
+    std::vector<std::ptrdiff_t>& parents,
+    const std::size_t max_length
 ) {
     path.clear();
     if(!mask.vertex(vs) || !mask.vertex(vt)) {
@@ -659,7 +700,11 @@ spsp(
     std::queue<std::size_t> queues[2];
     queues[0].push(vs);
     queues[1].push(vt);
+    size_t length = 0;
     for(std::size_t q = 0; true; q = 1 - q) { // infinite loop, alternating queues
+        length++;
+        if (length > max_length)
+            return false;
         const std::size_t numberOfNodesAtFront = queues[q].size();
         for(std::size_t n = 0; n < numberOfNodesAtFront; ++n) {
             const std::size_t v = queues[q].front();
@@ -691,6 +736,99 @@ spsp(
                     return true;
                 }
                 else if(parents[it->vertex()] == 0) {
+                    if(q == 0) {
+                        parents[it->vertex()] = v + 1;
+                    }
+                    else {
+                        parents[it->vertex()] = -static_cast<std::ptrdiff_t>(v) - 1;
+                    }
+                    queues[q].push(it->vertex());
+                }
+            }
+        }
+        if(queues[0].empty() && queues[1].empty()) {
+            return false;
+        }
+    }
+}
+
+/// Search for shortest path by bidirectional BFS without global parent initialization
+///
+/// This function works similarly to the previous one, with the following difference:
+/// Parents are not initialized for all vertices in the graph. Instead, seen vertices
+/// are marked by a dedicated label. This function is more efficient when many searches
+/// are performed on the same graph.
+/// 
+/// \param labels A vector of vertex labels
+/// \param seen_label Label that is used for marking seen vertices [must be greater than max(labels)]
+///
+template<class GRAPH, class SUBGRAPH_MASK>
+inline bool 
+spsp(
+    const GRAPH& g,
+    const SUBGRAPH_MASK& mask,
+    const std::size_t vs,
+    const std::size_t vt,
+    std::deque<std::size_t>& path,
+    std::vector<std::ptrdiff_t>& parents,
+    std::vector<std::size_t> & labels,
+    const std::size_t seen_label,
+    const std::size_t max_length
+) {
+    path.clear();
+    if(!mask.vertex(vs) || !mask.vertex(vt)) {
+        return false;
+    }
+    if(vs == vt) {
+        path.push_back(vs);
+        return true;
+    }
+    parents.resize(g.numberOfVertices());
+    labels.resize(g.numberOfVertices());
+    labels[vs] = seen_label;
+    labels[vt] = seen_label;
+    parents[vs] = vs + 1;
+    parents[vt] = -static_cast<std::ptrdiff_t>(vt) - 1;
+    std::queue<std::size_t> queues[2];
+    queues[0].push(vs);
+    queues[1].push(vt);
+    size_t length = 0;
+    for(std::size_t q = 0; true; q = 1 - q) {
+        length++;
+        if (length > max_length)
+            return false;
+        const std::size_t numberOfNodesAtFront = queues[q].size();
+        for(std::size_t n = 0; n < numberOfNodesAtFront; ++n) {
+            const std::size_t v = queues[q].front();
+            queues[q].pop();
+            typename GRAPH::AdjacencyIterator it;
+            typename GRAPH::AdjacencyIterator end;
+            if(q == 0) {
+                it = g.adjacenciesFromVertexBegin(v);
+                end = g.adjacenciesFromVertexEnd(v);
+            }
+            else {
+                it = g.adjacenciesToVertexBegin(v);
+                end = g.adjacenciesToVertexEnd(v);
+            }
+            for(; it != end; ++it) {
+                if(!mask.edge(it->edge()) || !mask.vertex(it->vertex())) {
+                    continue;
+                }
+                if(labels[it->vertex()] == seen_label && parents[it->vertex()] < 0 && q == 0) {
+                    graph_detail::spspHelper(parents, v, it->vertex(), path);
+                    assert(path[0] == vs);
+                    assert(path.back() == vt);
+                    return true;
+                }
+                else if(labels[it->vertex()] == seen_label && parents[it->vertex()] > 0 && q == 1) {
+                    graph_detail::spspHelper(parents, it->vertex(), v, path);
+                    assert(path[0] == vs);
+                    assert(path.back() == vt);
+                    return true;
+                }
+                else if(labels[it->vertex()] < seen_label) {
+                    labels[it->vertex()] = seen_label;
                     if(q == 0) {
                         parents[it->vertex()] = v + 1;
                     }
@@ -935,7 +1073,7 @@ template<
     class PARENT_ITERATOR,
     class VISITOR
 >
-void 
+inline void 
 sssp(
     const GRAPH& g, 
     const SUBGRAPH_MASK& mask,
@@ -1115,7 +1253,7 @@ spspEdges(
 /// \return true if a (shortest) path was found, false otherwise.
 ///
 template<class GRAPH, class SUBGRAPH_MASK>
-bool
+inline bool
 spspEdges(
     const GRAPH& g,
     const SUBGRAPH_MASK& mask,
@@ -1512,7 +1650,7 @@ class DISTANCE_ITERATOR,
 class PARENT_ITERATOR,
 class VISITOR
 >
-void
+inline void
 ssspEdges(
     const GRAPH& g,
     const SUBGRAPH_MASK& mask,
