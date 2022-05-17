@@ -44,11 +44,10 @@ save(
         if(graph.numberOfEdges() != 0) {
             std::vector<std::size_t> vecIJ;
             vecIJ.resize(2 * graph.numberOfEdges());
-            std::size_t *ptrI = &vecIJ[0];
-            std::size_t *ptrJ = &vecIJ[graph.numberOfEdges()];
+            std::size_t *ptr = &vecIJ[0];
             for(std::size_t e=0; e<graph.numberOfEdges(); ++e) {
-                *(ptrI++) = graph.vertexOfEdge(e, 0);
-                *(ptrJ++) = graph.vertexOfEdge(e, 1);
+                *(ptr++) = graph.vertexOfEdge(e, 0);
+                *(ptr++) = graph.vertexOfEdge(e, 1);
             }
             save(groupHandle, "edges", {graph.numberOfEdges(), 2}, &vecIJ[0]);
         }
@@ -105,16 +104,15 @@ load(
                 }
                 assert(shape[0] * 2 == bufferIJ.size());
             }
-            std::size_t* ptrI = &bufferIJ[0];
-            std::size_t* ptrJ = &bufferIJ[numberOfEdges];
+            std::size_t* ptr = &bufferIJ[0];
             {
                 unsigned char multipleEdgesEnabled;
                 load(groupHandle, "multiple-edges-enabled", multipleEdgesEnabled);
                 graph.multipleEdgesEnabled() = static_cast<bool>(multipleEdgesEnabled);
             }
             for(std::size_t i=0;i<numberOfEdges;++i) {
-                const std::size_t s = *(ptrI++);
-                const std::size_t t = *(ptrJ++);
+                const std::size_t s = *(ptr++);
+                const std::size_t t = *(ptr++);
                 if(s >= numberOfVertices || t >= numberOfVertices) {
                     sError = "vertex index out of bounds.";
                     goto cleanup;
