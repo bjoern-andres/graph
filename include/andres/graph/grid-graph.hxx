@@ -205,7 +205,6 @@ private:
     std::array<size_type, DIMENSION> vertexIndexOffsets_;
     std::array<VertexCoordinate, DIMENSION> edgeShapes_;
     size_type numberOfVertices_;
-    const size_type& numberOfEdges_;
     Visitor visitor_;
 };
 
@@ -235,8 +234,7 @@ inline
 GridGraph<D, VISITOR>::GridGraph(
     const VertexCoordinate& shape,
     const Visitor& visitor
-)
-    :   numberOfEdges_ (edgeIndexOffsets_[DIMENSION - 1]) {
+) {
     assign(shape, visitor);
 }
 
@@ -250,8 +248,7 @@ inline
 GridGraph<D, VISITOR>::GridGraph(
     std::initializer_list<std::size_t> shape,
     const Visitor& visitor
-)
-    :   numberOfEdges_ (edgeIndexOffsets_[DIMENSION - 1]) {
+) {
     assert(shape.size()==D);
     VertexCoordinate vCoord;
     std::copy(shape.begin(), shape.end(), vCoord.begin());
@@ -522,7 +519,7 @@ GridGraph<D, VISITOR>::numberOfVertices() const {
 template<unsigned char D, class VISITOR>
 inline typename GridGraph<D, VISITOR>::size_type
 GridGraph<D, VISITOR>::numberOfEdges() const {
-    return numberOfEdges_;
+    return edgeIndexOffsets_[DIMENSION - 1];
 }
 
 /// Get the number of edges that originate from a given vertex.

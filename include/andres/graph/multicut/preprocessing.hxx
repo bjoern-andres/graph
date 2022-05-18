@@ -113,7 +113,7 @@ void createReducedGraph(andres::graph::Graph<> & graph, std::vector<double> & ed
         // perform checks
         assert(v0 < graph_reduced.numberOfVertices());
         assert(v1 < graph_reduced.numberOfVertices());
-        assert(e_new == graph_reduced.size()-1);
+        assert(e_new == graph_reduced.numberOfEdges()-1);
     }
 
     // delete isolated vertices

@@ -14,6 +14,22 @@ inline void test(const bool& pred) {
         throw std::runtime_error("Test failed.");
 }
 
+template<unsigned char D, class V0, class V1>
+void testGraphsEquals(
+    const andres::graph::GridGraph<D, V0> & graph0,
+    const andres::graph::GridGraph<D, V1> & graph1
+) {
+    test(graph1.numberOfVertices() == graph0.numberOfVertices());
+    test(graph1.numberOfEdges() == graph0.numberOfEdges());
+    for(std::size_t j = 0; j < andres::graph::GridGraph<D, V0>::DIMENSION; ++j) {
+        test(graph1.shape(j) == graph0.shape(j));
+    }
+    for(std::size_t j = 0; j < graph1.numberOfVertices(); ++j)
+    for(std::size_t k = 0; k < graph1.numberOfVertices(); ++k) {
+        test(graph1.findEdge(j, k).first == graph0.findEdge(j, k).first);
+    }
+}
+
 #define testThrowsException(PRED, EXC) { \
         {\
             bool threw = false; \
@@ -989,10 +1005,43 @@ void testGridAdjacencyIterator(const G& g, const size_t pivot) {
     }
 }
 
+void testCopyAndAssignment() {
+    // 2D
+    {
+        typedef andres::graph::GridGraph<> GridGraph;
+        GridGraph graph0({5, 3});
+        {
+            GridGraph graph1(graph0); // copy
+            testGraphsEquals(graph0, graph1);
+        }
+        {
+            GridGraph graph1;
+            graph1 = graph0; // assignment
+            testGraphsEquals(graph0, graph1);
+        }
+    }
+
+    // 3D
+    {
+        typedef andres::graph::GridGraph<3> GridGraph;
+        GridGraph graph0({5, 3, 7});
+        {
+            GridGraph graph1(graph0); // copy
+            testGraphsEquals(graph0, graph1);
+        }
+        {
+            GridGraph graph1;
+            graph1 = graph0; // assignment
+            testGraphsEquals(graph0, graph1);
+        }
+    }
+}
+
 int main() {
     testConstructionAndNumbersExplicit(); //
     testConstructionAndNumbers(); // explicit test
     testAdjacency();
+    testCopyAndAssignment();
 
     {
         typedef andres::graph::GridGraph<> GridGraph;
