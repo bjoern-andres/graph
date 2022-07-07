@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <vector>
 #include <iostream>
 #include <sstream>
 
@@ -6,32 +7,26 @@
 #include <andres/graph/graph.hxx>
 #include <andres/graph/multicut-lifted/ilp-callback.hxx>
 
-inline void test(bool pred)
-{ 
-    if(!pred)
-        throw std::runtime_error("Test failed."); 
+inline void test(bool pred) {
+    if(!pred) throw std::logic_error("test failed.");
 }
 
-void test_3()
-{
+void test_3() {
     andres::graph::Graph<> original_graph(3);
-
     original_graph.insertEdge(0, 1);
     original_graph.insertEdge(1, 2);
 
     andres::graph::Graph<> lifted_graph(original_graph.numberOfVertices());
-
     lifted_graph.insertEdge(0, 1);
     lifted_graph.insertEdge(1, 2);
     lifted_graph.insertEdge(0, 2);
 
-    vector<double> edge_values(lifted_graph.numberOfEdges());
-
+    std::vector<double> edge_values(lifted_graph.numberOfEdges());
     edge_values[0] = -10;
     edge_values[1] = -10;
     edge_values[2] = 10;
 
-    vector<char> edge_labels(lifted_graph.numberOfEdges());
+    std::vector<char> edge_labels(lifted_graph.numberOfEdges());
     andres::graph::multicut_lifted::ilp_callback<andres::ilp::GurobiCallback>(original_graph, lifted_graph, edge_values, edge_labels, edge_labels);
 
     test(edge_labels[0] == 1);
@@ -39,32 +34,28 @@ void test_3()
     test(edge_labels[2] == 1);
 }
 
-void test_4()
-{
+void test_4() {
     andres::graph::Graph<> original_graph(4);
-
     original_graph.insertEdge(0, 1);
     original_graph.insertEdge(0, 3);
     original_graph.insertEdge(1, 2);
     original_graph.insertEdge(2, 3);
 
     andres::graph::Graph<> lifted_graph(original_graph.numberOfVertices());
-
     lifted_graph.insertEdge(0, 1);
     lifted_graph.insertEdge(0, 3);
     lifted_graph.insertEdge(1, 2);
     lifted_graph.insertEdge(2, 3);
     lifted_graph.insertEdge(0, 2);
 
-    vector<double> edge_values(lifted_graph.numberOfEdges());
-
+    std::vector<double> edge_values(lifted_graph.numberOfEdges());
     edge_values[0] = -10;
     edge_values[1] = -2;
     edge_values[2] = -10;
     edge_values[3] = -4;
     edge_values[4] = 1;
 
-    vector<char> edge_labels(lifted_graph.numberOfEdges());
+    std::vector<char> edge_labels(lifted_graph.numberOfEdges());
     andres::graph::multicut_lifted::ilp_callback<andres::ilp::GurobiCallback>(original_graph, lifted_graph, edge_values, edge_labels, edge_labels);
 
     test(edge_labels[0] == 1);
@@ -74,10 +65,8 @@ void test_4()
     test(edge_labels[4] == 1);
 }
 
-void test_8()
-{
+void test_8() {
     andres::graph::Graph<> original_graph(8);
-
     original_graph.insertEdge(0, 1);
     original_graph.insertEdge(1, 2);
     original_graph.insertEdge(2, 3);
@@ -90,7 +79,6 @@ void test_8()
     original_graph.insertEdge(3, 7);
 
     andres::graph::Graph<> lifted_graph(original_graph.numberOfVertices());
-
     lifted_graph.insertEdge(0, 1);
     lifted_graph.insertEdge(1, 2);
     lifted_graph.insertEdge(2, 3);
@@ -101,11 +89,9 @@ void test_8()
     lifted_graph.insertEdge(1, 5);
     lifted_graph.insertEdge(2, 6);
     lifted_graph.insertEdge(3, 7);
-
     lifted_graph.insertEdge(0, 7);
 
-    vector<double> edge_values(lifted_graph.numberOfEdges());
-
+    std::vector<double> edge_values(lifted_graph.numberOfEdges());
     edge_values[0] = -5;
     edge_values[1] = -5;
     edge_values[2] = -5;
@@ -116,10 +102,9 @@ void test_8()
     edge_values[7] = -1;
     edge_values[8] = 1;
     edge_values[9] = .5;
-
     edge_values[10] = -4;
 
-    vector<char> edge_labels(lifted_graph.numberOfEdges());
+    std::vector<char> edge_labels(lifted_graph.numberOfEdges());
     andres::graph::multicut_lifted::ilp_callback<andres::ilp::GurobiCallback>(original_graph, lifted_graph, edge_values, edge_labels, edge_labels);
 
     test(edge_labels[0] == 1);
@@ -135,13 +120,9 @@ void test_8()
     test(edge_labels[10] == 1);
 }
 
-int main()
-{
+int main() {
     test_3();
-
     test_4();
-
     test_8();
-
     return 0;
 }
