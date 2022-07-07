@@ -3,6 +3,7 @@
 #define ANDRES_RANDOM_ACCESS_SET_HXX
 
 #include <cstddef>
+#include <cstring> // std::memmove
 #include <vector>
 #include <algorithm> // std::lower_bound, std::upper_bound
 #include <functional> // std::greater
@@ -258,7 +259,20 @@ inline void
 RandomAccessSet<Key, Comparison, Allocator>::erase(
     typename RandomAccessSet<Key, Comparison, Allocator>::iterator position
 ) {
+    // implementation A:
     vector_.erase(position);
+
+    // implementation B (not significanctly faster for my stdlib)
+    /*
+    if(position + 1 != vector_.end()) {
+        size_t const offset = position - vector_.begin();
+        void * destination = static_cast<void*>(vector_.data() + offset );
+        void const * source = static_cast<void*>(vector_.data() + offset + 1);
+        size_t const count = (vector_.size() - offset - 1) * sizeof(Key);
+        std::memmove(destination, source, count);
+    }
+    vector_.resize(vector_.size() - 1);
+    */
 }
 
 template<class Key, class Comparison, class Allocator>

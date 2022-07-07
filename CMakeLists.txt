@@ -74,6 +74,9 @@ add_executable(test-graph-max-flow src/andres/graph/unit-test/max-flow.cxx)
 target_include_directories(test-graph-max-flow PUBLIC include)
 add_test(test-graph-max-flow test-graph-max-flow)
 
+add_executable(analysis-erase-vertex src/andres/graph/analysis/erase-vertex.cxx)
+target_include_directories(analysis-erase-vertex PUBLIC include)
+
 if(COMPILER_SUPPORTS_CXX0X OR COMPILER_SUPPORTS_CXX11)
     add_executable(test-graph-complete-graph src/andres/graph/unit-test/graph-complete.cxx)
     target_include_directories(test-graph-complete-graph PUBLIC include)
