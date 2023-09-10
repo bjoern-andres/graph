@@ -5,6 +5,7 @@
 #include <queue>
 #include <stdexcept>
 #include <vector>
+#include <limits>
 
 #include "andres/functional.hxx"
 #include "subgraph.hxx"
